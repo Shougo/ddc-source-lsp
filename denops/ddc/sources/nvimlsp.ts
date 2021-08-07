@@ -112,7 +112,7 @@ export class Source extends BaseSource {
       let word = "";
 
       if ("textEdit" in v && v["textEdit"]) {
-        const textEdit = rec["textEdit"];
+        const textEdit = v["textEdit"];
         if ("range" in textEdit && textEdit.range.start == textEdit.range.end) {
           const previousInput = vars.g.get(
             denops,
@@ -130,7 +130,7 @@ export class Source extends BaseSource {
         if ("insertText" in v && v.insertTextFormat != 1) {
           word = "entryName" in v ? v.entryName : v.label;
         } else {
-          word = rec.insertText;
+          word = v.insertText;
         }
       } else {
         word = "entryName" in v ? v.entryName : v.label;
