@@ -6,7 +6,7 @@ local get_candidates = function(_, _, result)
   api.nvim_set_var('ddc#source#lsp#_results', result)
   api.nvim_set_var('ddc#source#lsp#_success', success)
   api.nvim_set_var('ddc#source#lsp#_requested', true)
-  api.nvim_call_function('ddc#auto_complete', {})
+  api.nvim_call_function('ddc#refresh_candidates', {})
 end
 
 local request_candidates = function(arguments)

@@ -4,12 +4,12 @@ import {
   Context,
   DdcOptions,
   SourceOptions,
-} from "https://deno.land/x/ddc_vim@v0.0.11/types.ts#^";
+} from "https://deno.land/x/ddc_vim@v0.0.12/types.ts#^";
 import {
   batch,
   Denops,
   vars,
-} from "https://deno.land/x/ddc_vim@v0.0.11/deps.ts#^";
+} from "https://deno.land/x/ddc_vim@v0.0.12/deps.ts#^";
 
 const LSP_KINDS = [
   "Text",
