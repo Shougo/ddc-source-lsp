@@ -39,6 +39,38 @@ const LSP_KINDS = [
   "TypeParameter",
 ];
 
+const LSP_KINDS_WITH_ICONS = [
+  " [text]     ",
+  " [method]   ",
+  " [function] ",
+  " [constructor]",
+  "ﰠ [field]    ",
+  "𝒙 [variable] ",
+  " [class]    ",
+  " [interface]",
+  " [module]   ",
+  " [property] ",
+  " [unit]     ",
+  " [value]    ",
+  " [enum]     ",
+  " [key]      ",
+  "﬌ [snippet]  ",
+  " [color]    ",
+  " [file]     ",
+  " [refrence] ",
+  " [folder]   ",
+  " [enumMember]",
+  " [constant] ",
+  " [struct]   ",
+  " [event]    ",
+  " [operator] ",
+  " [typeParameter]",
+];
+
+type Params = {
+  useIcon: boolean;
+};
+
 export class Source extends BaseSource {
   async onInit(
     denops: Denops,
@@ -57,13 +89,13 @@ export class Source extends BaseSource {
     context: Context,
     _ddcOptions: DdcOptions,
     _sourceOptions: SourceOptions,
-    _sourceParams: Record<string, unknown>,
+    sourceParams: Record<string, Params>,
     completeStr: string,
   ): Promise<Candidate[]> {
     const prevInput = await vars.g.get(denops, "ddc#source#lsp#_prev_input");
     const requested = await vars.g.get(denops, "ddc#source#lsp#_requested");
     if (context.input == prevInput && requested) {
-      return this.processCandidates(denops);
+      return this.processCandidates(denops, sourceParams);
     }
 
     const params = await denops.call(
@@ -95,6 +127,7 @@ export class Source extends BaseSource {
 
   async processCandidates(
     denops: Denops,
+    params: Record<string, unknown>,
   ): Promise<Candidate[]> {
     const results = await vars.g.get(
       denops,
@@ -150,7 +183,9 @@ export class Source extends BaseSource {
       };
 
       if (typeof v.kind === "number") {
-        item.kind = LSP_KINDS[v.kind - 1];
+        item.kind = params.useIcon
+          ? LSP_KINDS_WITH_ICONS[v.kind - 1]
+          : LSP_KINDS[v.kind - 1];
       } else if (v.insertTextFormat && v.insertTextFormat == 2) {
         item.kind = "Snippet";
       }
@@ -169,5 +204,12 @@ export class Source extends BaseSource {
     });
 
     return candidates;
+  }
+
+  params(): Record<string, unknown> {
+    const params: Params = {
+      useIcon: false,
+    };
+    return params as unknown as Record<string, unknown>;
   }
 }
