@@ -176,8 +176,8 @@ export class Source extends BaseSource {
       const item = {
         word: word,
         abbr: v.label,
-        dup: 0,
-        "user_data": JSON.stringify({
+        dup: false,
+        userData: JSON.stringify({
           lspitem: v,
         }),
       };
