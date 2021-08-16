@@ -1,11 +1,15 @@
 local api = vim.api
 
 local get_candidates = function(_, _, result)
+  if not result or result == 0 then
+    return
+  end
+
   local success = (type(result) == 'table' and not vim.tbl_isempty(result)
     ) and true or false
-  result = result and result['items'] ~= nil and result['items'] or result
+  result = result['items'] ~= nil and result['items'] or result
 
-  if result and #result > 0 then
+  if #result > 0 then
     api.nvim_set_var('ddc#source#lsp#_results', result)
     api.nvim_set_var('ddc#source#lsp#_success', success)
     api.nvim_set_var('ddc#source#lsp#_requested', true)
