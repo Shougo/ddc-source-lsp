@@ -39,34 +39,6 @@ const LSP_KINDS = [
   "TypeParameter",
 ];
 
-const LSP_KINDS_WITH_ICONS = [
-  " [text]     ",
-  " [method]   ",
-  " [function] ",
-  " [constructor]",
-  "ﰠ [field]    ",
-  "𝒙 [variable] ",
-  " [class]    ",
-  " [interface]",
-  " [module]   ",
-  " [property] ",
-  " [unit]     ",
-  " [value]    ",
-  " [enum]     ",
-  " [key]      ",
-  "﬌ [snippet]  ",
-  " [color]    ",
-  " [file]     ",
-  " [refrence] ",
-  " [folder]   ",
-  " [enumMember]",
-  " [constant] ",
-  " [struct]   ",
-  " [event]    ",
-  " [operator] ",
-  " [typeParameter]",
-];
-
 type Params = {
   useIcon: boolean;
 };
@@ -183,9 +155,10 @@ export class Source extends BaseSource {
       };
 
       if (typeof v.kind === "number") {
-        item.kind = params.useIcon
-          ? LSP_KINDS_WITH_ICONS[v.kind - 1]
-          : LSP_KINDS[v.kind - 1];
+        const kind = LSP_KINDS[v.kind - 1];
+        item.kind = kind in params.kindLabels
+          ? params.kindLabels[kind]
+          : kind;
       } else if (v.insertTextFormat && v.insertTextFormat == 2) {
         item.kind = "Snippet";
       }
@@ -208,7 +181,7 @@ export class Source extends BaseSource {
 
   params(): Record<string, unknown> {
     const params: Params = {
-      useIcon: false,
+      kindLabels: {},
     };
     return params as unknown as Record<string, unknown>;
   }

@@ -21,22 +21,21 @@ https://github.com/Shougo/ddc.vim
 ```vim
 call ddc#custom#patch_global('sources', ['nvimlsp'])
 call ddc#custom#patch_global('sourceOptions', {
-      \ '_': {'matchers': ['matcher_head']},
-      \ 'nvimlsp': {'mark': 'lsp', 'forceCompletionPattern': '\\.|:|->'},
+      \ '_': { 'matchers': ['matcher_head'] },
+      \ 'nvimlsp': { 'mark': 'lsp', 'forceCompletionPattern': '\\.|:|->' },
       \ })
 
-" Use icon
-"call ddc#custom#patch_global('sourceParams', {
-"      \ 'nvimlsp': {'useIcon': v:true},
-"      \ })
+" Use Customized labels
+call ddc#custom#patch_global('sourceParams', {
+      \ 'nvimlsp': { 'kindLabels': { 'Class': 'c' } },
+      \ })
 ```
 
 
 ## Params
 
-- `useIcon`: Set to v:true to enable icons for
-  LSP candidates. Requires patched font: https://www.nerdfonts.com/
-  Default: `v:false`
+- `kindLabels`: Customized labels for kind.
+  Default: `{}`
 
 
 ## Original code
