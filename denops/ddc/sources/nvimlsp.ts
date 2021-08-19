@@ -4,12 +4,12 @@ import {
   Context,
   DdcOptions,
   SourceOptions,
-} from "https://deno.land/x/ddc_vim@v0.0.12/types.ts#^";
+} from "https://deno.land/x/ddc_vim@v0.0.15/types.ts#^";
 import {
   batch,
   Denops,
   vars,
-} from "https://deno.land/x/ddc_vim@v0.0.12/deps.ts#^";
+} from "https://deno.land/x/ddc_vim@v0.0.15/deps.ts#^";
 
 const LSP_KINDS = [
   "Text",
@@ -149,7 +149,7 @@ export class Source extends BaseSource {
         word: word,
         abbr: v.label,
         dup: false,
-        userData: JSON.stringify({
+        user_data: JSON.stringify({
           lspitem: v,
         }),
       };
