@@ -47,12 +47,12 @@ export class Source extends BaseSource {
   async onInit(
     denops: Denops,
   ): Promise<void> {
-    await batch(denops, (helper) => {
-      vars.g.set(helper, "ddc#source#lsp#_results", []);
-      vars.g.set(helper, "ddc#source#lsp#_success", false);
-      vars.g.set(helper, "ddc#source#lsp#_requested", false);
-      vars.g.set(helper, "ddc#source#lsp#_prev_input", "");
-      vars.g.set(helper, "ddc#source#lsp#_complete_position", -1);
+    await batch(denops, async (denops) => {
+      vars.g.set(denops, "ddc#source#lsp#_results", []);
+      vars.g.set(denops, "ddc#source#lsp#_success", false);
+      vars.g.set(denops, "ddc#source#lsp#_requested", false);
+      vars.g.set(denops, "ddc#source#lsp#_prev_input", "");
+      vars.g.set(denops, "ddc#source#lsp#_complete_position", -1);
     });
   }
 
@@ -75,18 +75,18 @@ export class Source extends BaseSource {
       "vim.lsp.util.make_position_params()",
     );
 
-    await batch(denops, (helper) => {
-      vars.g.set(helper, "ddc#source#lsp#_results", []);
-      vars.g.set(helper, "ddc#source#lsp#_success", false);
-      vars.g.set(helper, "ddc#source#lsp#_requested", false);
-      vars.g.set(helper, "ddc#source#lsp#_prev_input", context.input);
+    await batch(denops, async (denops) => {
+      vars.g.set(denops, "ddc#source#lsp#_results", []);
+      vars.g.set(denops, "ddc#source#lsp#_success", false);
+      vars.g.set(denops, "ddc#source#lsp#_requested", false);
+      vars.g.set(denops, "ddc#source#lsp#_prev_input", context.input);
       vars.g.set(
-        helper,
+        denops,
         "ddc#source#lsp#_complete_position",
         context.input.length - completeStr.length,
       );
 
-      helper.call(
+      denops.call(
         "luaeval",
         "require('ddc_nvim_lsp').request_candidates(" +
           "_A.arguments)",
@@ -149,7 +149,7 @@ export class Source extends BaseSource {
         word: word,
         abbr: v.label,
         dup: false,
-        user_data: JSON.stringify({
+        "user_data": JSON.stringify({
           lspitem: v,
         }),
       };
