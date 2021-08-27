@@ -40,7 +40,7 @@ const LSP_KINDS = [
 ];
 
 type Params = {
-  useIcon: boolean;
+  kindLabels: Record<string, unknown>;
 };
 
 export class Source extends BaseSource {
@@ -113,32 +113,36 @@ export class Source extends BaseSource {
       return [];
     }
 
+    const previousInput = await vars.g.get(
+      denops,
+      "ddc#source#lsp#_prev_input",
+    ) as string;
+    const completePosition = await vars.g.get(
+      denops,
+      "ddc#source#lsp#_complete_position",
+    ) as number;
+
     const candidates = results.map((v) => {
       let word = "";
 
       if ("textEdit" in v && v["textEdit"]) {
-        const textEdit = v["textEdit"];
-        if ("range" in textEdit && textEdit.range.start == textEdit.range.end) {
-          const previousInput = vars.g.get(
-            denops,
-            "ddc#source#lsp#_prev_input",
-          );
-          const completePosition = vars.g.get(
-            denops,
-            "ddc#source#lsp#_complete_position",
-          );
+        const textEdit = v["textEdit"] as any;
+        if (
+          textEdit && "range" in textEdit &&
+          textEdit.range.start == textEdit.range.end
+        ) {
           word = `${previousInput.slice(completePosition)}${textEdit.newText}`;
         } else {
           word = textEdit.newText;
         }
       } else if ("insertText" in v) {
         if ("insertText" in v && v.insertTextFormat != 1) {
-          word = "entryName" in v ? v.entryName : v.label;
+          word = ("entryName" in v ? v.entryName : v.label) as string;
         } else {
-          word = v.insertText;
+          word = v.insertText as string;
         }
       } else {
-        word = "entryName" in v ? v.entryName : v.label;
+        word = ("entryName" in v ? v.entryName : v.label) as string;
       }
 
       // Remove parentheses from word.
@@ -147,30 +151,35 @@ export class Source extends BaseSource {
 
       const item = {
         word: word,
-        abbr: v.label,
+        abbr: v.label as string,
         dup: false,
         "user_data": JSON.stringify({
           lspitem: v,
         }),
+        kind: "",
+        menu: "",
+        info: "",
       };
 
       if (typeof v.kind === "number") {
+        const labels = params.kindLabels as any;
         const kind = LSP_KINDS[v.kind - 1];
-        item.kind = kind in params.kindLabels
-          ? params.kindLabels[kind]
-          : kind;
+        item.kind = (kind in labels as any ? labels[kind] : kind) as string;
       } else if (v.insertTextFormat && v.insertTextFormat == 2) {
         item.kind = "Snippet";
       }
 
       if (v.detail) {
-        item.menu = v.detail;
+        item.menu = v.detail as string;
       }
 
       if (typeof v.documentation === "string") {
         item.info = v.documentation;
-      } else if (v.documentation && "value" in v.documentation) {
-        item.info = v.documentation.value;
+      } else if (
+        v.documentation && typeof v.documentation === "object" &&
+        "value" in v.documentation
+      ) {
+        item.info = (v.documentation as any).value;
       }
 
       return item;

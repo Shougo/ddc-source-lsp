@@ -2,7 +2,6 @@
 
 nvim-lsp completion for ddc.vim
 
-
 ## Required
 
 ### denops.vim
@@ -14,7 +13,6 @@ https://github.com/vim-denops/denops.vim
 https://github.com/Shougo/ddc.vim
 
 ### neovim 0.5.0+
-
 
 ## Configuration
 
@@ -31,12 +29,9 @@ call ddc#custom#patch_global('sourceParams', {
       \ })
 ```
 
-
 ## Params
 
-- `kindLabels`: Customized labels for kind.
-  Default: `{}`
-
+- `kindLabels`: Customized labels for kind. Default: `{}`
 
 ## Original code
 
