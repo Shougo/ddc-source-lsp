@@ -2,14 +2,12 @@ import {
   BaseSource,
   Candidate,
   Context,
-  DdcOptions,
-  SourceOptions,
-} from "https://deno.land/x/ddc_vim@v0.0.15/types.ts#^";
+} from "https://deno.land/x/ddc_vim@v0.3.0/types.ts#^";
 import {
   batch,
   Denops,
   vars,
-} from "https://deno.land/x/ddc_vim@v0.0.15/deps.ts#^";
+} from "https://deno.land/x/ddc_vim@v0.3.0/deps.ts#^";
 
 const LSP_KINDS = [
   "Text",
@@ -44,10 +42,10 @@ type Params = {
 };
 
 export class Source extends BaseSource {
-  async onInit(
+  async onInit(args: {
     denops: Denops,
-  ): Promise<void> {
-    await batch(denops, async (denops) => {
+  }): Promise<void> {
+    await batch(args.denops, async (denops) => {
       vars.g.set(denops, "ddc#source#lsp#_results", []);
       vars.g.set(denops, "ddc#source#lsp#_success", false);
       vars.g.set(denops, "ddc#source#lsp#_requested", false);
@@ -56,34 +54,32 @@ export class Source extends BaseSource {
     });
   }
 
-  async gatherCandidates(
+  async gatherCandidates(args: {
     denops: Denops,
     context: Context,
-    _ddcOptions: DdcOptions,
-    _sourceOptions: SourceOptions,
     sourceParams: Record<string, Params>,
     completeStr: string,
-  ): Promise<Candidate[]> {
-    const prevInput = await vars.g.get(denops, "ddc#source#lsp#_prev_input");
-    const requested = await vars.g.get(denops, "ddc#source#lsp#_requested");
-    if (context.input == prevInput && requested) {
-      return this.processCandidates(denops, sourceParams);
+  }): Promise<Candidate[]> {
+    const prevInput = await vars.g.get(args.denops, "ddc#source#lsp#_prev_input");
+    const requested = await vars.g.get(args.denops, "ddc#source#lsp#_requested");
+    if (args.context.input == prevInput && requested) {
+      return this.processCandidates(args.denops, args.sourceParams);
     }
 
-    const params = await denops.call(
+    const params = await args.denops.call(
       "luaeval",
       "vim.lsp.util.make_position_params()",
     );
 
-    await batch(denops, async (denops) => {
+    await batch(args.denops, async (denops) => {
       vars.g.set(denops, "ddc#source#lsp#_results", []);
       vars.g.set(denops, "ddc#source#lsp#_success", false);
       vars.g.set(denops, "ddc#source#lsp#_requested", false);
-      vars.g.set(denops, "ddc#source#lsp#_prev_input", context.input);
+      vars.g.set(denops, "ddc#source#lsp#_prev_input", args.context.input);
       vars.g.set(
         denops,
         "ddc#source#lsp#_complete_position",
-        context.input.length - completeStr.length,
+        args.context.input.length - args.completeStr.length,
       );
 
       denops.call(
