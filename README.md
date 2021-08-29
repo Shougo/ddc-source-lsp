@@ -20,7 +20,7 @@ https://github.com/Shougo/ddc.vim
 call ddc#custom#patch_global('sources', ['nvimlsp'])
 call ddc#custom#patch_global('sourceOptions', {
       \ '_': { 'matchers': ['matcher_head'] },
-      \ 'nvimlsp': { 'mark': 'lsp', 'forceCompletionPattern': '\\.|:|->' },
+      \ 'nvimlsp': { 'mark': 'lsp', 'forceCompletionPattern': '\.|:|->' },
       \ })
 
 " Use Customized labels
