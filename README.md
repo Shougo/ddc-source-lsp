@@ -13,7 +13,7 @@ https://github.com/vim-denops/denops.vim
 
 https://github.com/Shougo/ddc.vim
 
-### neovim 0.5.0+
+### neovim 0.5.0+ with LSP configuration
 
 
 ## Configuration
@@ -30,11 +30,6 @@ call ddc#custom#patch_global('sourceParams', {
       \ 'nvimlsp': { 'kindLabels': { 'Class': 'c' } },
       \ })
 ```
-
-
-## Params
-
-- `kindLabels`: Customized labels for kind. Default: `{}`
 
 
 ## Original code
