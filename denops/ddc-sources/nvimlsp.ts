@@ -2,12 +2,12 @@ import {
   BaseSource,
   Candidate,
   Context,
-} from "https://deno.land/x/ddc_vim@v0.3.0/types.ts#^";
+} from "https://deno.land/x/ddc_vim@v0.4.0/types.ts#^";
 import {
   batch,
   Denops,
   vars,
-} from "https://deno.land/x/ddc_vim@v0.3.0/deps.ts#^";
+} from "https://deno.land/x/ddc_vim@v0.4.0/deps.ts#^";
 
 const LSP_KINDS = [
   "Text",
@@ -38,7 +38,7 @@ const LSP_KINDS = [
 ];
 
 type Params = {
-  kindLabels: Record<string, unknown>;
+  kindLabels: Record<string, string>;
 };
 
 export class Source extends BaseSource {
