@@ -21,7 +21,6 @@ local get_candidates = function(_, arg1, arg2)
 end
 
 local request_candidates = function(arguments)
-    print(arguments)
   vim.lsp.buf_request(0, 'textDocument/completion', arguments, get_candidates)
 end
 
