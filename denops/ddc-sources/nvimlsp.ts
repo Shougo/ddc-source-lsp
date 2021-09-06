@@ -2,12 +2,12 @@ import {
   BaseSource,
   Candidate,
   Context,
-} from "https://deno.land/x/ddc_vim@v0.4.0/types.ts#^";
+} from "https://deno.land/x/ddc_vim@v0.5.0/types.ts#^";
 import {
   batch,
   Denops,
   vars,
-} from "https://deno.land/x/ddc_vim@v0.4.0/deps.ts#^";
+} from "https://deno.land/x/ddc_vim@v0.5.0/deps.ts#^";
 
 const LSP_KINDS = [
   "Text",
@@ -45,7 +45,7 @@ export class Source extends BaseSource {
   async onInit(args: {
     denops: Denops,
   }): Promise<void> {
-    await batch(args.denops, async (denops) => {
+    await batch(args.denops, async (denops: Denops) => {
       vars.g.set(denops, "ddc#source#lsp#_results", []);
       vars.g.set(denops, "ddc#source#lsp#_success", false);
       vars.g.set(denops, "ddc#source#lsp#_requested", false);
@@ -71,7 +71,7 @@ export class Source extends BaseSource {
       "vim.lsp.util.make_position_params()",
     );
 
-    await batch(args.denops, async (denops) => {
+    await batch(args.denops, async (denops: Denops) => {
       vars.g.set(denops, "ddc#source#lsp#_results", []);
       vars.g.set(denops, "ddc#source#lsp#_success", false);
       vars.g.set(denops, "ddc#source#lsp#_requested", false);
