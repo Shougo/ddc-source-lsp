@@ -34,14 +34,14 @@ EXAMPLES					*ddc-nvim-lsp-examples*
 >
 >
 	" Use nvim-lsp source.
-	call ddc#custom#patch_global('sources', ['nvim-lsp'])
+	call ddc#custom#patch_global('sources', ['nvimlsp'])
 	
 	" Change source options
 	call ddc#custom#patch_global('sourceOptions', {
-	      \ 'nvim-lsp': {'matchers': ['matcher_head'], 'mark': 'A'},
+	      \ 'nvimlsp': {'matchers': ['matcher_head'], 'mark': 'A'},
 	      \ })
 	call ddc#custom#patch_global('sourceParams', {
-	      \ 'nvim-lsp': {'maxSize': 500},
+	      \ 'nvimlsp': {'maxSize': 500},
 	      \ })
 <
 
