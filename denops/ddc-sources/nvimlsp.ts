@@ -46,11 +46,11 @@ export class Source extends BaseSource {
     denops: Denops,
   }): Promise<void> {
     await batch(args.denops, async (denops: Denops) => {
-      vars.g.set(denops, "ddc#source#lsp#_results", []);
-      vars.g.set(denops, "ddc#source#lsp#_success", false);
-      vars.g.set(denops, "ddc#source#lsp#_requested", false);
-      vars.g.set(denops, "ddc#source#lsp#_prev_input", "");
-      vars.g.set(denops, "ddc#source#lsp#_complete_position", -1);
+      await vars.g.set(denops, "ddc#source#lsp#_results", []);
+      await vars.g.set(denops, "ddc#source#lsp#_success", false);
+      await vars.g.set(denops, "ddc#source#lsp#_requested", false);
+      await vars.g.set(denops, "ddc#source#lsp#_prev_input", "");
+      await vars.g.set(denops, "ddc#source#lsp#_complete_position", -1);
     });
   }
 
@@ -72,17 +72,17 @@ export class Source extends BaseSource {
     );
 
     await batch(args.denops, async (denops: Denops) => {
-      vars.g.set(denops, "ddc#source#lsp#_results", []);
-      vars.g.set(denops, "ddc#source#lsp#_success", false);
-      vars.g.set(denops, "ddc#source#lsp#_requested", false);
-      vars.g.set(denops, "ddc#source#lsp#_prev_input", args.context.input);
-      vars.g.set(
+      await vars.g.set(denops, "ddc#source#lsp#_results", []);
+      await vars.g.set(denops, "ddc#source#lsp#_success", false);
+      await vars.g.set(denops, "ddc#source#lsp#_requested", false);
+      await vars.g.set(denops, "ddc#source#lsp#_prev_input", args.context.input);
+      await vars.g.set(
         denops,
         "ddc#source#lsp#_complete_position",
         args.context.input.length - args.completeStr.length,
       );
 
-      denops.call(
+      await denops.call(
         "luaeval",
         "require('ddc_nvim_lsp').request_candidates(" +
           "_A.arguments)",
@@ -122,7 +122,7 @@ export class Source extends BaseSource {
       let word = "";
 
       if ("textEdit" in v && v["textEdit"]) {
-        const textEdit = v["textEdit"] as any;
+        const textEdit = v["textEdit"] as Record<string, any>;
         if (
           textEdit && "range" in textEdit &&
           textEdit.range.start == textEdit.range.end
