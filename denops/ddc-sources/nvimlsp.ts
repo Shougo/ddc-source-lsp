@@ -1,8 +1,10 @@
 import {
   BaseSource,
   Candidate,
-  Context,
 } from "https://deno.land/x/ddc_vim@v0.5.0/types.ts#^";
+import {
+  GatherCandidatesArguments,
+} from "https://deno.land/x/ddc_vim@v0.5.0/base/source.ts#^";
 import {
   batch,
   Denops,
@@ -54,12 +56,7 @@ export class Source extends BaseSource {
     });
   }
 
-  async gatherCandidates(args: {
-    denops: Denops,
-    context: Context,
-    sourceParams: Record<string, Params>,
-    completeStr: string,
-  }): Promise<Candidate[]> {
+  async gatherCandidates(args: GatherCandidatesArguments): Promise<Candidate[]> {
     const prevInput = await vars.g.get(args.denops, "ddc#source#lsp#_prev_input");
     const requested = await vars.g.get(args.denops, "ddc#source#lsp#_requested");
     if (args.context.input == prevInput && requested) {
