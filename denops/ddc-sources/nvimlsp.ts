@@ -13,6 +13,7 @@ import {
 import {
   CompletionItem,
 } from "https://deno.land/x/vscode_languageserver_types@v0.1.0/mod.ts"
+import { equal } from "https://deno.land/x/equal@v1.5.0/mod.ts";
 
 const LSP_KINDS = [
   "Text",
@@ -120,7 +121,7 @@ export class Source extends BaseSource {
 
       if (v.textEdit) {
         const textEdit = v.textEdit
-        if ("range" in textEdit && textEdit.range.start == textEdit.range.end) {
+        if ("range" in textEdit && equal(textEdit.range.start, textEdit.range.end)) {
           word = `${previousInput.slice(completePosition)}${textEdit.newText}`;
         } else {
           word = textEdit.newText;
