@@ -12,8 +12,9 @@ import {
 } from "https://deno.land/x/ddc_vim@v0.5.0/deps.ts#^";
 import {
   CompletionItem,
-} from "https://deno.land/x/vscode_languageserver_types@v0.1.0/mod.ts"
-import { equal } from "https://deno.land/x/equal@v1.5.0/mod.ts";
+} from "https://deno.land/x/vscode_languageserver_types@v0.1.0/mod.ts#^"
+
+import { equal } from "https://deno.land/x/equal@v1.5.0/mod.ts#^";
 
 const LSP_KINDS = [
   "Text",
