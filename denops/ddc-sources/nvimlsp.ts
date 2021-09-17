@@ -1,13 +1,20 @@
 import {
   BaseSource,
   Candidate,
-  Context,
 } from "https://deno.land/x/ddc_vim@v0.5.0/types.ts#^";
+import {
+  GatherCandidatesArguments,
+} from "https://deno.land/x/ddc_vim@v0.5.0/base/source.ts#^";
 import {
   batch,
   Denops,
   vars,
 } from "https://deno.land/x/ddc_vim@v0.5.0/deps.ts#^";
+import {
+  CompletionItem,
+} from "https://deno.land/x/vscode_languageserver_types@v0.1.0/mod.ts#^"
+
+import { equal } from "https://deno.land/x/equal@v1.5.0/mod.ts#^";
 
 const LSP_KINDS = [
   "Text",
@@ -54,12 +61,7 @@ export class Source extends BaseSource {
     });
   }
 
-  async gatherCandidates(args: {
-    denops: Denops,
-    context: Context,
-    sourceParams: Record<string, Params>,
-    completeStr: string,
-  }): Promise<Candidate[]> {
+  async gatherCandidates(args: GatherCandidatesArguments): Promise<Candidate[]> {
     const prevInput = await vars.g.get(args.denops, "ddc#source#lsp#_prev_input");
     const requested = await vars.g.get(args.denops, "ddc#source#lsp#_requested");
     if (args.context.input == prevInput && requested) {
@@ -100,10 +102,7 @@ export class Source extends BaseSource {
     const results = await vars.g.get(
       denops,
       "ddc#source#lsp#_results",
-    ) as Record<
-      string,
-      unknown
-    >[];
+    ) as CompletionItem[];
 
     if (results.length == 0) {
       return [];
@@ -121,24 +120,21 @@ export class Source extends BaseSource {
     const candidates = results.map((v) => {
       let word = "";
 
-      if ("textEdit" in v && v["textEdit"]) {
-        const textEdit = v["textEdit"] as Record<string, any>;
-        if (
-          textEdit && "range" in textEdit &&
-          textEdit.range.start == textEdit.range.end
-        ) {
+      if (v.textEdit) {
+        const textEdit = v.textEdit
+        if ("range" in textEdit && equal(textEdit.range.start, textEdit.range.end)) {
           word = `${previousInput.slice(completePosition)}${textEdit.newText}`;
         } else {
           word = textEdit.newText;
         }
-      } else if ("insertText" in v) {
-        if ("insertText" in v && v.insertTextFormat != 1) {
-          word = ("entryName" in v ? v.entryName : v.label) as string;
+      } else if (v.insertText) {
+        if (v.insertTextFormat != 1) {
+          word = v.label
         } else {
-          word = v.insertText as string;
+          word = v.insertText
         }
       } else {
-        word = ("entryName" in v ? v.entryName : v.label) as string;
+        word = v.label
       }
 
       // Remove parentheses from word.
@@ -166,16 +162,13 @@ export class Source extends BaseSource {
       }
 
       if (v.detail) {
-        item.menu = v.detail as string;
+        item.menu = v.detail;
       }
 
       if (typeof v.documentation === "string") {
         item.info = v.documentation;
-      } else if (
-        v.documentation && typeof v.documentation === "object" &&
-        "value" in v.documentation
-      ) {
-        item.info = (v.documentation as any).value;
+      } else if (v.documentation && "value" in v.documentation) {
+        item.info = v.documentation.value;
       }
 
       return item;
