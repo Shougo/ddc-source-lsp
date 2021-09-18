@@ -1,15 +1,15 @@
 import {
   BaseSource,
   Candidate,
-} from "https://deno.land/x/ddc_vim@v0.8.0/types.ts#^";
+} from "https://deno.land/x/ddc_vim@v0.9.0/types.ts#^";
 import {
   GatherCandidatesArguments,
-} from "https://deno.land/x/ddc_vim@v0.8.0/base/source.ts#^";
+} from "https://deno.land/x/ddc_vim@v0.9.0/base/source.ts#^";
 import {
   batch,
   Denops,
   vars,
-} from "https://deno.land/x/ddc_vim@v0.8.0/deps.ts#^";
+} from "https://deno.land/x/ddc_vim@v0.9.0/deps.ts#^";
 import {
   CompletionItem,
 } from "https://deno.land/x/vscode_languageserver_types@v0.1.0/mod.ts#^";
@@ -48,7 +48,7 @@ type Params = {
   kindLabels: Record<string, string>;
 };
 
-export class Source extends BaseSource {
+export class Source extends BaseSource<Params> {
   async onInit(args: {
     denops: Denops;
   }): Promise<void> {
@@ -62,7 +62,7 @@ export class Source extends BaseSource {
   }
 
   async gatherCandidates(
-    args: GatherCandidatesArguments,
+    args: GatherCandidatesArguments<Params>,
   ): Promise<Candidate[]> {
     const prevInput = await vars.g.get(
       args.denops,
@@ -109,7 +109,7 @@ export class Source extends BaseSource {
 
   async processCandidates(
     denops: Denops,
-    params: Record<string, unknown>,
+    params: Params,
   ): Promise<Candidate[]> {
     const results = await vars.g.get(
       denops,
@@ -191,10 +191,9 @@ export class Source extends BaseSource {
     return candidates;
   }
 
-  params(): Record<string, unknown> {
-    const params: Params = {
+  params(): Params {
+    return {
       kindLabels: {},
     };
-    return params as unknown as Record<string, unknown>;
   }
 }
