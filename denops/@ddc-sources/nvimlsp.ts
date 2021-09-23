@@ -168,9 +168,9 @@ export class Source extends BaseSource<Params> {
       };
 
       if (typeof v.kind === "number") {
-        const labels = params.kindLabels as any;
+        const labels = params.kindLabels;
         const kind = LSP_KINDS[v.kind - 1];
-        item.kind = (kind in labels as any ? labels[kind] : kind) as string;
+        item.kind = kind in labels ? labels[kind] : kind;
       } else if (v.insertTextFormat && v.insertTextFormat == 2) {
         item.kind = "Snippet";
       }
