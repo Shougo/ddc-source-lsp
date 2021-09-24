@@ -157,7 +157,7 @@ export class Source extends BaseSource<Params> {
 
       const item = {
         word: word,
-        abbr: v.label as string,
+        abbr: v.label,
         dup: false,
         "user_data": {
           lspitem: JSON.stringify(v),
