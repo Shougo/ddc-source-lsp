@@ -12,6 +12,7 @@ import {
 } from "https://deno.land/x/ddc_vim@v0.13.0/deps.ts#^";
 import {
   CompletionItem,
+  InsertTextFormat,
 } from "https://deno.land/x/vscode_languageserver_types@v0.1.0/mod.ts#^";
 
 import { equal } from "https://deno.land/x/equal@v1.5.0/mod.ts#^";
@@ -142,7 +143,7 @@ export class Source extends BaseSource<Params> {
           word = textEdit.newText;
         }
       } else if (v.insertText) {
-        if (v.insertTextFormat != 1) {
+        if (v.insertTextFormat != InsertTextFormat.PlainText) {
           word = v.label;
         } else {
           word = v.insertText;
@@ -157,7 +158,7 @@ export class Source extends BaseSource<Params> {
 
       const item = {
         word: word,
-        abbr: v.label as string,
+        abbr: v.label,
         dup: false,
         "user_data": {
           lspitem: JSON.stringify(v),
@@ -171,7 +172,7 @@ export class Source extends BaseSource<Params> {
         const labels = params.kindLabels;
         const kind = LSP_KINDS[v.kind - 1];
         item.kind = kind in labels ? labels[kind] : kind;
-      } else if (v.insertTextFormat && v.insertTextFormat == 2) {
+      } else if (v.insertTextFormat && v.insertTextFormat == InsertTextFormat.Snippet) {
         item.kind = "Snippet";
       }
 
