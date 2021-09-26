@@ -121,6 +121,8 @@ export class Source extends BaseSource<Params> {
       return [];
     }
 
+    console.log(results);
+
     const previousInput = await vars.g.get(
       denops,
       "ddc#source#lsp#_prev_input",
@@ -133,6 +135,9 @@ export class Source extends BaseSource<Params> {
     const candidates = results.map((v) => {
       let word = "";
 
+      // Remove heading spaces.
+      const label = v.label.replace(/^\s+/, "");
+
       if (v.textEdit) {
         const textEdit = v.textEdit;
         if (
@@ -144,12 +149,12 @@ export class Source extends BaseSource<Params> {
         }
       } else if (v.insertText) {
         if (v.insertTextFormat != InsertTextFormat.PlainText) {
-          word = v.label;
+          word = label;
         } else {
           word = v.insertText;
         }
       } else {
-        word = v.label;
+        word = label;
       }
 
       // Remove parentheses from word.
@@ -158,7 +163,7 @@ export class Source extends BaseSource<Params> {
 
       const item = {
         word: word,
-        abbr: v.label,
+        abbr: label,
         dup: false,
         "user_data": {
           lspitem: JSON.stringify(v),
