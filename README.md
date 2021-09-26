@@ -19,17 +19,17 @@ https://github.com/Shougo/ddc.vim
 ## Configuration
 
 ```vim
-call ddc#custom#patch_global('sources', ['nvimlsp'])
+call ddc#custom#patch_global('sources', ['nvim-lsp'])
 call ddc#custom#patch_global('sourceOptions', {
       \ '_': { 'matchers': ['matcher_head'] },
-      \ 'nvimlsp': {
+      \ 'nvim-lsp': {
       \   'mark': 'lsp',
       \   'forceCompletionPattern': '\.\w*|:\w*|->\w*' },
       \ })
 
 " Use Customized labels
 call ddc#custom#patch_global('sourceParams', {
-      \ 'nvimlsp': { 'kindLabels': { 'Class': 'c' } },
+      \ 'nvim-lsp': { 'kindLabels': { 'Class': 'c' } },
       \ })
 ```
 
