@@ -121,8 +121,6 @@ export class Source extends BaseSource<Params> {
       return [];
     }
 
-    console.log(results);
-
     const previousInput = await vars.g.get(
       denops,
       "ddc#source#lsp#_prev_input",
