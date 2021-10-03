@@ -1,6 +1,6 @@
 local api = vim.api
 
-local get_candidates = function(_, arg1, arg2)
+local get_candidates = function(alias, _, arg1, arg2)
   -- For neovim 0.6 breaking changes
   -- https://github.com/neovim/neovim/pull/15504
   local result = (vim.fn.has('nvim-0.6') == 1
@@ -14,15 +14,15 @@ local get_candidates = function(_, arg1, arg2)
   result = result['items'] ~= nil and result['items'] or result
 
   if #result > 0 then
-    api.nvim_set_var('ddc#source#lsp#_results', result)
-    api.nvim_set_var('ddc#source#lsp#_success', success)
-    api.nvim_set_var('ddc#source#lsp#_requested', true)
+    api.nvim_set_var(string.format('ddc#source#lsp#%s#_results', alias), result)
+    api.nvim_set_var(string.format('ddc#source#lsp#%s#_success', alias), success)
+    api.nvim_set_var(string.format('ddc#source#lsp#%s#_requested', alias), true)
     api.nvim_call_function('ddc#refresh_candidates', {})
   end
 end
 
-local request_candidates = function(arguments)
-  vim.lsp.buf_request(0, 'textDocument/completion', arguments, get_candidates)
+local request_candidates = function(arguments, alias)
+  vim.lsp.buf_request(0, 'textDocument/completion', arguments, function(_, arg1, arg2) get_candidates(alias, _, arg1, arg2) end)
 end
 
 return {
