@@ -4,6 +4,7 @@ import {
 } from "https://deno.land/x/ddc_vim@v0.13.0/types.ts#^";
 import {
   GatherCandidatesArguments,
+  OnInitArguments,
 } from "https://deno.land/x/ddc_vim@v0.13.0/base/source.ts#^";
 import {
   batch,
@@ -49,29 +50,52 @@ type Params = {
   kindLabels: Record<string, string>;
 };
 
+// Vim funcname constraints can be found at :help E124.
+// Leading numbers are allowed in autoload name.
+const escapeVimAutoloadName = (name: string) => {
+  let escaped = "";
+  for (let i = 0; i < name.length; i++) {
+    if (name.charAt(i).match(/[a-zA-Z0-9]/)) escaped += name.charAt(i);
+    else escaped += `_${name.charCodeAt(i)}_`;
+  }
+  return escaped;
+};
+
+const escapeVimAutoloadNameCache = new Map<string, string>();
+const escapeVimAutoloadNameCached = (name: string) => {
+  if (!escapeVimAutoloadNameCache.has(name)) {
+    escapeVimAutoloadNameCache.set(name, escapeVimAutoloadName(name));
+  }
+  return escapeVimAutoloadNameCache.get(name);
+};
+
 export class Source extends BaseSource<Params> {
-  async onInit(args: {
-    denops: Denops;
-  }): Promise<void> {
+  async onInit(args: OnInitArguments<Params>): Promise<void> {
+    const escaped = escapeVimAutoloadNameCached(this.name);
     await batch(args.denops, async (denops: Denops) => {
-      await vars.g.set(denops, "ddc#source#lsp#_results", []);
-      await vars.g.set(denops, "ddc#source#lsp#_success", false);
-      await vars.g.set(denops, "ddc#source#lsp#_requested", false);
-      await vars.g.set(denops, "ddc#source#lsp#_prev_input", "");
-      await vars.g.set(denops, "ddc#source#lsp#_complete_position", -1);
+      await vars.g.set(denops, `ddc#source#lsp#${escaped}#_results`, []);
+      await vars.g.set(denops, `ddc#source#lsp#${escaped}#_success`, false);
+      await vars.g.set(denops, `ddc#source#lsp#${escaped}#_requested`, false);
+      await vars.g.set(denops, `ddc#source#lsp#${escaped}#_prev_input`, "");
+      await vars.g.set(
+        denops,
+        `ddc#source#lsp#${escaped}#_complete_position`,
+        -1,
+      );
     });
   }
 
   async gatherCandidates(
     args: GatherCandidatesArguments<Params>,
   ): Promise<Candidate[]> {
+    const escaped = escapeVimAutoloadNameCached(this.name);
     const prevInput = await vars.g.get(
       args.denops,
-      "ddc#source#lsp#_prev_input",
+      `ddc#source#lsp#${escaped}#_prev_input`,
     );
     const requested = await vars.g.get(
       args.denops,
-      "ddc#source#lsp#_requested",
+      `ddc#source#lsp#${escaped}#_requested`,
     );
     if (args.context.input == prevInput && requested) {
       return this.processCandidates(args.denops, args.sourceParams);
@@ -83,25 +107,25 @@ export class Source extends BaseSource<Params> {
     );
 
     await batch(args.denops, async (denops: Denops) => {
-      await vars.g.set(denops, "ddc#source#lsp#_results", []);
-      await vars.g.set(denops, "ddc#source#lsp#_success", false);
-      await vars.g.set(denops, "ddc#source#lsp#_requested", false);
+      await vars.g.set(denops, `ddc#source#lsp#${escaped}#_results`, []);
+      await vars.g.set(denops, `ddc#source#lsp#${escaped}#_success`, false);
+      await vars.g.set(denops, `ddc#source#lsp#${escaped}#_requested`, false);
       await vars.g.set(
         denops,
-        "ddc#source#lsp#_prev_input",
+        `ddc#source#lsp#${escaped}#_prev_input`,
         args.context.input,
       );
       await vars.g.set(
         denops,
-        "ddc#source#lsp#_complete_position",
+        `ddc#source#lsp#${escaped}#_complete_position`,
         args.context.input.length - args.completeStr.length,
       );
 
       await denops.call(
         "luaeval",
         "require('ddc_nvim_lsp').request_candidates(" +
-          "_A.arguments)",
-        { "arguments": params },
+          "_A.arguments, _A.alias)",
+        { "arguments": params, alias: escaped },
       );
     });
 
@@ -112,9 +136,10 @@ export class Source extends BaseSource<Params> {
     denops: Denops,
     params: Params,
   ): Promise<Candidate[]> {
+    const escaped = escapeVimAutoloadNameCached(this.name);
     const results = await vars.g.get(
       denops,
-      "ddc#source#lsp#_results",
+      `ddc#source#lsp#${escaped}#_results`,
     ) as CompletionItem[];
 
     if (results.length == 0) {
@@ -123,11 +148,11 @@ export class Source extends BaseSource<Params> {
 
     const previousInput = await vars.g.get(
       denops,
-      "ddc#source#lsp#_prev_input",
+      `ddc#source#lsp#${escaped}#_prev_input`,
     ) as string;
     const completePosition = await vars.g.get(
       denops,
-      "ddc#source#lsp#_complete_position",
+      `ddc#source#lsp#${escaped}#_complete_position`,
     ) as number;
 
     const candidates = results.map((v) => {
@@ -175,7 +200,9 @@ export class Source extends BaseSource<Params> {
         const labels = params.kindLabels;
         const kind = LSP_KINDS[v.kind - 1];
         item.kind = kind in labels ? labels[kind] : kind;
-      } else if (v.insertTextFormat && v.insertTextFormat == InsertTextFormat.Snippet) {
+      } else if (
+        v.insertTextFormat && v.insertTextFormat == InsertTextFormat.Snippet
+      ) {
         item.kind = "Snippet";
       }
 
