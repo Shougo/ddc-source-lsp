@@ -1,6 +1,6 @@
 local api = vim.api
 
-local get_candidates = function(_, arg1, arg2, alias)
+local get_candidates = function(alias, _, arg1, arg2)
   -- For neovim 0.6 breaking changes
   -- https://github.com/neovim/neovim/pull/15504
   local result = (vim.fn.has('nvim-0.6') == 1
@@ -22,7 +22,7 @@ local get_candidates = function(_, arg1, arg2, alias)
 end
 
 local request_candidates = function(arguments, alias)
-  vim.lsp.buf_request(0, 'textDocument/completion', arguments, get_candidates, alias)
+  vim.lsp.buf_request(0, 'textDocument/completion', arguments, function(_, arg1, arg2) get_candidates(alias, _, arg1, arg2) end)
 end
 
 return {
