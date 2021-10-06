@@ -60,7 +60,7 @@ export class Source extends BaseSource<Params> {
     );
 
     const id = `soruce/${this.name}`;
-    await args.denops.call(
+    void args.denops.call(
       "luaeval",
       "require('ddc_nvim_lsp').request_candidates(" +
         "_A.arguments, _A.id)",
