@@ -4,13 +4,7 @@ import {
 } from "https://deno.land/x/ddc_vim@v0.13.0/types.ts#^";
 import {
   GatherCandidatesArguments,
-  OnInitArguments,
 } from "https://deno.land/x/ddc_vim@v0.13.0/base/source.ts#^";
-import {
-  batch,
-  Denops,
-  vars,
-} from "https://deno.land/x/ddc_vim@v0.13.0/deps.ts#^";
 import {
   CompletionItem,
   InsertTextFormat,
@@ -51,15 +45,18 @@ type Params = {
 };
 
 export class Source extends BaseSource<Params> {
+  private counter = 0;
   async gatherCandidates(
     args: GatherCandidatesArguments<Params>,
   ): Promise<Candidate[]> {
+    this.counter = (this.counter + 1) % 100;
+
     const params = await args.denops.call(
       "luaeval",
       "vim.lsp.util.make_position_params()",
     );
 
-    const id = `soruce/${this.name}`;
+    const id = `source/${this.name}/${this.counter}`;
     void args.denops.call(
       "luaeval",
       "require('ddc_nvim_lsp').request_candidates(" +
@@ -67,7 +64,8 @@ export class Source extends BaseSource<Params> {
       { "arguments": params, id },
     );
 
-    const payload = await (args as any).onCallback(id, 2000);
+    // TODO: remove as any
+    const payload = await (args as any).onCallback(id);
     const result = payload.result as CompletionItem[];
     const success = payload.success as boolean;
     if (!success) return [];
@@ -80,7 +78,7 @@ export class Source extends BaseSource<Params> {
     );
   }
 
-  processCandidates(
+  private processCandidates(
     params: Params,
     results: CompletionItem[],
     input: string,
