@@ -14,10 +14,10 @@ local get_candidates = function(id, _, arg1, arg2)
   result = result['items'] ~= nil and result['items'] or result
 
   if #result > 0 then
-    api.nvim_call_function('ddc#callback', id, {
+    api.nvim_call_function('ddc#callback', {id, {
       result = result,
       success = success,
-    })
+    }})
   end
 end
 
