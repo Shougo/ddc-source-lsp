@@ -57,15 +57,18 @@ export class Source extends BaseSource<Params> {
     );
 
     const id = `source/${this.name}/${this.counter}`;
-    void args.denops.call(
-      "luaeval",
-      "require('ddc_nvim_lsp').request_candidates(" +
-        "_A.arguments, _A.id)",
-      { "arguments": params, id },
-    );
 
     // TODO: remove as any
-    const payload = await (args as any).onCallback(id);
+    const [payload] = await Promise.all([
+      // deno-lint-ignore no-explicit-any
+      (args as any).onCallback(id),
+      args.denops.call(
+        "luaeval",
+        "require('ddc_nvim_lsp').request_candidates(" +
+          "_A.arguments, _A.id)",
+        { "arguments": params, id },
+      ),
+    ]);
     const result = payload.result as CompletionItem[];
     const success = payload.success as boolean;
     if (!success) return [];
