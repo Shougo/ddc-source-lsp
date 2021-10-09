@@ -86,10 +86,6 @@ export class Source extends BaseSource<Params> {
     input: string,
     completePosition: number,
   ): Candidate[] {
-    if (results.length == 0) {
-      return [];
-    }
-
     const candidates = results.map((v) => {
       let word = "";
 
