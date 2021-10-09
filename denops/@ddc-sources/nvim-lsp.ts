@@ -70,7 +70,6 @@ export class Source extends BaseSource<Params> {
         { "arguments": params, id },
       ),
     ]);
-    if (!payload.success) return [];
 
     return this.processCandidates(
       args.sourceParams,
