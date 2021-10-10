@@ -1,16 +1,10 @@
 import {
   BaseSource,
   Candidate,
-} from "https://deno.land/x/ddc_vim@v0.13.0/types.ts#^";
+} from "https://deno.land/x/ddc_vim@v0.16.0/types.ts#^";
 import {
   GatherCandidatesArguments,
-  OnInitArguments,
-} from "https://deno.land/x/ddc_vim@v0.13.0/base/source.ts#^";
-import {
-  batch,
-  Denops,
-  vars,
-} from "https://deno.land/x/ddc_vim@v0.13.0/deps.ts#^";
+} from "https://deno.land/x/ddc_vim@v0.16.0/base/source.ts#^";
 import {
   CompletionItem,
   InsertTextFormat,
@@ -50,111 +44,47 @@ type Params = {
   kindLabels: Record<string, string>;
 };
 
-// Vim funcname constraints can be found at :help E124.
-// Leading numbers are allowed in autoload name.
-const escapeVimAutoloadName = (name: string) => {
-  let escaped = "";
-  for (let i = 0; i < name.length; i++) {
-    if (name.charAt(i).match(/[a-zA-Z0-9]/)) escaped += name.charAt(i);
-    else escaped += `_${name.charCodeAt(i)}_`;
-  }
-  return escaped;
-};
-
-const escapeVimAutoloadNameCache = new Map<string, string>();
-const escapeVimAutoloadNameCached = (name: string) => {
-  if (!escapeVimAutoloadNameCache.has(name)) {
-    escapeVimAutoloadNameCache.set(name, escapeVimAutoloadName(name));
-  }
-  return escapeVimAutoloadNameCache.get(name);
-};
-
 export class Source extends BaseSource<Params> {
-  async onInit(args: OnInitArguments<Params>): Promise<void> {
-    const escaped = escapeVimAutoloadNameCached(this.name);
-    await batch(args.denops, async (denops: Denops) => {
-      await vars.g.set(denops, `ddc#source#lsp#${escaped}#_results`, []);
-      await vars.g.set(denops, `ddc#source#lsp#${escaped}#_success`, false);
-      await vars.g.set(denops, `ddc#source#lsp#${escaped}#_requested`, false);
-      await vars.g.set(denops, `ddc#source#lsp#${escaped}#_prev_input`, "");
-      await vars.g.set(
-        denops,
-        `ddc#source#lsp#${escaped}#_complete_position`,
-        -1,
-      );
-    });
-  }
-
+  private counter = 0;
   async gatherCandidates(
     args: GatherCandidatesArguments<Params>,
   ): Promise<Candidate[]> {
-    const escaped = escapeVimAutoloadNameCached(this.name);
-    const prevInput = await vars.g.get(
-      args.denops,
-      `ddc#source#lsp#${escaped}#_prev_input`,
-    );
-    const requested = await vars.g.get(
-      args.denops,
-      `ddc#source#lsp#${escaped}#_requested`,
-    );
-    if (args.context.input == prevInput && requested) {
-      return this.processCandidates(args.denops, args.sourceParams);
-    }
+    this.counter = (this.counter + 1) % 100;
 
     const params = await args.denops.call(
       "luaeval",
       "vim.lsp.util.make_position_params()",
     );
 
-    await batch(args.denops, async (denops: Denops) => {
-      await vars.g.set(denops, `ddc#source#lsp#${escaped}#_results`, []);
-      await vars.g.set(denops, `ddc#source#lsp#${escaped}#_success`, false);
-      await vars.g.set(denops, `ddc#source#lsp#${escaped}#_requested`, false);
-      await vars.g.set(
-        denops,
-        `ddc#source#lsp#${escaped}#_prev_input`,
-        args.context.input,
-      );
-      await vars.g.set(
-        denops,
-        `ddc#source#lsp#${escaped}#_complete_position`,
-        args.context.input.length - args.completeStr.length,
-      );
+    const id = `source/${this.name}/${this.counter}`;
 
-      await denops.call(
+    const [payload] = await Promise.all([
+      args.onCallback(id) as Promise<{
+        result: CompletionItem[];
+        success: boolean;
+      }>,
+      args.denops.call(
         "luaeval",
         "require('ddc_nvim_lsp').request_candidates(" +
-          "_A.arguments, _A.alias)",
-        { "arguments": params, alias: escaped },
-      );
-    });
+          "_A.arguments, _A.id)",
+        { "arguments": params, id },
+      ),
+    ]);
 
-    return [];
+    return this.processCandidates(
+      args.sourceParams,
+      payload.result,
+      args.context.input,
+      args.context.input.length - args.completeStr.length,
+    );
   }
 
-  async processCandidates(
-    denops: Denops,
+  private processCandidates(
     params: Params,
-  ): Promise<Candidate[]> {
-    const escaped = escapeVimAutoloadNameCached(this.name);
-    const results = await vars.g.get(
-      denops,
-      `ddc#source#lsp#${escaped}#_results`,
-    ) as CompletionItem[];
-
-    if (results.length == 0) {
-      return [];
-    }
-
-    const previousInput = await vars.g.get(
-      denops,
-      `ddc#source#lsp#${escaped}#_prev_input`,
-    ) as string;
-    const completePosition = await vars.g.get(
-      denops,
-      `ddc#source#lsp#${escaped}#_complete_position`,
-    ) as number;
-
+    results: CompletionItem[],
+    input: string,
+    completePosition: number,
+  ): Candidate[] {
     const candidates = results.map((v) => {
       let word = "";
 
@@ -166,7 +96,7 @@ export class Source extends BaseSource<Params> {
         if (
           "range" in textEdit && equal(textEdit.range.start, textEdit.range.end)
         ) {
-          word = `${previousInput.slice(completePosition)}${textEdit.newText}`;
+          word = `${input.slice(completePosition)}${textEdit.newText}`;
         } else {
           word = textEdit.newText;
         }
