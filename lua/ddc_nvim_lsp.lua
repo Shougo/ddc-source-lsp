@@ -7,7 +7,7 @@ local get_candidates = function(id, _, arg1, arg2)
                   and type(arg1) == 'table' and arg1 or arg2)
   if not result or result == 0 then
     api.nvim_call_function('ddc#callback', {id, {
-      result = [],
+      result = {},
       success = false,
     }})
     return
