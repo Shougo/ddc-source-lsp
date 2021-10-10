@@ -6,6 +6,10 @@ local get_candidates = function(id, _, arg1, arg2)
   local result = ((vim.fn.has('nvim-0.6') == 1 or vim.fn.has('nvim-0.5.1'))
                   and type(arg1) == 'table' and arg1 or arg2)
   if not result or result == 0 then
+    api.nvim_call_function('ddc#callback', {id, {
+      result = [],
+      success = false,
+    }})
     return
   end
 
