@@ -71,6 +71,11 @@ export class Source extends BaseSource<Params> {
       ),
     ]);
 
+    // payload.result may be not Array
+    if (payload?.result?.length == null) {
+      return [];
+    }
+
     return this.processCandidates(
       args.sourceParams,
       payload.result,
