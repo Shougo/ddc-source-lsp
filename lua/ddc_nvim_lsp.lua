@@ -24,7 +24,13 @@ local get_candidates = function(id, _, arg1, arg2)
 end
 
 local request_candidates = function(arguments, id)
-  vim.lsp.buf_request(0, 'textDocument/completion', arguments, function(_, arg1, arg2) get_candidates(id, _, arg1, arg2) end)
+  local map = vim.lsp.buf_request(0, 'textDocument/completion', arguments, function(_, arg1, arg2) get_candidates(id, _, arg1, arg2) end)
+  if #map == 0 then
+    api.nvim_call_function('ddc#callback', {id, {
+      result = {},
+      success = false,
+    }})
+  end
 end
 
 return {
