@@ -91,28 +91,28 @@ export class Source extends BaseSource<Params> {
     completePosition: number,
   ): Candidate[] {
     const candidates = results.map((v) => {
-      let word = "";
-
       // Remove heading spaces.
       const label = v.label.replace(/^\s+/, "");
 
-      if (v.textEdit) {
-        const textEdit = v.textEdit;
-        if (
-          "range" in textEdit && equal(textEdit.range.start, textEdit.range.end)
-        ) {
-          word = `${input.slice(completePosition)}${textEdit.newText}`;
-        } else {
-          word = textEdit.newText;
-        }
-      } else if (v.insertText) {
-        if (v.insertTextFormat != InsertTextFormat.PlainText) {
-          word = label;
-        } else {
+      let word = label;
+
+      // Note: Does not insert snippet directly
+      if (
+        !v.insertTextFormat || v.insertTextFormat == InsertTextFormat.PlainText
+      ) {
+        if (v.textEdit) {
+          const textEdit = v.textEdit;
+          if (
+            "range" in textEdit &&
+            equal(textEdit.range.start, textEdit.range.end)
+          ) {
+            word = `${input.slice(completePosition)}${textEdit.newText}`;
+          } else {
+            word = textEdit.newText;
+          }
+        } else if (v.insertText) {
           word = v.insertText;
         }
-      } else {
-        word = label;
       }
 
       // Remove parentheses from word.
