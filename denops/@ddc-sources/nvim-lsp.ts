@@ -10,8 +10,6 @@ import {
   InsertTextFormat,
 } from "https://deno.land/x/vscode_languageserver_types@v0.1.0/mod.ts#^";
 
-import { equal } from "https://deno.land/x/equal@v1.5.0/mod.ts#^";
-
 const LSP_KINDS = [
   "Text",
   "Method",
@@ -104,7 +102,8 @@ export class Source extends BaseSource<Params> {
           const textEdit = v.textEdit;
           if (
             "range" in textEdit &&
-            equal(textEdit.range.start, textEdit.range.end)
+            textEdit.range.start.line == textEdit.range.end.line &&
+            textEdit.range.start.character == textEdit.range.end.character
           ) {
             word = `${input.slice(completePosition)}${textEdit.newText}`;
           } else {
