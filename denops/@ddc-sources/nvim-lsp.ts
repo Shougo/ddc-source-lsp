@@ -1,10 +1,10 @@
 import {
   BaseSource,
   Candidate,
-} from "https://deno.land/x/ddc_vim@v0.16.0/types.ts#^";
+} from "https://deno.land/x/ddc_vim@v0.17.0/types.ts#^";
 import {
   GatherCandidatesArguments,
-} from "https://deno.land/x/ddc_vim@v0.16.0/base/source.ts#^";
+} from "https://deno.land/x/ddc_vim@v0.17.0/base/source.ts#^";
 import {
   CompletionItem,
   InsertTextFormat,
