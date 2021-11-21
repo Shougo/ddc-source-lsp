@@ -24,12 +24,31 @@ local get_candidates = function(id, _, arg1, arg2)
 end
 
 local request_candidates = function(arguments, id)
-  local map = vim.lsp.buf_request(0, 'textDocument/completion', arguments, function(_, arg1, arg2) get_candidates(id, _, arg1, arg2) end)
+  local method = 'textDocument/completion'
+  local method_supported = false
+  for _, client in pairs(vim.lsp.buf_get_clients(bufnr)) do
+    if client.supports_method(method) then
+      method_supported = true
+    end
+  end
+
+  -- Note: if method is not supported, lsp.buf_request prints errors
+  if not method_supported then
+    api.nvim_call_function('ddc#callback', {id, {
+      result = {},
+      success = false,
+    }})
+    return
+  end
+
+  local func = function(_, arg1, arg2) get_candidates(id, _, arg1, arg2) end
+  local map = vim.lsp.buf_request(0, method, arguments, func)
   if not map or vim.tbl_isempty(map) then
     api.nvim_call_function('ddc#callback', {id, {
       result = {},
       success = false,
     }})
+    return
   end
 end
 
