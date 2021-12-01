@@ -1,28 +1,5 @@
 local api = vim.api
 
-local get_candidates = function(id, _, arg1, arg2)
-  -- For neovim 0.5.1/0.6 breaking changes
-  -- https://github.com/neovim/neovim/pull/15504
-  local result = ((vim.fn.has('nvim-0.6') == 1 or vim.fn.has('nvim-0.5.1'))
-                  and type(arg1) == 'table' and arg1 or arg2)
-  if not result or result == 0 then
-    api.nvim_call_function('ddc#callback', {id, {
-      result = {},
-      success = false,
-    }})
-    return
-  end
-
-  local success = (type(result) == 'table' and not vim.tbl_isempty(result)
-    ) and true or false
-  result = result['items'] ~= nil and result['items'] or result
-
-  api.nvim_call_function('ddc#callback', {id, {
-    result = result,
-    success = success,
-  }})
-end
-
 local request_candidates = function(arguments, id)
   local method = 'textDocument/completion'
   local method_supported = false
@@ -41,9 +18,23 @@ local request_candidates = function(arguments, id)
     return
   end
 
-  local func = function(_, arg1, arg2) get_candidates(id, _, arg1, arg2) end
-  local map = vim.lsp.buf_request(0, method, arguments, func)
-  if not map or vim.tbl_isempty(map) then
+  local func = function(responses)
+    local all = {}
+    for _, r in ipairs(responses)  do
+      if r.result then
+        local items = r.result.items or r.result
+        for i = 1, #items do
+          all[#all + 1] = items[i]
+        end
+      end
+    end
+    api.nvim_call_function('ddc#callback', {id, {
+      result = all,
+      success = not vim.tbl_isempty(all),
+    }})
+  end
+  local cancel = vim.lsp.buf_request_all(0, method, arguments, func)
+  if not cancel then
     api.nvim_call_function('ddc#callback', {id, {
       result = {},
       success = false,
