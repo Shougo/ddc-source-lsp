@@ -20,7 +20,7 @@ local request_candidates = function(arguments, id)
 
   local func = function(responses)
     local all = {}
-    for _, r in ipairs(responses)  do
+    for _, r in pairs(responses)  do
       if r.result then
         local items = r.result.items or r.result
         for i = 1, #items do
