@@ -100,14 +100,20 @@ export class Source extends BaseSource<Params> {
       ) {
         if (v.textEdit) {
           const textEdit = v.textEdit;
-          if (
-            "range" in textEdit &&
-            textEdit.range.start.line == textEdit.range.end.line &&
-            textEdit.range.start.character == textEdit.range.end.character
-          ) {
-            word = `${input.slice(completePosition)}${textEdit.newText}`;
-          } else {
-            word = textEdit.newText;
+          word = textEdit.newText;
+          if ("range" in textEdit) {
+            const start = textEdit.range.start;
+            const end = textEdit.range.end;
+            if (start.line == end.line && start.character == end.character) {
+              word = `${input.slice(completePosition)}${word}`;
+            } else if (
+              start.character < completePosition &&
+              input.slice(start.character, completePosition) ==
+                word.slice(0, completePosition - start.character)
+            ) {
+              // remove overwraped text which comes before complete position
+              word = word.slice(completePosition - start.character);
+            }
           }
         } else if (v.insertText) {
           word = v.insertText;
