@@ -42,6 +42,48 @@ type Params = {
   kindLabels: Record<string, string>;
 };
 
+function getWord(
+  item: CompletionItem,
+  input: string,
+  completePosition: number,
+): string {
+  // Remove heading spaces.
+  const label = item.label.replace(/^\s+/, "");
+
+  let word = label;
+
+  // Note: Does not insert snippet directly
+  if (
+    !item.insertTextFormat || item.insertTextFormat == InsertTextFormat.PlainText
+  ) {
+    if (item.textEdit) {
+      const textEdit = item.textEdit;
+      word = textEdit.newText;
+      if ("range" in textEdit) {
+        const start = textEdit.range.start;
+        const end = textEdit.range.end;
+        if (start.line == end.line && start.character == end.character) {
+          word = `${input.slice(completePosition)}${word}`;
+        } else if (
+          start.character < completePosition &&
+          input.slice(start.character, completePosition) ==
+            word.slice(0, completePosition - start.character)
+        ) {
+          // remove overwraped text which comes before complete position
+          word = word.slice(completePosition - start.character);
+        }
+      }
+    } else if (item.insertText) {
+      word = item.insertText;
+    }
+  }
+
+  // Remove parentheses from word.
+  // Note: some LSP includes snippet parentheses in word(newText)
+  word = word.replace(/[\(|<].*[\)|>](\$\d+)?/, "");
+  return word;
+}
+
 export class Source extends BaseSource<Params> {
   private counter = 0;
   async gatherCandidates(
@@ -89,44 +131,9 @@ export class Source extends BaseSource<Params> {
     completePosition: number,
   ): Candidate[] {
     const candidates = results.map((v) => {
-      // Remove heading spaces.
-      const label = v.label.replace(/^\s+/, "");
-
-      let word = label;
-
-      // Note: Does not insert snippet directly
-      if (
-        !v.insertTextFormat || v.insertTextFormat == InsertTextFormat.PlainText
-      ) {
-        if (v.textEdit) {
-          const textEdit = v.textEdit;
-          word = textEdit.newText;
-          if ("range" in textEdit) {
-            const start = textEdit.range.start;
-            const end = textEdit.range.end;
-            if (start.line == end.line && start.character == end.character) {
-              word = `${input.slice(completePosition)}${word}`;
-            } else if (
-              start.character < completePosition &&
-              input.slice(start.character, completePosition) ==
-                word.slice(0, completePosition - start.character)
-            ) {
-              // remove overwraped text which comes before complete position
-              word = word.slice(completePosition - start.character);
-            }
-          }
-        } else if (v.insertText) {
-          word = v.insertText;
-        }
-      }
-
-      // Remove parentheses from word.
-      // Note: some LSP includes snippet parentheses in word(newText)
-      word = word.replace(/[\(|<].*[\)|>](\$\d+)?/, "");
-
       const item = {
-        word: word,
-        abbr: label,
+        word: getWord(v, input, completePosition),
+        abbr: v.label.trim(),
         dup: false,
         "user_data": {
           lspitem: JSON.stringify(v),
