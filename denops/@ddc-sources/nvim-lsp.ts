@@ -2,6 +2,7 @@ import {
   BaseSource,
   Candidate,
 } from "https://deno.land/x/ddc_vim@v0.17.0/types.ts#^";
+import { assertEquals } from "https://deno.land/x/ddc_vim@v0.17.0/deps.ts#^";
 import {
   GatherCandidatesArguments,
 } from "https://deno.land/x/ddc_vim@v0.17.0/base/source.ts#^";
@@ -188,3 +189,52 @@ export class Source extends BaseSource<Params> {
     };
   }
 }
+
+Deno.test("getWord", () => {
+  assertEquals(
+    getWord(
+      {
+        "label": '"Cascadia Mono"',
+        "textEdit": {
+          "range": {
+            "end": { "character": 14, "line": 39 },
+            "start": { "character": 12, "line": 39 },
+          },
+          "newText": '"Cascadia Mono"',
+        },
+        "insertText": '"Cascadia Mono"',
+        "insertTextFormat": 2,
+      },
+      '"fontFace": "',
+      13,
+    ),
+    'Cascadia Mono"',
+  );
+  assertEquals(
+    getWord(
+      {
+        "label": "fig:HfO2",
+        "textEdit": {
+          "range": {
+            "end": { "character": 10, "line": 52 },
+            "start": { "character": 5, "line": 52 },
+          },
+          "newText": "fig:HfO2",
+        },
+      },
+      "\\ref{fig:h",
+      9,
+    ),
+    "HfO2",
+  );
+});
+
+Deno.test("getSnippetWord", () => {
+  // test cases from nvim-cmp
+  assertEquals(getSnippetWord("all: $0;"), "all:");
+  assertEquals(getSnippetWord("print"), "print");
+  assertEquals(getSnippetWord("$variable"), "$variable");
+  assertEquals(getSnippetWord("print()"), "print");
+  assertEquals(getSnippetWord('["cmp#confirm"]'), '["cmp#confirm"]');
+  assertEquals(getSnippetWord('"devDependencies":'), '"devDependencies"');
+});
