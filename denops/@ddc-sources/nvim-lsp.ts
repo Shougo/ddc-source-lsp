@@ -47,41 +47,54 @@ function getWord(
   input: string,
   completePosition: number,
 ): string {
-  // Remove heading spaces.
   const label = item.label.replace(/^\s+/, "");
 
   let word = label;
 
-  // Note: Does not insert snippet directly
-  if (
-    !item.insertTextFormat || item.insertTextFormat == InsertTextFormat.PlainText
-  ) {
-    if (item.textEdit) {
-      const textEdit = item.textEdit;
-      word = textEdit.newText;
-      if ("range" in textEdit) {
-        const start = textEdit.range.start;
-        const end = textEdit.range.end;
-        if (start.line == end.line && start.character == end.character) {
-          word = `${input.slice(completePosition)}${word}`;
-        } else if (
-          start.character < completePosition &&
-          input.slice(start.character, completePosition) ==
-            word.slice(0, completePosition - start.character)
-        ) {
-          // remove overwraped text which comes before complete position
-          word = word.slice(completePosition - start.character);
-        }
+  if (item.textEdit) {
+    const textEdit = item.textEdit;
+    word = textEdit.newText;
+    if ("range" in textEdit) {
+      const start = textEdit.range.start;
+      const end = textEdit.range.end;
+      if (item.insertTextFormat == InsertTextFormat.Snippet) {
+        word = getSnippetWord(word);
       }
-    } else if (item.insertText) {
-      word = item.insertText;
+      if (start.line == end.line && start.character == end.character) {
+        word = `${input.slice(completePosition)}${word}`;
+      } else if (
+        start.character < completePosition &&
+        input.slice(start.character, completePosition) ==
+          word.slice(0, completePosition - start.character)
+      ) {
+        // remove overwraped text which comes before complete position
+        word = word.slice(completePosition - start.character);
+      }
+    }
+  } else if (item.insertText) {
+    word = item.insertText;
+    if (item.insertTextFormat == InsertTextFormat.Snippet) {
+      word = getSnippetWord(word);
     }
   }
-
-  // Remove parentheses from word.
-  // Note: some LSP includes snippet parentheses in word(newText)
-  word = word.replace(/[\(|<].*[\)|>](\$\d+)?/, "");
   return word;
+}
+
+function getSnippetWord(txt: string): string {
+  // remove snippet's tabstop
+  txt = txt.replace(/\$[0-9]+|\${(?:\\.|[^}])+}/g, "");
+  txt = txt.replace(/\\(.)/g, "$1");
+  const m = txt.match(
+    /^((?:<.*>)|(?:\[.*\])|(?:\(.*\))|(?:{.*})|(?:".*")|(?:'.*'))/,
+  );
+  if (m) {
+    return m[0];
+  }
+  const valid = txt.match(/^[^"'' (<{\[\t\r\n]+/);
+  if (!valid) {
+    return txt;
+  }
+  return valid[0];
 }
 
 export class Source extends BaseSource<Params> {
