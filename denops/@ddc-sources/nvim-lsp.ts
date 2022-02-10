@@ -48,9 +48,7 @@ function getWord(
   input: string,
   completePosition: number,
 ): string {
-  const label = item.label.replace(/^\s+/, "");
-
-  let word = label;
+  let word = item.label.trimStart();
 
   if (item.textEdit) {
     const textEdit = item.textEdit;
@@ -237,4 +235,5 @@ Deno.test("getSnippetWord", () => {
   assertEquals(getSnippetWord("print()"), "print");
   assertEquals(getSnippetWord('["cmp#confirm"]'), '["cmp#confirm"]');
   assertEquals(getSnippetWord('"devDependencies":'), '"devDependencies"');
+  assertEquals(getSnippetWord('\\"devDependencies\\":'), '"devDependencies"');
 });
