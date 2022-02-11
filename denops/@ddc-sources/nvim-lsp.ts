@@ -2,7 +2,7 @@ import {
   BaseSource,
   Candidate,
 } from "https://deno.land/x/ddc_vim@v1.3.0/types.ts#^";
-import { assertEquals } from "https://deno.land/x/ddc_vim@v1.3.0/deps.ts#^";
+import { assertEquals, fn } from "https://deno.land/x/ddc_vim@v1.3.0/deps.ts#^";
 import {
   GatherCandidatesArguments,
 } from "https://deno.land/x/ddc_vim@v1.3.0/base/source.ts#^";
@@ -46,6 +46,7 @@ type Params = {
 function getWord(
   item: CompletionItem,
   input: string,
+  line: string,
   completePosition: number,
 ): string {
   let word = item.label.trimStart();
@@ -61,13 +62,23 @@ function getWord(
       }
       if (start.line == end.line && start.character == end.character) {
         word = `${input.slice(completePosition)}${word}`;
-      } else if (
-        start.character < completePosition &&
-        input.slice(start.character, completePosition) ==
-          word.slice(0, completePosition - start.character)
-      ) {
-        // remove overwraped text which comes before complete position
-        word = word.slice(completePosition - start.character);
+      } else {
+        // remove overlapped text which comes before/after complete position
+        if (
+          start.character < completePosition &&
+          line.slice(start.character, completePosition) ==
+            word.slice(0, completePosition - start.character)
+        ) {
+          word = word.slice(completePosition - start.character);
+        }
+        const curCol = input.length;
+        if (
+          end.character > curCol &&
+          line.slice(curCol, end.character) ==
+            word.slice(curCol - end.character)
+        ) {
+          word = word.slice(0, curCol - end.character);
+        }
       }
     }
   } else if (item.insertText) {
@@ -84,7 +95,7 @@ function getSnippetWord(txt: string): string {
   txt = txt.replace(/\$[0-9]+|\${(?:\\.|[^}])+}/g, "");
   txt = txt.replace(/\\(.)/g, "$1");
   const m = txt.match(
-    /^((?:<.*>)|(?:\[.*\])|(?:\(.*\))|(?:{.*})|(?:".*")|(?:'.*'))/,
+    /^((?:<[^>]*>)|(?:\[[^\]]*\])|(?:\([^\)]*\))|(?:{[^}]*})|(?:"[^"]*")|(?:'[^']*'))/,
   );
   if (m) {
     return m[0];
@@ -132,6 +143,7 @@ export class Source extends BaseSource<Params> {
       args.sourceParams,
       payload.result,
       args.context.input,
+      await fn.getline(args.denops, "."),
       args.context.input.length - args.completeStr.length,
     );
   }
@@ -140,11 +152,12 @@ export class Source extends BaseSource<Params> {
     params: Params,
     results: CompletionItem[],
     input: string,
+    line: string,
     completePosition: number,
   ): Candidate[] {
     const candidates = results.map((v) => {
       const item = {
-        word: getWord(v, input, completePosition),
+        word: getWord(v, input, line, completePosition),
         abbr: v.label.trim(),
         dup: false,
         "user_data": {
@@ -204,10 +217,53 @@ Deno.test("getWord", () => {
         "insertTextFormat": 2,
       },
       '"fontFace": "',
+      '"fontFace": ""',
+      13,
+    ),
+    "Cascadia Mono",
+  );
+  assertEquals(
+    getWord(
+      {
+        "label": '"Cascadia Mono"',
+        "textEdit": {
+          "range": {
+            "end": { "character": 14, "line": 39 },
+            "start": { "character": 12, "line": 39 },
+          },
+          "newText": '"Cascadia Mono"',
+        },
+        "insertText": '"Cascadia Mono"',
+        "insertTextFormat": 2,
+      },
+      '"fontFace": "',
+      '"fontFace": "',
       13,
     ),
     'Cascadia Mono"',
   );
+  assertEquals(
+    getWord(
+      {
+        "label": " vector>",
+        "textEdit": {
+          "range": {
+            "end": { "character": 12, "line": 1 },
+            "start": { "character": 10, "line": 1 },
+          },
+          "newText": "vector>",
+        },
+        "insertText": "vector>",
+        "kind": 17,
+        "insertTextFormat": 2,
+      },
+      "#include <v",
+      "#include <v>",
+      10,
+    ),
+    "vector",
+  );
+
   assertEquals(
     getWord(
       {
@@ -221,6 +277,7 @@ Deno.test("getWord", () => {
         },
       },
       "\\ref{fig:h",
+      "\\ref{fig:h}",
       9,
     ),
     "HfO2",
