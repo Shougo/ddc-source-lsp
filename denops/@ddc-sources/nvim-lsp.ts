@@ -1,15 +1,15 @@
 import {
   BaseSource,
   Candidate,
-} from "https://deno.land/x/ddc_vim@v1.3.0/types.ts#^";
-import { assertEquals, fn } from "https://deno.land/x/ddc_vim@v1.3.0/deps.ts#^";
+} from "https://deno.land/x/ddc_vim@v1.3.0/types.ts";
+import { assertEquals, fn } from "https://deno.land/x/ddc_vim@v1.3.0/deps.ts";
 import {
   GatherCandidatesArguments,
-} from "https://deno.land/x/ddc_vim@v1.3.0/base/source.ts#^";
+} from "https://deno.land/x/ddc_vim@v1.3.0/base/source.ts";
 import {
   CompletionItem,
   InsertTextFormat,
-} from "https://deno.land/x/vscode_languageserver_types@v0.1.0/mod.ts#^";
+} from "https://deno.land/x/vscode_languageserver_types@v0.1.0/mod.ts";
 
 const LSP_KINDS = [
   "Text",
