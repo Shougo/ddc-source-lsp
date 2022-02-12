@@ -1,10 +1,11 @@
 import {
   BaseSource,
   Candidate,
-} from "https://deno.land/x/ddc_vim@v0.17.0/types.ts#^";
+} from "https://deno.land/x/ddc_vim@v1.3.0/types.ts#^";
+import { assertEquals, fn } from "https://deno.land/x/ddc_vim@v1.3.0/deps.ts#^";
 import {
   GatherCandidatesArguments,
-} from "https://deno.land/x/ddc_vim@v0.17.0/base/source.ts#^";
+} from "https://deno.land/x/ddc_vim@v1.3.0/base/source.ts#^";
 import {
   CompletionItem,
   InsertTextFormat,
@@ -42,6 +43,70 @@ type Params = {
   kindLabels: Record<string, string>;
 };
 
+function getWord(
+  item: CompletionItem,
+  input: string,
+  line: string,
+  completePosition: number,
+): string {
+  let word = item.label.trimStart();
+
+  if (item.textEdit) {
+    const textEdit = item.textEdit;
+    word = textEdit.newText;
+    if ("range" in textEdit) {
+      const start = textEdit.range.start;
+      const end = textEdit.range.end;
+      if (item.insertTextFormat == InsertTextFormat.Snippet) {
+        word = getSnippetWord(word);
+      }
+      if (start.line == end.line && start.character == end.character) {
+        word = `${input.slice(completePosition)}${word}`;
+      } else {
+        // remove overlapped text which comes before/after complete position
+        if (
+          start.character < completePosition &&
+          line.slice(start.character, completePosition) ==
+            word.slice(0, completePosition - start.character)
+        ) {
+          word = word.slice(completePosition - start.character);
+        }
+        const curCol = input.length;
+        if (
+          end.character > curCol &&
+          line.slice(curCol, end.character) ==
+            word.slice(curCol - end.character)
+        ) {
+          word = word.slice(0, curCol - end.character);
+        }
+      }
+    }
+  } else if (item.insertText) {
+    word = item.insertText;
+    if (item.insertTextFormat == InsertTextFormat.Snippet) {
+      word = getSnippetWord(word);
+    }
+  }
+  return word;
+}
+
+function getSnippetWord(txt: string): string {
+  // remove snippet's tabstop
+  txt = txt.replace(/\$[0-9]+|\${(?:\\.|[^}])+}/g, "");
+  txt = txt.replace(/\\(.)/g, "$1");
+  const m = txt.match(
+    /^((?:<[^>]*>)|(?:\[[^\]]*\])|(?:\([^\)]*\))|(?:{[^}]*})|(?:"[^"]*")|(?:'[^']*'))/,
+  );
+  if (m) {
+    return m[0];
+  }
+  const valid = txt.match(/^[^"'' (<{\[\t\r\n]+/);
+  if (!valid) {
+    return txt;
+  }
+  return valid[0];
+}
+
 export class Source extends BaseSource<Params> {
   private counter = 0;
   async gatherCandidates(
@@ -78,6 +143,7 @@ export class Source extends BaseSource<Params> {
       args.sourceParams,
       payload.result,
       args.context.input,
+      await fn.getline(args.denops, "."),
       args.context.input.length - args.completeStr.length,
     );
   }
@@ -86,47 +152,13 @@ export class Source extends BaseSource<Params> {
     params: Params,
     results: CompletionItem[],
     input: string,
+    line: string,
     completePosition: number,
   ): Candidate[] {
     const candidates = results.map((v) => {
-      // Remove heading spaces.
-      const label = v.label.replace(/^\s+/, "");
-
-      let word = label;
-
-      // Note: Does not insert snippet directly
-      if (
-        !v.insertTextFormat || v.insertTextFormat == InsertTextFormat.PlainText
-      ) {
-        if (v.textEdit) {
-          const textEdit = v.textEdit;
-          word = textEdit.newText;
-          if ("range" in textEdit) {
-            const start = textEdit.range.start;
-            const end = textEdit.range.end;
-            if (start.line == end.line && start.character == end.character) {
-              word = `${input.slice(completePosition)}${word}`;
-            } else if (
-              start.character < completePosition &&
-              input.slice(start.character, completePosition) ==
-                word.slice(0, completePosition - start.character)
-            ) {
-              // remove overwraped text which comes before complete position
-              word = word.slice(completePosition - start.character);
-            }
-          }
-        } else if (v.insertText) {
-          word = v.insertText;
-        }
-      }
-
-      // Remove parentheses from word.
-      // Note: some LSP includes snippet parentheses in word(newText)
-      word = word.replace(/[\(|<].*[\)|>](\$\d+)?/, "");
-
       const item = {
-        word: word,
-        abbr: label,
+        word: getWord(v, input, line, completePosition),
+        abbr: v.label.trim(),
         dup: false,
         "user_data": {
           lspitem: JSON.stringify(v),
@@ -168,3 +200,97 @@ export class Source extends BaseSource<Params> {
     };
   }
 }
+
+Deno.test("getWord", () => {
+  assertEquals(
+    getWord(
+      {
+        "label": '"Cascadia Mono"',
+        "textEdit": {
+          "range": {
+            "end": { "character": 14, "line": 39 },
+            "start": { "character": 12, "line": 39 },
+          },
+          "newText": '"Cascadia Mono"',
+        },
+        "insertText": '"Cascadia Mono"',
+        "insertTextFormat": 2,
+      },
+      '"fontFace": "',
+      '"fontFace": ""',
+      13,
+    ),
+    "Cascadia Mono",
+  );
+  assertEquals(
+    getWord(
+      {
+        "label": '"Cascadia Mono"',
+        "textEdit": {
+          "range": {
+            "end": { "character": 14, "line": 39 },
+            "start": { "character": 12, "line": 39 },
+          },
+          "newText": '"Cascadia Mono"',
+        },
+        "insertText": '"Cascadia Mono"',
+        "insertTextFormat": 2,
+      },
+      '"fontFace": "',
+      '"fontFace": "',
+      13,
+    ),
+    'Cascadia Mono"',
+  );
+  assertEquals(
+    getWord(
+      {
+        "label": " vector>",
+        "textEdit": {
+          "range": {
+            "end": { "character": 12, "line": 1 },
+            "start": { "character": 10, "line": 1 },
+          },
+          "newText": "vector>",
+        },
+        "insertText": "vector>",
+        "kind": 17,
+        "insertTextFormat": 2,
+      },
+      "#include <v",
+      "#include <v>",
+      10,
+    ),
+    "vector",
+  );
+
+  assertEquals(
+    getWord(
+      {
+        "label": "fig:HfO2",
+        "textEdit": {
+          "range": {
+            "end": { "character": 10, "line": 52 },
+            "start": { "character": 5, "line": 52 },
+          },
+          "newText": "fig:HfO2",
+        },
+      },
+      "\\ref{fig:h",
+      "\\ref{fig:h}",
+      9,
+    ),
+    "HfO2",
+  );
+});
+
+Deno.test("getSnippetWord", () => {
+  // test cases from nvim-cmp
+  assertEquals(getSnippetWord("all: $0;"), "all:");
+  assertEquals(getSnippetWord("print"), "print");
+  assertEquals(getSnippetWord("$variable"), "$variable");
+  assertEquals(getSnippetWord("print()"), "print");
+  assertEquals(getSnippetWord('["cmp#confirm"]'), '["cmp#confirm"]');
+  assertEquals(getSnippetWord('"devDependencies":'), '"devDependencies"');
+  assertEquals(getSnippetWord('\\"devDependencies\\":'), '"devDependencies"');
+});
