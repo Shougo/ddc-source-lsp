@@ -1,14 +1,16 @@
 import {
   BaseSource,
   Candidate,
-} from "https://deno.land/x/ddc_vim@v1.3.0/types.ts";
+  DdcCompleteItems,
+} from "https://deno.land/x/ddc_vim@v1.4.0/types.ts";
 import { assertEquals, fn } from "https://deno.land/x/ddc_vim@v1.3.0/deps.ts";
 import {
   GatherCandidatesArguments,
-} from "https://deno.land/x/ddc_vim@v1.3.0/base/source.ts";
+} from "https://deno.land/x/ddc_vim@v1.4.0/base/source.ts";
 import {
   CompletionItem,
   InsertTextFormat,
+  Position,
 } from "https://deno.land/x/vscode_languageserver_types@v0.1.0/mod.ts";
 
 const LSP_KINDS = [
@@ -38,6 +40,22 @@ const LSP_KINDS = [
   "Operator",
   "TypeParameter",
 ];
+
+const CompletionTriggerKind = {
+  Invoked: 1,
+  TriggerCharacter: 2,
+  TriggerForIncompleteCompletions: 3,
+};
+
+export interface CompletionContext {
+  triggerKind: number;
+  triggerCharacter?: string;
+}
+
+type CompletionParams = {
+  position: Position;
+  context?: CompletionContext;
+};
 
 type Params = {
   kindLabels: Record<string, string>;
@@ -111,13 +129,19 @@ export class Source extends BaseSource<Params> {
   private counter = 0;
   async gatherCandidates(
     args: GatherCandidatesArguments<Params>,
-  ): Promise<Candidate[]> {
+  ): Promise<DdcCompleteItems> {
     this.counter = (this.counter + 1) % 100;
 
     const params = await args.denops.call(
       "luaeval",
       "vim.lsp.util.make_position_params()",
-    );
+    ) as CompletionParams;
+
+    params.context = {
+      triggerKind: args.isIncomplete
+        ? CompletionTriggerKind.TriggerForIncompleteCompletions
+        : CompletionTriggerKind.Invoked,
+    };
 
     const id = `source/${this.name}/${this.counter}`;
 
@@ -125,12 +149,13 @@ export class Source extends BaseSource<Params> {
       args.onCallback(id) as Promise<{
         result: CompletionItem[];
         success: boolean;
+        isIncomplete: boolean;
       }>,
       args.denops.call(
         "luaeval",
         "require('ddc_nvim_lsp').request_candidates(" +
-          "_A.arguments, _A.id)",
-        { "arguments": params, id },
+          "_A.arguments, _A.id, _A.trigger)",
+        { "arguments": params, id, trigger: args.context.input.slice(-1) },
       ),
     ]);
 
@@ -139,13 +164,16 @@ export class Source extends BaseSource<Params> {
       return [];
     }
 
-    return this.processCandidates(
-      args.sourceParams,
-      payload.result,
-      args.context.input,
-      await fn.getline(args.denops, "."),
-      args.context.input.length - args.completeStr.length,
-    );
+    return {
+      items: this.processCandidates(
+        args.sourceParams,
+        payload.result,
+        args.context.input,
+        await fn.getline(args.denops, "."),
+        args.context.input.length - args.completeStr.length,
+      ),
+      isIncomplete: payload.isIncomplete,
+    };
   }
 
   private processCandidates(
