@@ -1,12 +1,12 @@
 import {
   BaseSource,
-  Candidate,
-  DdcCompleteItems,
-} from "https://deno.land/x/ddc_vim@v1.4.0/types.ts";
+  Item,
+  DdcGatherItems,
+} from "https://deno.land/x/ddc_vim@v2.0.0/types.ts";
 import { assertEquals, fn } from "https://deno.land/x/ddc_vim@v1.3.0/deps.ts";
 import {
-  GatherCandidatesArguments,
-} from "https://deno.land/x/ddc_vim@v1.4.0/base/source.ts";
+  GatherArguments,
+} from "https://deno.land/x/ddc_vim@v2.0.0/base/source.ts";
 import {
   CompletionItem,
   InsertTextFormat,
@@ -127,9 +127,9 @@ function getSnippetWord(txt: string): string {
 
 export class Source extends BaseSource<Params> {
   private counter = 0;
-  async gatherCandidates(
-    args: GatherCandidatesArguments<Params>,
-  ): Promise<DdcCompleteItems> {
+  async gather(
+    args: GatherArguments<Params>,
+  ): Promise<DdcGatherItems> {
     this.counter = (this.counter + 1) % 100;
 
     const params = await args.denops.call(
@@ -182,7 +182,7 @@ export class Source extends BaseSource<Params> {
     input: string,
     line: string,
     completePosition: number,
-  ): Candidate[] {
+  ): Item[] {
     const candidates = results.map((v) => {
       const item = {
         word: getWord(v, input, line, completePosition),
