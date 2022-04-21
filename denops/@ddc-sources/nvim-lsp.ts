@@ -1,12 +1,12 @@
 import {
   BaseSource,
-  Item,
   DdcGatherItems,
-} from "https://deno.land/x/ddc_vim@v2.0.0/types.ts";
-import { assertEquals, fn } from "https://deno.land/x/ddc_vim@v1.3.0/deps.ts";
+  Item,
+} from "https://deno.land/x/ddc_vim@v2.2.0/types.ts";
+import { assertEquals, fn } from "https://deno.land/x/ddc_vim@v2.2.0/deps.ts";
 import {
   GatherArguments,
-} from "https://deno.land/x/ddc_vim@v2.0.0/base/source.ts";
+} from "https://deno.land/x/ddc_vim@v2.2.0/base/source.ts";
 import {
   CompletionItem,
   InsertTextFormat,
