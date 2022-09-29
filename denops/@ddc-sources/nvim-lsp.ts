@@ -2,11 +2,11 @@ import {
   BaseSource,
   DdcGatherItems,
   Item,
-} from "https://deno.land/x/ddc_vim@v2.2.0/types.ts";
-import { assertEquals, fn } from "https://deno.land/x/ddc_vim@v2.2.0/deps.ts";
+} from "https://deno.land/x/ddc_vim@v2.5.1/types.ts";
+import { assertEquals, fn } from "https://deno.land/x/ddc_vim@v2.5.1/deps.ts";
 import {
   GatherArguments,
-} from "https://deno.land/x/ddc_vim@v2.2.0/base/source.ts";
+} from "https://deno.land/x/ddc_vim@v2.5.1/base/source.ts";
 import {
   CompletionItem,
   InsertTextFormat,
@@ -153,7 +153,7 @@ export class Source extends BaseSource<Params> {
       }>,
       args.denops.call(
         "luaeval",
-        "require('ddc_nvim_lsp').request_candidates(" +
+        "require('ddc_nvim_lsp').request_items(" +
           "_A.arguments, _A.id, _A.trigger)",
         { "arguments": params, id, trigger: args.context.input.slice(-1) },
       ),
@@ -165,7 +165,7 @@ export class Source extends BaseSource<Params> {
     }
 
     return {
-      items: this.processCandidates(
+      items: this.processitems(
         args.sourceParams,
         payload.result,
         args.context.input,
@@ -176,14 +176,14 @@ export class Source extends BaseSource<Params> {
     };
   }
 
-  private processCandidates(
+  private processitems(
     params: Params,
     results: CompletionItem[],
     input: string,
     line: string,
     completePosition: number,
   ): Item[] {
-    const candidates = results.map((v) => {
+    const items = results.map((v) => {
       const item = {
         word: getWord(v, input, line, completePosition),
         abbr: v.label.trim(),
@@ -219,7 +219,7 @@ export class Source extends BaseSource<Params> {
       return item;
     });
 
-    return candidates;
+    return items;
   }
 
   params(): Params {

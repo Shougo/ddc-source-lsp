@@ -8,7 +8,7 @@ local get_trigger_characters = function(client)
   return nil
 end
 
-local request_candidates = function(arguments, id, trigger)
+local request_items = function(arguments, id, trigger)
   local method = 'textDocument/completion'
   local method_supported = false
   for _, client in pairs(vim.lsp.buf_get_clients(0)) do
@@ -63,5 +63,5 @@ local request_candidates = function(arguments, id, trigger)
 end
 
 return {
-  request_candidates = request_candidates
+  request_items = request_items
 }

@@ -14,8 +14,7 @@ Params			|ddc-nvim-lsp-params|
 ==============================================================================
 INTRODUCTION					*ddc-nvim-lsp-introduction*
 
-This source collects candidates nvim-lsp the cursor, namely inside current
-buffer.
+This source collects items nvim-lsp the cursor, namely inside current buffer.
 
 
 ==============================================================================
