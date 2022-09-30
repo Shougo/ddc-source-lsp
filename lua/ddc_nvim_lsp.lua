@@ -23,7 +23,7 @@ local request_items = function(arguments, id, trigger)
     end
   end
 
-  -- Note: if method is not supported, lsp.buf_request prints errors
+  -- NOTE: if method is not supported, lsp.buf_request prints errors
   if not method_supported then
     api.nvim_call_function('ddc#callback', {id, {
       result = {},
@@ -62,6 +62,42 @@ local request_items = function(arguments, id, trigger)
   end
 end
 
+local resolve_item = function(user_data)
+  local method = 'completionItem/resolve'
+  local method_supported = false
+  if not user_data.lspitem then
+    return
+  end
+  local lspitem = vim.fn.json_decode(user_data.lspitem)
+  for _, client in pairs(vim.lsp.buf_get_clients(0)) do
+    if client.supports_method(method) then
+      method_supported = true
+    end
+  end
+
+  -- NOTE: if method is not supported, lsp.buf_request prints errors
+  if not method_supported then
+    return
+  end
+
+  local func = function(responses)
+   for _, r in pairs(responses)  do
+     if r.result then
+       -- only needs the documentation
+       print(r.result.detail)
+       if r.result.documentation and r.result.documentation.value then
+         print(r.result.documentation.value)
+       end
+     end
+   end
+  end
+  local cancel = vim.lsp.buf_request_all(0, method, lspitem, func)
+  if not cancel then
+    return
+  end
+end
+
 return {
-  request_items = request_items
+  request_items = request_items,
+  resolve_item = resolve_item,
 }

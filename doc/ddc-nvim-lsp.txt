@@ -27,6 +27,11 @@ https://github.com/vim-denops/denops.vim
 
 You must use neovim 0.5.0+ with nvim-lsp configuration.
 
+If you want to read the documentation for items, please use
+"denops-popup-preview.vim".
+
+https://github.com/matsui54/denops-popup-preview.vim
+
 
 ==============================================================================
 EXAMPLES					*ddc-nvim-lsp-examples*

@@ -3,9 +3,14 @@ import {
   DdcGatherItems,
   Item,
 } from "https://deno.land/x/ddc_vim@v2.5.1/types.ts";
-import { assertEquals, fn } from "https://deno.land/x/ddc_vim@v2.5.1/deps.ts";
+import {
+  assertEquals,
+  autocmd,
+  fn,
+} from "https://deno.land/x/ddc_vim@v2.5.1/deps.ts";
 import {
   GatherArguments,
+  OnInitArguments,
 } from "https://deno.land/x/ddc_vim@v2.5.1/base/source.ts";
 import {
   CompletionItem,
@@ -127,6 +132,29 @@ function getSnippetWord(txt: string): string {
 
 export class Source extends BaseSource<Params> {
   private counter = 0;
+
+  async onInit(
+    args: OnInitArguments<Params>,
+  ): Promise<void> {
+    await autocmd.group(
+      args.denops,
+      "ddc-nvim_lsp",
+      (_: autocmd.GroupHelper) => {
+      },
+    );
+
+    // NOTE: Disable resolve_item calls
+    // It is not useful now
+    //await args.denops.cmd(
+    //  "autocmd ddc-nvim_lsp User PumCompleteChanged call v:lua.require"+
+    //    "'ddc_nvim_lsp'.resolve_item(get(pum#current_item(), 'user_data', {}))",
+    //);
+    //await args.denops.cmd(
+    //  "autocmd ddc-nvim_lsp CompleteChanged * call v:lua.require"+
+    //    "'ddc_nvim_lsp'.resolve_item(get(v:event.completed_item, 'user_data', {}))",
+    //);
+  }
+
   async gather(
     args: GatherArguments<Params>,
   ): Promise<DdcGatherItems> {
