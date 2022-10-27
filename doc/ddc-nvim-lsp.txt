@@ -1,24 +1,24 @@
-*ddc-nvim-lsp.txt*	nvim-lsp completion for ddc.vim
+*ddc-source-nvim-lsp.txt*	nvim-lsp completion for ddc.vim
 
 Author: Shougo <Shougo.Matsu at gmail.com>
 License: MIT license
 
-CONTENTS					*ddc-nvim-lsp-contents*
+CONTENTS					*ddc-source-nvim-lsp-contents*
 
-Introduction		|ddc-nvim-lsp-introduction|
-Install			|ddc-nvim-lsp-install|
-Examples		|ddc-nvim-lsp-examples|
-Params			|ddc-nvim-lsp-params|
+Introduction		|ddc-source-nvim-lsp-introduction|
+Install			|ddc-source-nvim-lsp-install|
+Examples		|ddc-source-nvim-lsp-examples|
+Params			|ddc-source-nvim-lsp-params|
 
 
 ==============================================================================
-INTRODUCTION					*ddc-nvim-lsp-introduction*
+INTRODUCTION				*ddc-source-nvim-lsp-introduction*
 
 This source collects items nvim-lsp the cursor, namely inside current buffer.
 
 
 ==============================================================================
-INSTALL							*ddc-nvim-lsp-install*
+INSTALL						*ddc-source-nvim-lsp-install*
 
 Please install both "ddc.vim" and "denops.vim".
 
@@ -34,7 +34,7 @@ https://github.com/matsui54/denops-popup-preview.vim
 
 
 ==============================================================================
-EXAMPLES					*ddc-nvim-lsp-examples*
+EXAMPLES					*ddc-source-nvim-lsp-examples*
 >
 >
 	" Use nvim-lsp source.
@@ -54,9 +54,9 @@ EXAMPLES					*ddc-nvim-lsp-examples*
 <
 
 ==============================================================================
-PARAMS							*ddc-nvim-lsp-params*
+PARAMS						*ddc-source-nvim-lsp-params*
 
-			    		*ddc-nvim-lsp-param-kindLabels*
+			    		*ddc-source-nvim-lsp-param-kindLabels*
 kindLabels	(Record<string, string>)
 		Customized labels for kind.
 

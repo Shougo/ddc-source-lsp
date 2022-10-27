@@ -1,4 +1,4 @@
-# ddc-nvim-lsp
+# ddc-source-nvim-lsp
 
 nvim-lsp completion for ddc.vim
 
