@@ -25,7 +25,7 @@ Please install both "ddc.vim" and "denops.vim".
 https://github.com/Shougo/ddc.vim
 https://github.com/vim-denops/denops.vim
 
-You must use neovim 0.5.0+ with nvim-lsp configuration.
+You must use neovim with nvim-lsp configuration.
 
 If you want to read the documentation for items, please use
 "denops-popup-preview.vim".
@@ -37,19 +37,18 @@ https://github.com/matsui54/denops-popup-preview.vim
 EXAMPLES					*ddc-source-nvim-lsp-examples*
 >
 >
-	" Use nvim-lsp source.
 	call ddc#custom#patch_global('sources', ['nvim-lsp'])
 	
-	" Change source options
-	call ddc#custom#patch_global('sourceOptions', {
-	      \ '_': { 'matchers': ['matcher_head'] },
-	      \ 'nvim-lsp': {
-	      \   'mark': 'lsp',
-	      \   'forceCompletionPattern': '\.\w*|:\w*|->\w*' },
+	call ddc#custom#patch_global('sourceOptions', #{
+	      \   nvim-lsp: #{
+	      \     mark: 'lsp',
+	      \     forceCompletionPattern: '\.\w*|:\w*|->\w*' },
+	      \   })
 	      \ })
-	      \ })
-	call ddc#custom#patch_global('sourceParams', {
-	      \ 'nvim-lsp': {'maxSize': 500},
+
+	" Use Customized labels
+	call ddc#custom#patch_global('sourceParams', #{
+	      \   nvim-lsp: #{ kindLabels: #{ Class: 'c' } },
 	      \ })
 <
 

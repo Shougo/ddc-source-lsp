@@ -12,22 +12,21 @@ https://github.com/vim-denops/denops.vim
 
 https://github.com/Shougo/ddc.vim
 
-### neovim 0.5.0+ with LSP configuration
+### neovim with LSP configuration
 
 ## Configuration
 
 ```vim
 call ddc#custom#patch_global('sources', ['nvim-lsp'])
-call ddc#custom#patch_global('sourceOptions', {
-      \ '_': { 'matchers': ['matcher_head'] },
-      \ 'nvim-lsp': {
-      \   'mark': 'lsp',
-      \   'forceCompletionPattern': '\.\w*|:\w*|->\w*' },
+call ddc#custom#patch_global('sourceOptions', #{
+      \   nvim-lsp: #{
+      \     mark: 'lsp',
+      \     forceCompletionPattern: '\.\w*|:\w*|->\w*' },
       \ })
 
 " Use Customized labels
-call ddc#custom#patch_global('sourceParams', {
-      \ 'nvim-lsp': { 'kindLabels': { 'Class': 'c' } },
+call ddc#custom#patch_global('sourceParams', #{
+      \   nvim-lsp: #{ kindLabels: #{ Class: 'c' } },
       \ })
 ```
 
