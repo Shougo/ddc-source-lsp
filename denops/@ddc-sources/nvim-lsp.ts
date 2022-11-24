@@ -133,7 +133,7 @@ function getSnippetWord(txt: string): string {
 export class Source extends BaseSource<Params> {
   private counter = 0;
 
-  async onInit(
+  override async onInit(
     args: OnInitArguments<Params>,
   ): Promise<void> {
     await autocmd.group(
@@ -155,7 +155,7 @@ export class Source extends BaseSource<Params> {
     //);
   }
 
-  async gather(
+  override async gather(
     args: GatherArguments<Params>,
   ): Promise<DdcGatherItems> {
     this.counter = (this.counter + 1) % 100;
@@ -250,7 +250,7 @@ export class Source extends BaseSource<Params> {
     return items;
   }
 
-  params(): Params {
+  override params(): Params {
     return {
       kindLabels: {},
     };
