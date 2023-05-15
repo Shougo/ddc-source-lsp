@@ -198,7 +198,7 @@ export class Source extends BaseSource<Params> {
         payload.result,
         args.context.input,
         await fn.getline(args.denops, "."),
-        args.completeStr.toLowerCase(),
+        args.completeStr.length,
         args.context.input.length - args.completeStr.length,
       ),
       isIncomplete: payload.isIncomplete,
@@ -210,12 +210,12 @@ export class Source extends BaseSource<Params> {
     results: CompletionItem[],
     input: string,
     line: string,
-    compareStr: string,
+    compareLength: number,
     completePosition: number,
   ): Item[] {
-    // NOTE: Returned items may be huge.  It must be head match filtered.
+    // NOTE: Returned items may be huge.  It must be length filtered.
     const items = results.filter(
-      (v) => v.label.trimStart().toLowerCase().startsWith(compareStr),
+      (v) => v.label.trimStart().length >= compareLength,
     ).map((v) => {
       const item = {
         word: getWord(v, input, line, completePosition),
