@@ -2,16 +2,16 @@ import {
   BaseSource,
   DdcGatherItems,
   Item,
-} from "https://deno.land/x/ddc_vim@v3.2.0/types.ts";
+} from "https://deno.land/x/ddc_vim@v3.4.0/types.ts";
 import {
   assertEquals,
   autocmd,
   fn,
-} from "https://deno.land/x/ddc_vim@v3.2.0/deps.ts";
+} from "https://deno.land/x/ddc_vim@v3.4.0/deps.ts";
 import {
   GatherArguments,
   OnInitArguments,
-} from "https://deno.land/x/ddc_vim@v3.2.0/base/source.ts";
+} from "https://deno.land/x/ddc_vim@v3.4.0/base/source.ts";
 import {
   CompletionItem,
   InsertTextFormat,
@@ -198,6 +198,7 @@ export class Source extends BaseSource<Params> {
         payload.result,
         args.context.input,
         await fn.getline(args.denops, "."),
+        args.completeStr.toLowerCase(),
         args.context.input.length - args.completeStr.length,
       ),
       isIncomplete: payload.isIncomplete,
@@ -209,9 +210,13 @@ export class Source extends BaseSource<Params> {
     results: CompletionItem[],
     input: string,
     line: string,
+    compareStr: string,
     completePosition: number,
   ): Item[] {
-    const items = results.map((v) => {
+    // NOTE: Returned items may be huge.  It must be head match filtered.
+    const items = results.filter(
+      (v) => v.label.trimStart().toLowerCase().startsWith(compareStr),
+    ).map((v) => {
       const item = {
         word: getWord(v, input, line, completePosition),
         abbr: v.label.trim(),
