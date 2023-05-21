@@ -36,7 +36,6 @@ https://github.com/matsui54/denops-popup-preview.vim
 ==============================================================================
 EXAMPLES					*ddc-source-nvim-lsp-examples*
 >
->
 	call ddc#custom#patch_global('sources', ['nvim-lsp'])
 	
 	call ddc#custom#patch_global('sourceOptions', #{
