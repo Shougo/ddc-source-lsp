@@ -2,16 +2,16 @@ import {
   BaseSource,
   DdcGatherItems,
   Item,
-} from "https://deno.land/x/ddc_vim@v3.4.0/types.ts";
+} from "https://deno.land/x/ddc_vim@v3.6.0/types.ts";
 import {
   assertEquals,
   autocmd,
   fn,
-} from "https://deno.land/x/ddc_vim@v3.4.0/deps.ts";
+} from "https://deno.land/x/ddc_vim@v3.6.0/deps.ts";
 import {
   GatherArguments,
   OnInitArguments,
-} from "https://deno.land/x/ddc_vim@v3.4.0/base/source.ts";
+} from "https://deno.land/x/ddc_vim@v3.6.0/base/source.ts";
 import {
   CompletionItem,
   InsertTextFormat,
@@ -64,6 +64,7 @@ type CompletionParams = {
 
 type Params = {
   kindLabels: Record<string, string>;
+  enableResolveItem: boolean;
 };
 
 function getWord(
@@ -143,16 +144,16 @@ export class Source extends BaseSource<Params> {
       },
     );
 
-    // NOTE: Disable resolve_item calls
-    // It is not useful now
-    //await args.denops.cmd(
-    //  "autocmd ddc-nvim_lsp User PumCompleteChanged call v:lua.require"+
-    //    "'ddc_nvim_lsp'.resolve_item(get(pum#current_item(), 'user_data', {}))",
-    //);
-    //await args.denops.cmd(
-    //  "autocmd ddc-nvim_lsp CompleteChanged * call v:lua.require"+
-    //    "'ddc_nvim_lsp'.resolve_item(get(v:event.completed_item, 'user_data', {}))",
-    //);
+    if (args.sourceParams.enableResolveItem) {
+      await args.denops.cmd(
+        "autocmd ddc-nvim_lsp User PumCompleteChanged call v:lua.require" +
+          "'ddc_nvim_lsp'.resolve_item(get(pum#current_item(), 'user_data', {}))",
+      );
+      await args.denops.cmd(
+        "autocmd ddc-nvim_lsp CompleteChanged * call v:lua.require" +
+          "'ddc_nvim_lsp'.resolve_item(get(v:event.completed_item, 'user_data', {}))",
+      );
+    }
   }
 
   override async gather(
@@ -258,6 +259,7 @@ export class Source extends BaseSource<Params> {
   override params(): Params {
     return {
       kindLabels: {},
+      enableResolveItem: false,
     };
   }
 }

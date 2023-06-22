@@ -54,7 +54,11 @@ EXAMPLES					*ddc-source-nvim-lsp-examples*
 ==============================================================================
 PARAMS						*ddc-source-nvim-lsp-params*
 
-			    		*ddc-source-nvim-lsp-param-kindLabels*
+				*ddc-source-nvim-lsp-param-enableResolveItem*
+enableResolveItem	(boolean)
+		Enable "resolve_item" LSP action.
+
+					*ddc-source-nvim-lsp-param-kindLabels*
 kindLabels	(Record<string, string>)
 		Customized labels for kind.
 
