@@ -11,7 +11,7 @@ end
 local request_items = function(arguments, id, trigger)
   local method = 'textDocument/completion'
   local method_supported = false
-  for _, client in pairs(vim.lsp.buf_get_clients(0)) do
+  for _, client in pairs(vim.lsp.get_active_clients({ bufnr = 0 })) do
     local triggers = get_trigger_characters(client)
     if triggers and vim.tbl_contains(triggers, trigger) then
       -- CompletionTriggerKind.TriggerCharacter = 2
@@ -25,17 +25,17 @@ local request_items = function(arguments, id, trigger)
 
   -- NOTE: if method is not supported, lsp.buf_request prints errors
   if not method_supported then
-    api.nvim_call_function('ddc#callback', {id, {
+    api.nvim_call_function('ddc#callback', { id, {
       result = {},
       success = false,
-    }})
+    } })
     return
   end
 
   local func = function(responses)
     local all = {}
     local is_incomplete = false;
-    for _, r in pairs(responses)  do
+    for _, r in pairs(responses) do
       if r.result then
         local items = r.result.items or r.result
         for i = 1, #items do
@@ -46,18 +46,18 @@ local request_items = function(arguments, id, trigger)
         end
       end
     end
-    api.nvim_call_function('ddc#callback', {id, {
+    api.nvim_call_function('ddc#callback', { id, {
       result = all,
       success = not vim.tbl_isempty(all),
       isIncomplete = is_incomplete,
-    }})
+    } })
   end
   local cancel = vim.lsp.buf_request_all(0, method, arguments, func)
   if not cancel then
-    api.nvim_call_function('ddc#callback', {id, {
+    api.nvim_call_function('ddc#callback', { id, {
       result = {},
       success = false,
-    }})
+    } })
     return
   end
 end
@@ -69,7 +69,7 @@ local resolve_item = function(user_data)
     return
   end
   local lspitem = vim.fn.json_decode(user_data.lspitem)
-  for _, client in pairs(vim.lsp.buf_get_clients(0)) do
+  for _, client in pairs(vim.lsp.get_active_clients({ bufnr = 0 })) do
     if client.supports_method(method) then
       method_supported = true
     end
@@ -81,15 +81,15 @@ local resolve_item = function(user_data)
   end
 
   local func = function(responses)
-   for _, r in pairs(responses)  do
-     if r.result then
-       -- only needs the documentation
-       print(r.result.detail)
-       if r.result.documentation and r.result.documentation.value then
-         print(r.result.documentation.value)
-       end
-     end
-   end
+    for _, r in pairs(responses) do
+      if r.result then
+        -- only needs the documentation
+        print(r.result.detail)
+        if r.result.documentation and r.result.documentation.value then
+          print(r.result.documentation.value)
+        end
+      end
+    end
   end
   local cancel = vim.lsp.buf_request_all(0, method, lspitem, func)
   if not cancel then
