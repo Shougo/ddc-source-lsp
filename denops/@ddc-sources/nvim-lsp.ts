@@ -149,10 +149,6 @@ export class Source extends BaseSource<Params> {
         "autocmd ddc-nvim_lsp User PumCompleteChanged call v:lua.require" +
           "'ddc_nvim_lsp'.resolve_item(get(pum#current_item(), 'user_data', {}))",
       );
-      await args.denops.cmd(
-        "autocmd ddc-nvim_lsp CompleteChanged * call v:lua.require" +
-          "'ddc_nvim_lsp'.resolve_item(get(v:event.completed_item, 'user_data', {}))",
-      );
     }
   }
 

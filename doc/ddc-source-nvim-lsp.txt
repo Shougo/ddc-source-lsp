@@ -57,6 +57,8 @@ PARAMS						*ddc-source-nvim-lsp-params*
 				*ddc-source-nvim-lsp-param-enableResolveItem*
 enableResolveItem	(boolean)
 		Enable "resolve_item" LSP action.
+		NOTE: "ddc-ui-pum" is required.
+		https://github.com/Shougo/ddc-ui-pum
 
 					*ddc-source-nvim-lsp-param-kindLabels*
 kindLabels	(Record<string, string>)
