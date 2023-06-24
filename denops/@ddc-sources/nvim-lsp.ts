@@ -53,10 +53,10 @@ const CompletionTriggerKind = {
   TriggerForIncompleteCompletions: 3,
 };
 
-export interface CompletionContext {
+type CompletionContext = {
   triggerKind: number;
   triggerCharacter?: string;
-}
+};
 
 type CompletionParams = {
   position: Position;
