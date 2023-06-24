@@ -16,7 +16,7 @@ import {
   CompletionItem,
   InsertTextFormat,
   Position,
-} from "https://deno.land/x/vscode_languageserver_types@v0.1.0/mod.ts";
+} from "npm:vscode-languageserver-types@3.17.3";
 
 const LSP_KINDS = [
   "Text",
