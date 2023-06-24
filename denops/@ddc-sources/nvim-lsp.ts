@@ -51,7 +51,7 @@ const CompletionTriggerKind = {
   Invoked: 1,
   TriggerCharacter: 2,
   TriggerForIncompleteCompletions: 3,
-};
+} as const satisfies Record<string, number>;
 
 type CompletionContext = {
   triggerKind: number;
