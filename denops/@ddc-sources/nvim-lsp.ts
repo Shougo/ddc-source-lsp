@@ -14,37 +14,38 @@ import {
 } from "https://deno.land/x/ddc_vim@v3.6.0/base/source.ts";
 import {
   CompletionItem,
+  CompletionItemKind,
   InsertTextFormat,
   Position,
 } from "npm:vscode-languageserver-types@3.17.3";
 
-const LSP_KINDS = [
-  "Text",
-  "Method",
-  "Function",
-  "Constructor",
-  "Field",
-  "Variable",
-  "Class",
-  "Interface",
-  "Module",
-  "Property",
-  "Unit",
-  "Value",
-  "Enum",
-  "Keyword",
-  "Snippet",
-  "Color",
-  "File",
-  "Reference",
-  "Folder",
-  "EnumMember",
-  "Constant",
-  "Struct",
-  "Event",
-  "Operator",
-  "TypeParameter",
-];
+const LSP_KINDS = {
+  1: "Text",
+  2: "Method",
+  3: "Function",
+  4: "Constructor",
+  5: "Field",
+  6: "Variable",
+  7: "Class",
+  8: "Interface",
+  9: "Module",
+  10: "Property",
+  11: "Unit",
+  12: "Value",
+  13: "Enum",
+  14: "Keyword",
+  15: "Snippet",
+  16: "Color",
+  17: "File",
+  18: "Reference",
+  19: "Folder",
+  20: "EnumMember",
+  21: "Constant",
+  22: "Struct",
+  23: "Event",
+  24: "Operator",
+  25: "TypeParameter",
+} as const satisfies Record<CompletionItemKind, string>;
 
 const CompletionTriggerKind = {
   Invoked: 1,
@@ -224,7 +225,7 @@ export class Source extends BaseSource<Params> {
       };
 
       if (typeof v.kind === "number") {
-        item.kind = LSP_KINDS[v.kind - 1];
+        item.kind = LSP_KINDS[v.kind];
       } else if (
         v.insertTextFormat && v.insertTextFormat == InsertTextFormat.Snippet
       ) {
