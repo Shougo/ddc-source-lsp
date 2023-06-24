@@ -46,8 +46,15 @@ EXAMPLES					*ddc-source-nvim-lsp-examples*
 	      \ })
 
 	" Use Customized labels
+	call ddc#custom#patch_global('sourceOptions', #{
+	      \   nvim-lsp: #{
+	      \     converters: ['converter_kind_labels'],
+	      \   })
+	      \ })
 	call ddc#custom#patch_global('sourceParams', #{
-	      \   nvim-lsp: #{ kindLabels: #{ Class: 'c' } },
+	      \   converter_kind_labels: #{
+	      \     kindLabels: #{ Class: 'c' },
+	      \   },
 	      \ })
 <
 
@@ -60,7 +67,7 @@ enableResolveItem	(boolean)
 		NOTE: "ddc-ui-pum" is required.
 		https://github.com/Shougo/ddc-ui-pum
 
-					*ddc-source-nvim-lsp-param-kindLabels*
+			*ddc-filter-converter_kind_labels-param-kindLabels*
 kindLabels	(Record<string, string>)
 		Customized labels for kind.
 

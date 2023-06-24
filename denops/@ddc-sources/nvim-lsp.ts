@@ -63,7 +63,6 @@ type CompletionParams = {
 };
 
 type Params = {
-  kindLabels: Record<string, string>;
   enableResolveItem: boolean;
 };
 
@@ -191,7 +190,6 @@ export class Source extends BaseSource<Params> {
 
     return {
       items: this.processitems(
-        args.sourceParams,
         payload.result,
         args.context.input,
         await fn.getline(args.denops, "."),
@@ -203,7 +201,6 @@ export class Source extends BaseSource<Params> {
   }
 
   private processitems(
-    params: Params,
     results: CompletionItem[],
     input: string,
     line: string,
@@ -227,9 +224,7 @@ export class Source extends BaseSource<Params> {
       };
 
       if (typeof v.kind === "number") {
-        const labels = params.kindLabels;
-        const kind = LSP_KINDS[v.kind - 1];
-        item.kind = kind in labels ? labels[kind] : kind;
+        item.kind = LSP_KINDS[v.kind - 1];
       } else if (
         v.insertTextFormat && v.insertTextFormat == InsertTextFormat.Snippet
       ) {
@@ -254,7 +249,6 @@ export class Source extends BaseSource<Params> {
 
   override params(): Params {
     return {
-      kindLabels: {},
       enableResolveItem: false,
     };
   }
