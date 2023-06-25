@@ -1,51 +1,16 @@
 import {
   BaseSource,
   DdcGatherItems,
-  Item,
-} from "https://deno.land/x/ddc_vim@v3.6.0/types.ts";
-import {
-  assertEquals,
-  autocmd,
   fn,
-} from "https://deno.land/x/ddc_vim@v3.6.0/deps.ts";
-import {
   GatherArguments,
+  Item,
+  LSP,
+  OnCompleteDoneArguments,
   OnInitArguments,
-} from "https://deno.land/x/ddc_vim@v3.6.0/base/source.ts";
-import {
-  CompletionItem,
-  CompletionItemKind,
-  InsertTextFormat,
-  Position,
-} from "npm:vscode-languageserver-types@3.17.3";
-
-const LSP_KINDS = {
-  1: "Text",
-  2: "Method",
-  3: "Function",
-  4: "Constructor",
-  5: "Field",
-  6: "Variable",
-  7: "Class",
-  8: "Interface",
-  9: "Module",
-  10: "Property",
-  11: "Unit",
-  12: "Value",
-  13: "Enum",
-  14: "Keyword",
-  15: "Snippet",
-  16: "Color",
-  17: "File",
-  18: "Reference",
-  19: "Folder",
-  20: "EnumMember",
-  21: "Constant",
-  22: "Struct",
-  23: "Event",
-  24: "Operator",
-  25: "TypeParameter",
-} as const satisfies Record<CompletionItemKind, string>;
+  vars,
+} from "../ddc-source-nvim-lsp/deps.ts";
+import { OffsetEncoding } from "../ddc-source-nvim-lsp/offset_encoding.ts";
+import CompletionItem from "../ddc-source-nvim-lsp/completion_item.ts";
 
 const CompletionTriggerKind = {
   Invoked: 1,
@@ -59,104 +24,46 @@ type CompletionContext = {
 };
 
 type CompletionParams = {
-  position: Position;
+  position: LSP.Position;
   context?: CompletionContext;
 };
 
-type Params = {
-  enableResolveItem: boolean;
+type Response = {
+  result: LSP.CompletionItem[] | LSP.CompletionList;
+  clientId: number;
+  offsetEncoding: OffsetEncoding;
+  resolvable: boolean;
+}[];
+
+export type UserData = {
+  lspitem: string;
+  clientId: number;
+  resolvable: boolean;
+  lineOnRequest: string;
 };
 
-function getWord(
-  item: CompletionItem,
-  input: string,
-  line: string,
-  completePosition: number,
-): string {
-  let word = item.label.trimStart();
+export type ConfirmBehavior = "insert" | "replace";
 
-  if (item.textEdit) {
-    const textEdit = item.textEdit;
-    word = textEdit.newText;
-    if ("range" in textEdit) {
-      const start = textEdit.range.start;
-      const end = textEdit.range.end;
-      if (item.insertTextFormat == InsertTextFormat.Snippet) {
-        word = getSnippetWord(word);
-      }
-      if (start.line == end.line && start.character == end.character) {
-        word = `${input.slice(completePosition)}${word}`;
-      } else {
-        // remove overlapped text which comes before/after complete position
-        if (
-          start.character < completePosition &&
-          line.slice(start.character, completePosition) ==
-            word.slice(0, completePosition - start.character)
-        ) {
-          word = word.slice(completePosition - start.character);
-        }
-        const curCol = input.length;
-        if (
-          end.character > curCol &&
-          line.slice(curCol, end.character) ==
-            word.slice(curCol - end.character)
-        ) {
-          word = word.slice(0, curCol - end.character);
-        }
-      }
-    }
-  } else if (item.insertText) {
-    word = item.insertText;
-    if (item.insertTextFormat == InsertTextFormat.Snippet) {
-      word = getSnippetWord(word);
-    }
-  }
-  return word;
-}
-
-function getSnippetWord(txt: string): string {
-  // remove snippet's tabstop
-  txt = txt.replace(/\$[0-9]+|\${(?:\\.|[^}])+}/g, "");
-  txt = txt.replace(/\\(.)/g, "$1");
-  const m = txt.match(
-    /^((?:<[^>]*>)|(?:\[[^\]]*\])|(?:\([^\)]*\))|(?:{[^}]*})|(?:"[^"]*")|(?:'[^']*'))/,
-  );
-  if (m) {
-    return m[0];
-  }
-  const valid = txt.match(/^[^"'' (<{\[\t\r\n]+/);
-  if (!valid) {
-    return txt;
-  }
-  return valid[0];
-}
+type Params = {
+  enableResolveItem: boolean;
+  enableAdditionalTextEdit: boolean;
+  confirmBehavior: ConfirmBehavior;
+};
 
 export class Source extends BaseSource<Params> {
-  private counter = 0;
-
   override async onInit(
     args: OnInitArguments<Params>,
   ): Promise<void> {
-    await autocmd.group(
-      args.denops,
-      "ddc-nvim_lsp",
-      (_: autocmd.GroupHelper) => {
-      },
+    await args.denops.call(
+      "luaeval",
+      `require("ddc_nvim_lsp.internal").setup(_A)`,
+      args.sourceParams,
     );
-
-    if (args.sourceParams.enableResolveItem) {
-      await args.denops.cmd(
-        "autocmd ddc-nvim_lsp User PumCompleteChanged call v:lua.require" +
-          "'ddc_nvim_lsp'.resolve_item(get(pum#current_item(), 'user_data', {}))",
-      );
-    }
   }
 
   override async gather(
     args: GatherArguments<Params>,
-  ): Promise<DdcGatherItems> {
-    this.counter = (this.counter + 1) % 100;
-
+  ): Promise<DdcGatherItems<UserData>> {
     const params = await args.denops.call(
       "luaeval",
       "vim.lsp.util.make_position_params()",
@@ -168,183 +75,61 @@ export class Source extends BaseSource<Params> {
         : CompletionTriggerKind.Invoked,
     };
 
-    const id = `source/${this.name}/${this.counter}`;
+    const response = await args.denops.call(
+      "luaeval",
+      `require("ddc_nvim_lsp.internal").request(_A[1], _A[2], _A[3])`,
+      [params, args.context.input.slice(-1), args.completeStr.length],
+    ) as Response;
 
-    const [payload] = await Promise.all([
-      args.onCallback(id) as Promise<{
-        result: CompletionItem[];
-        success: boolean;
-        isIncomplete: boolean;
-      }>,
-      args.denops.call(
-        "luaeval",
-        "require('ddc_nvim_lsp').request_items(" +
-          "_A.arguments, _A.id, _A.trigger)",
-        { "arguments": params, id, trigger: args.context.input.slice(-1) },
-      ),
-    ]);
+    const lineOnRequest = await fn.getline(args.denops, ".");
 
-    // payload.result may be not Array
-    if (payload?.result?.length == null) {
-      return [];
+    const items: Item<UserData>[] = [];
+    let isIncomplete = false;
+
+    for (const { clientId, offsetEncoding, result, resolvable } of response) {
+      const completionItem = new CompletionItem(
+        clientId,
+        offsetEncoding,
+        resolvable,
+        lineOnRequest,
+        args.completePos,
+      );
+
+      if (Array.isArray(result)) {
+        for (const lspItem of result) {
+          items.push(completionItem.toDdcItem(lspItem));
+        }
+      } else {
+        for (const lspItem of result.items) {
+          items.push(completionItem.toDdcItem(lspItem, result.itemDefaults));
+        }
+        isIncomplete = isIncomplete || result.isIncomplete;
+      }
     }
 
     return {
-      items: this.processitems(
-        payload.result,
-        args.context.input,
-        await fn.getline(args.denops, "."),
-        args.completeStr.length,
-        args.context.input.length - args.completeStr.length,
-      ),
-      isIncomplete: payload.isIncomplete,
+      items,
+      isIncomplete,
     };
   }
 
-  private processitems(
-    results: CompletionItem[],
-    input: string,
-    line: string,
-    compareLength: number,
-    completePosition: number,
-  ): Item[] {
-    // NOTE: Returned items may be huge.  It must be length filtered.
-    const items = results.filter(
-      (v) => v.label.trimStart().length >= compareLength,
-    ).map((v) => {
-      const item = {
-        word: getWord(v, input, line, completePosition),
-        abbr: v.label.trim(),
-        dup: false,
-        "user_data": {
-          lspitem: JSON.stringify(v),
-        },
-        kind: "",
-        menu: "",
-        info: "",
-      };
-
-      if (typeof v.kind === "number") {
-        item.kind = LSP_KINDS[v.kind];
-      } else if (
-        v.insertTextFormat && v.insertTextFormat == InsertTextFormat.Snippet
-      ) {
-        item.kind = "Snippet";
-      }
-
-      if (v.detail) {
-        item.menu = v.detail;
-      }
-
-      if (typeof v.documentation === "string") {
-        item.info = v.documentation;
-      } else if (v.documentation && "value" in v.documentation) {
-        item.info = v.documentation.value;
-      }
-
-      return item;
-    });
-
-    return items;
+  override async onCompleteDone(
+    args: OnCompleteDoneArguments<Params, UserData>,
+  ): Promise<void> {
+    await args.denops.cmd("echom message", { messange: "hi" });
+    // console.log(args.userData);
+    // const vimCompletedItem = await vars.v.get(
+    //   args.denops,
+    //   "completed_item",
+    // ) as Item<UserData>;
+    // console.log(vimCompletedItem);
   }
 
   override params(): Params {
     return {
-      enableResolveItem: false,
+      enableResolveItem: true,
+      enableAdditionalTextEdit: true,
+      confirmBehavior: "insert",
     };
   }
 }
-
-Deno.test("getWord", () => {
-  assertEquals(
-    getWord(
-      {
-        "label": '"Cascadia Mono"',
-        "textEdit": {
-          "range": {
-            "end": { "character": 14, "line": 39 },
-            "start": { "character": 12, "line": 39 },
-          },
-          "newText": '"Cascadia Mono"',
-        },
-        "insertText": '"Cascadia Mono"',
-        "insertTextFormat": 2,
-      },
-      '"fontFace": "',
-      '"fontFace": ""',
-      13,
-    ),
-    "Cascadia Mono",
-  );
-  assertEquals(
-    getWord(
-      {
-        "label": '"Cascadia Mono"',
-        "textEdit": {
-          "range": {
-            "end": { "character": 14, "line": 39 },
-            "start": { "character": 12, "line": 39 },
-          },
-          "newText": '"Cascadia Mono"',
-        },
-        "insertText": '"Cascadia Mono"',
-        "insertTextFormat": 2,
-      },
-      '"fontFace": "',
-      '"fontFace": "',
-      13,
-    ),
-    'Cascadia Mono"',
-  );
-  assertEquals(
-    getWord(
-      {
-        "label": " vector>",
-        "textEdit": {
-          "range": {
-            "end": { "character": 12, "line": 1 },
-            "start": { "character": 10, "line": 1 },
-          },
-          "newText": "vector>",
-        },
-        "insertText": "vector>",
-        "kind": 17,
-        "insertTextFormat": 2,
-      },
-      "#include <v",
-      "#include <v>",
-      10,
-    ),
-    "vector",
-  );
-
-  assertEquals(
-    getWord(
-      {
-        "label": "fig:HfO2",
-        "textEdit": {
-          "range": {
-            "end": { "character": 10, "line": 52 },
-            "start": { "character": 5, "line": 52 },
-          },
-          "newText": "fig:HfO2",
-        },
-      },
-      "\\ref{fig:h",
-      "\\ref{fig:h}",
-      9,
-    ),
-    "HfO2",
-  );
-});
-
-Deno.test("getSnippetWord", () => {
-  // test cases from nvim-cmp
-  assertEquals(getSnippetWord("all: $0;"), "all:");
-  assertEquals(getSnippetWord("print"), "print");
-  assertEquals(getSnippetWord("$variable"), "$variable");
-  assertEquals(getSnippetWord("print()"), "print");
-  assertEquals(getSnippetWord('["cmp#confirm"]'), '["cmp#confirm"]');
-  assertEquals(getSnippetWord('"devDependencies":'), '"devDependencies"');
-  assertEquals(getSnippetWord('\\"devDependencies\\":'), '"devDependencies"');
-});
