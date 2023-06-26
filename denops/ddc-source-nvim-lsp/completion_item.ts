@@ -3,7 +3,7 @@ import { ConfirmBehavior, UserData } from "../@ddc-sources/nvim-lsp.ts";
 import { decodeUtfIndex, OffsetEncoding } from "./offset_encoding.ts";
 
 export default class CompletionItem {
-  #Kind = {
+  static Kind = {
     1: "Text",
     2: "Method",
     3: "Function",
@@ -59,7 +59,7 @@ export default class CompletionItem {
     return {
       word: this.getWord(lspItem),
       abbr: this.getAbbr(lspItem),
-      kind: this.#Kind[lspItem.kind ?? 1],
+      kind: CompletionItem.Kind[lspItem.kind ?? 1],
       user_data: {
         lspitem: JSON.stringify(lspItem),
         clientId: this.#clientId,
