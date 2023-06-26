@@ -90,12 +90,14 @@ export default class CompletionItem {
         };
       }
     }
-    delete defaults.editRange;
 
-    return {
+    const filledItem = {
       ...defaults,
       ...lspItem,
     };
+    delete filledItem.editRange;
+
+    return filledItem;
   }
 
   private getWord(
