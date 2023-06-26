@@ -1,6 +1,7 @@
 import { Denops, Item, LSP } from "./deps.ts";
-import { ConfirmBehavior, UserData } from "../@ddc-sources/nvim-lsp.ts";
 import { decodeUtfIndex, OffsetEncoding } from "./offset_encoding.ts";
+import createSelectText from "./select_text.ts";
+import { ConfirmBehavior, UserData } from "../@ddc-sources/nvim-lsp.ts";
 
 export default class CompletionItem {
   static Kind = {
@@ -106,7 +107,7 @@ export default class CompletionItem {
     const filterText = lspItem.filterText ?? lspItem.label;
     const offset = this.getOffset(lspItem) ?? this.#completePos;
     const fixedLine = this.#lineOnRequest.slice(0, offset) + filterText;
-    return fixedLine.slice(this.#completePos);
+    return createSelectText(fixedLine.slice(this.#completePos));
   }
 
   private getOffset(
