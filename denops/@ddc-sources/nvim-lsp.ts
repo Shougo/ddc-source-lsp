@@ -168,15 +168,6 @@ export class Source extends BaseSource<Params> {
 
     const lspItem = JSON.parse(userData.lspitem) as LSP.CompletionItem;
 
-    // Apply additionalTextEdits
-    if (params.enableAdditionalTextEdit && lspItem.additionalTextEdits) {
-      await this.applyAdditionalTextEdit(
-        denops,
-        lspItem.additionalTextEdits,
-        userData.offsetEncoding,
-      );
-    }
-
     ctx = await LineContext.create(denops);
     const insertText = CompletionItem.getInsertText(lspItem);
     let before: number, after: number;
@@ -189,6 +180,15 @@ export class Source extends BaseSource<Params> {
         : lspItem.textEdit[params.confirmBehavior];
       before = ctx.character - range.start.character;
       after = range.end.character - ctx.character;
+    }
+
+    // Apply additionalTextEdits
+    if (params.enableAdditionalTextEdit && lspItem.additionalTextEdits) {
+      await this.applyAdditionalTextEdit(
+        denops,
+        lspItem.additionalTextEdits,
+        userData.offsetEncoding,
+      );
     }
 
     const isSnippet = lspItem.insertTextFormat === LSP.InsertTextFormat.Snippet;
