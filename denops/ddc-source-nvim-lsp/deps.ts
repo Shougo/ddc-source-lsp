@@ -10,8 +10,8 @@ export {
 } from "https://deno.land/x/ddc_vim@v3.7.0/deps.ts";
 export type {
   GatherArguments,
-  OnInitArguments,
   OnCompleteDoneArguments,
+  OnInitArguments,
 } from "https://deno.land/x/ddc_vim@v3.7.0/base/source.ts";
 
 export * as LSP from "npm:vscode-languageserver-types@3.17.3";

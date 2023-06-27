@@ -133,7 +133,8 @@ export class Source extends BaseSource<Params> {
   ): Promise<void> {
     const { denops, userData, sourceParams: params } = args;
 
-    // If the user confirms by entering the next input, the expansion process is not performed.
+    // If the user confirms by entering the next input,
+    // the expansion process is not performed.
     const itemWord = await denops.eval(`v:completed_item.word`) as string;
     const beforeLine = await denops.eval(
       `getline(".")[:getcurpos()[2]-2]`,
