@@ -151,6 +151,7 @@ export class Source extends BaseSource<Params> {
       0,
       itemWord,
     );
+    // :h undo-break
     await denops.cmd(`let &undolevels = &undolevels`);
 
     // Restore the requested state
