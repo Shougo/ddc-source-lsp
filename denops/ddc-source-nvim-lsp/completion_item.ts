@@ -1,7 +1,7 @@
 import { Item, LSP } from "./deps.ts";
 import { decodeUtfIndex, OffsetEncoding } from "./offset_encoding.ts";
 import createSelectText from "./select_text.ts";
-import { ConfirmBehavior, UserData } from "../@ddc-sources/nvim-lsp.ts";
+import { UserData } from "../@ddc-sources/nvim-lsp.ts";
 
 export default class CompletionItem {
   static Kind = {
@@ -37,51 +37,14 @@ export default class CompletionItem {
   #resolvable: boolean;
   #lineOnRequest: string;
   #completePos: number;
-  #requestPosition: LSP.Position;
-  #suggestPosition: LSP.Position;
+  #requestCharacter: number;
 
-  static extractTextEdit(
+  static getInsertText(
     lspItem: LSP.CompletionItem,
-    confirmBehavior: ConfirmBehavior,
-    range: LSP.Range,
-    lineOnRequest: string,
-    offsetEncoding: OffsetEncoding,
-  ): { textEdit: LSP.TextEdit; snippetBody?: string } {
-    const newText = lspItem.textEdit?.newText ??
+  ): string {
+    return lspItem.textEdit?.newText ??
       lspItem.insertText ??
       lspItem.label;
-    if (lspItem.textEdit) {
-      if ("range" in lspItem.textEdit) {
-        range = lspItem.textEdit.range;
-      } else {
-        range = lspItem.textEdit[confirmBehavior];
-      }
-      range = CompletionItem.decodeRange(range, lineOnRequest, offsetEncoding);
-    }
-    if (lspItem.insertTextFormat === LSP.InsertTextFormat.Snippet) {
-      return {
-        textEdit: { range, newText: "" },
-        snippetBody: newText,
-      };
-    }
-    return { textEdit: { range, newText } };
-  }
-
-  static decodeRange(
-    range: LSP.Range,
-    line: string,
-    offsetEncoding: OffsetEncoding,
-  ): LSP.Range {
-    return {
-      start: {
-        line: range.start.line,
-        character: decodeUtfIndex(line, range.start.character, offsetEncoding),
-      },
-      end: {
-        line: range.end.line,
-        character: decodeUtfIndex(line, range.end.character, offsetEncoding),
-      },
-    };
   }
 
   constructor(
@@ -90,18 +53,14 @@ export default class CompletionItem {
     resolvable: boolean,
     lineOnRequest: string,
     completePos: number,
-    requestPosition: LSP.Position,
+    requestCharacter: number,
   ) {
     this.#clientId = clientId;
     this.#offsetEncoding = offsetEncoding;
     this.#resolvable = resolvable;
     this.#lineOnRequest = lineOnRequest;
     this.#completePos = completePos;
-    this.#requestPosition = requestPosition;
-    this.#suggestPosition = {
-      line: requestPosition.line,
-      character: this.#completePos,
-    };
+    this.#requestCharacter = requestCharacter;
   }
 
   toDdcItem(
@@ -119,8 +78,8 @@ export default class CompletionItem {
         offsetEncoding: this.#offsetEncoding,
         resolvable: this.#resolvable,
         lineOnRequest: this.#lineOnRequest,
-        requestPosition: this.#requestPosition,
-        suggestPosition: this.#suggestPosition,
+        requestCharacter: this.#requestCharacter,
+        suggestCharacter: this.#completePos,
       },
     };
   }
@@ -164,7 +123,7 @@ export default class CompletionItem {
     }
     const text = lspItem.filterText.trim();
     const defaultOffset = this.#completePos;
-    let offset = this.getOffset(lspItem) ?? defaultOffset;
+    let offset = this.getOffset(lspItem, defaultOffset);
     if (offset < defaultOffset) {
       const prefix = this.#lineOnRequest.slice(offset, defaultOffset);
       if (!text.startsWith(prefix)) {
@@ -172,34 +131,34 @@ export default class CompletionItem {
       }
     }
     const fixedLine = this.#lineOnRequest.slice(0, offset) + text;
-    return fixedLine.slice(this.#completePos);
+    return fixedLine.slice(defaultOffset);
   }
 
   private getOffset(
     lspItem: LSP.CompletionItem,
-  ) {
+    defaultOffset: number,
+  ): number {
     const textEdit = lspItem.textEdit;
     if (textEdit === undefined) {
-      return;
+      return defaultOffset;
     }
     const range = "range" in textEdit ? textEdit.range : textEdit.insert;
     const character = range.start.character;
-    return decodeUtfIndex(this.#lineOnRequest, character, this.#offsetEncoding);
+    const offset = decodeUtfIndex(
+      this.#lineOnRequest,
+      character,
+      this.#offsetEncoding,
+    );
+    const delta = this.#lineOnRequest.slice(offset, defaultOffset).search(/\S/);
+    return offset + (delta > 0 ? delta : 0);
   }
 
   private getAbbr(
     lspItem: LSP.CompletionItem,
-  ) {
-    if (this.getInsertTextFormat(lspItem) === LSP.InsertTextFormat.Snippet) {
+  ): string {
+    if (lspItem.insertTextFormat === LSP.InsertTextFormat.Snippet) {
       return `${lspItem.label}~`;
     }
     return lspItem.label;
-  }
-
-  private getInsertTextFormat(
-    lspItem: LSP.CompletionItem,
-  ) {
-    return lspItem.insertTextFormat ??
-      LSP.InsertTextFormat.PlainText;
   }
 }
