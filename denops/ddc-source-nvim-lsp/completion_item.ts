@@ -104,10 +104,20 @@ export default class CompletionItem {
   private getWord(
     lspItem: LSP.CompletionItem,
   ): string {
-    const filterText = lspItem.filterText ?? lspItem.label;
-    const offset = this.getOffset(lspItem) ?? this.#completePos;
-    const fixedLine = this.#lineOnRequest.slice(0, offset) + filterText;
-    return createSelectText(fixedLine.slice(this.#completePos));
+    if (!lspItem.filterText) {
+      return lspItem.label;
+    }
+    const text = lspItem.filterText.trim();
+    const defaultOffset = this.#completePos;
+    let offset = this.getOffset(lspItem) ?? defaultOffset;
+    if (offset < defaultOffset) {
+      const prefix = this.#lineOnRequest.slice(offset, defaultOffset);
+      if (!text.startsWith(prefix)) {
+        offset = defaultOffset;
+      }
+    }
+    const fixedLine = this.#lineOnRequest.slice(0, offset) + text;
+    return fixedLine.slice(this.#completePos);
   }
 
   private getOffset(
