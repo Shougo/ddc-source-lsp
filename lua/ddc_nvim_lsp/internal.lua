@@ -52,15 +52,15 @@ function M.resolve(completed_item)
   if completed_item.__sourceName ~= "nvim-lsp" or not completed_item.user_data.resolvable then
     return
   end
-  local clientId = completed_item.user_data.clientId
-  local lspitem = vim.json.decode(completed_item.user_data.lspitem)
-
-  lspitem = resolve(clientId, lspitem) or lspitem
-
-  completed_item.user_data.lspitem = vim.json.encode(lspitem)
   completed_item.user_data.resolvable = false
 
-  return completed_item
+  local clientId = completed_item.user_data.clientId
+  local lspitem = vim.json.decode(completed_item.user_data.lspitem)
+  lspitem = resolve(clientId, lspitem)
+  if lspitem then
+    completed_item.user_data.lspitem = vim.json.encode(lspitem)
+    return completed_item
+  end
 end
 
 function M.setup()
