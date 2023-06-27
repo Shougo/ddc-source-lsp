@@ -20,7 +20,7 @@ function M.request(params, trigger)
       end
 
       local response = client.request_sync("textDocument/completion", params, 1000, 0)
-      if response.err == nil and response.result then
+      if response and response.err == nil and response.result then
         table.insert(results, {
           result = response.result,
           clientId = client.id,
