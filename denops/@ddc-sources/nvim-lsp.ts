@@ -1,6 +1,9 @@
 import {
   BaseSource,
   DdcGatherItems,
+  deadline,
+  DeadlineError,
+  deferred,
   Denops,
   fn,
   GatherArguments,
@@ -8,34 +11,27 @@ import {
   LSP,
   OnCompleteDoneArguments,
   OnInitArguments,
+  register,
 } from "../ddc-source-nvim-lsp/deps.ts";
+import {
+  CompletionOptions,
+  CompletionParams,
+  CompletionTriggerKind,
+} from "../ddc-source-nvim-lsp/types.ts";
 import { OffsetEncoding } from "../ddc-source-nvim-lsp/offset_encoding.ts";
 import CompletionItem from "../ddc-source-nvim-lsp/completion_item.ts";
 import LineContext from "../ddc-source-nvim-lsp/line_context.ts";
 import linePatch from "../ddc-source-nvim-lsp/line_patch.ts";
 
-const CompletionTriggerKind = {
-  Invoked: 1,
-  TriggerCharacter: 2,
-  TriggerForIncompleteCompletions: 3,
-} as const satisfies Record<string, number>;
-
-type CompletionContext = {
-  triggerKind: number;
-  triggerCharacter?: string;
-};
-
-type CompletionParams = {
-  position: LSP.Position;
-  context?: CompletionContext;
-};
-
-type Response = {
-  result: LSP.CompletionItem[] | LSP.CompletionList;
-  clientId: number;
+type Client = {
+  id: number;
+  provider: CompletionOptions;
   offsetEncoding: OffsetEncoding;
-  resolvable: boolean;
-}[];
+};
+
+type Result = LSP.CompletionList | LSP.CompletionItem[];
+
+export type ConfirmBehavior = "insert" | "replace";
 
 export type UserData = {
   lspitem: string;
@@ -52,8 +48,6 @@ export type UserData = {
   //      ^
   suggestCharacter: number;
 };
-
-export type ConfirmBehavior = "insert" | "replace";
 
 type Params = {
   snippetEngine: string; // ID of denops#callback. Required!
@@ -77,38 +71,33 @@ export class Source extends BaseSource<Params> {
   override async gather(
     args: GatherArguments<Params>,
   ): Promise<DdcGatherItems<UserData>> {
-    const lineOnRequest = await fn.getline(args.denops, ".");
+    const denops = args.denops;
+
+    const lineOnRequest = await fn.getline(denops, ".");
     const requestCharacter = args.completePos + args.completeStr.length;
-
-    const params = await args.denops.call(
-      "luaeval",
-      "vim.lsp.util.make_position_params()",
-    ) as CompletionParams;
-
-    params.context = {
-      triggerKind: args.isIncomplete
-        ? CompletionTriggerKind.TriggerForIncompleteCompletions
-        : CompletionTriggerKind.Invoked,
-    };
-
-    const response = await args.denops.call(
-      "luaeval",
-      `require("ddc_nvim_lsp.internal").request(_A[1], _A[2], _A[3])`,
-      [params, args.context.input.slice(-1), args.completeStr.length],
-    ) as Response;
-
-    const items: Item<UserData>[] = [];
     let isIncomplete = false;
 
-    for (const { clientId, offsetEncoding, result, resolvable } of response) {
+    const clients = await denops.call(
+      "luaeval",
+      `require("ddc_nvim_lsp.internal").get_clients()`,
+    ) as Client[];
+
+    const items = await Promise.all(clients.map(async (client) => {
+      const result = await this.request(denops, client, args);
+      if (!result) {
+        return [];
+      }
+
       const completionItem = new CompletionItem(
-        clientId,
-        offsetEncoding,
-        resolvable,
+        client.id,
+        client.offsetEncoding,
+        client.provider.resolveProvider === true,
         lineOnRequest,
         args.completePos,
         requestCharacter,
       );
+
+      const items: Item<UserData>[] = [];
 
       if (Array.isArray(result)) {
         for (const lspItem of result) {
@@ -120,12 +109,59 @@ export class Source extends BaseSource<Params> {
         }
         isIncomplete = isIncomplete || result.isIncomplete;
       }
-    }
+
+      return items;
+    })).then((items) => items.flat(1))
+      .catch((e) => {
+        this.printError(denops, e);
+        return [];
+      });
 
     return {
       items,
       isIncomplete,
     };
+  }
+
+  private async request(
+    denops: Denops,
+    client: Client,
+    args: GatherArguments<Params>,
+  ): Promise<Result | undefined> {
+    const params = await denops.call(
+      "luaeval",
+      "vim.lsp.util.make_position_params()",
+    ) as CompletionParams;
+    const trigger = args.context.input.slice(-1);
+    if (client.provider.triggerCharacters?.includes(trigger)) {
+      params.context = {
+        triggerKind: CompletionTriggerKind.TriggerCharacter,
+        triggerCharacter: trigger,
+      };
+    } else {
+      params.context = {
+        triggerKind: args.isIncomplete
+          ? CompletionTriggerKind.TriggerForIncompleteCompletions
+          : CompletionTriggerKind.Invoked,
+      };
+    }
+
+    try {
+      const defer = deferred<Result>();
+      const id = register(denops, (response: unknown) => {
+        defer.resolve(response as Result);
+      });
+      await denops.call(
+        `luaeval`,
+        `require("ddc_nvim_lsp.internal").request(_A[1], _A[2], _A[3])`,
+        [client.id, params, { name: denops.name, id }],
+      );
+      return await deadline(defer, 1_000);
+    } catch (e) {
+      if (!(e instanceof DeadlineError)) {
+        throw e;
+      }
+    }
   }
 
   override async onCompleteDone(

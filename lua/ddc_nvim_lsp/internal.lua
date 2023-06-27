@@ -1,37 +1,39 @@
 local M = {}
 
----@class Response
----@field result lsp.CompletionList | lsp.CompletionItem[]
----@field clientId number
----@field offset_encoding string
----@field resolve boolean
+---@class Client
+---@field id number
+---@field provider table
+---@field offsetEncoding string
 
----@param params table
----@param trigger string
----@return Response[]
-function M.request(params, trigger)
-  local results = {}
+---@return Client[]
+function M.get_clients()
+  local clients = {}
   for _, client in pairs(vim.lsp.get_active_clients({ bufnr = 0 })) do
     local provider = client.server_capabilities.completionProvider
     if provider then
-      if vim.list_contains(provider.triggerCharacters or {}, trigger) then
-        params.context.triggerKind = 2
-        params.context.triggerCharacter = trigger
-      end
-
-      local response = client.request_sync("textDocument/completion", params, 1000, 0)
-      if response and response.err == nil and response.result then
-        table.insert(results, {
-          result = response.result,
-          clientId = client.id,
-          offsetEncoding = client.offset_encoding,
-          resolvable = provider.resolveProvider == true,
-        })
-      end
+      table.insert(clients, {
+        id = client.id,
+        provider = provider,
+        offsetEncoding = client.offset_encoding,
+      })
     end
   end
+  return clients
+end
 
-  return results
+---@param clientId number
+---@param params table
+---@param denops { name: string, id: string }
+function M.request(clientId, params, denops)
+  local client = vim.lsp.get_client_by_id(clientId)
+  if client == nil then
+    return
+  end
+  client.request("textDocument/completion", params, function(err, result)
+    if err == nil and result then
+      vim.fn["denops#notify"](denops.name, denops.id, { result })
+    end
+  end, 0)
 end
 
 ---@param clientId number
