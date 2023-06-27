@@ -63,35 +63,33 @@ function M.resolve(completed_item)
   return completed_item
 end
 
-function M.setup(opts)
+function M.setup()
   local group = vim.api.nvim_create_augroup("ddc-nvim-lsp", {})
-  if opts.enableResolveItem then
-    vim.api.nvim_create_autocmd("User", {
-      pattern = "PumCompleteChanged",
-      group = group,
-      callback = function()
-        local info = vim.fn["pum#complete_info"]()
-        local current_item = info.items[info.selected + 1]
-        if not current_item then
-          return
-        end
-        local resolved_item = M.resolve(current_item)
-        if resolved_item then
-          vim.fn["pum#update_current_item"](resolved_item)
-        end
-      end,
-    })
-    vim.api.nvim_create_autocmd("User", {
-      pattern = "PumCompleteDonePre",
-      group = group,
-      callback = function()
-        local resolved_item = M.resolve(vim.v.completed_item)
-        if resolved_item then
-          vim.v.completed_item = resolved_item
-        end
-      end,
-    })
-  end
+  vim.api.nvim_create_autocmd("User", {
+    pattern = "PumCompleteChanged",
+    group = group,
+    callback = function()
+      local info = vim.fn["pum#complete_info"]()
+      local current_item = info.items[info.selected + 1]
+      if not current_item then
+        return
+      end
+      local resolved_item = M.resolve(current_item)
+      if resolved_item then
+        vim.fn["pum#update_current_item"](resolved_item)
+      end
+    end,
+  })
+  vim.api.nvim_create_autocmd("User", {
+    pattern = "PumCompleteDonePre",
+    group = group,
+    callback = function()
+      local resolved_item = M.resolve(vim.v.completed_item)
+      if resolved_item then
+        vim.v.completed_item = resolved_item
+      end
+    end,
+  })
 end
 
 return M

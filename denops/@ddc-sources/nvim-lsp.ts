@@ -54,11 +54,12 @@ export class Source extends BaseSource<Params> {
   override async onInit(
     args: OnInitArguments<Params>,
   ): Promise<void> {
-    await args.denops.call(
-      "luaeval",
-      `require("ddc_nvim_lsp.internal").setup(_A)`,
-      args.sourceParams,
-    );
+    if (args.sourceParams.enableResolveItem) {
+      await args.denops.call(
+        "luaeval",
+        `require("ddc_nvim_lsp.internal").setup()`,
+      );
+    }
   }
 
   override async gather(
