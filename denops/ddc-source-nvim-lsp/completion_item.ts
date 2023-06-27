@@ -37,6 +37,8 @@ export default class CompletionItem {
   #resolvable: boolean;
   #lineOnRequest: string;
   #completePos: number;
+  #requestPosition: LSP.Position;
+  #suggestPosition: LSP.Position;
 
   constructor(
     clientId: number,
@@ -44,12 +46,18 @@ export default class CompletionItem {
     resolvable: boolean,
     lineOnRequest: string,
     completePos: number,
+    requestPosition: LSP.Position,
   ) {
     this.#clientId = clientId;
     this.#offsetEncoding = offsetEncoding;
     this.#resolvable = resolvable;
     this.#lineOnRequest = lineOnRequest;
     this.#completePos = completePos;
+    this.#requestPosition = requestPosition;
+    this.#suggestPosition = {
+      line: requestPosition.line,
+      character: this.#completePos,
+    };
   }
 
   toDdcItem(
@@ -58,14 +66,17 @@ export default class CompletionItem {
   ): Item<UserData> {
     lspItem = this.fillDefaults(lspItem, defaults);
     return {
-      word: this.getWord(lspItem),
+      word: createSelectText(this.getWord(lspItem)),
       abbr: this.getAbbr(lspItem),
       kind: CompletionItem.Kind[lspItem.kind ?? 1],
       user_data: {
         lspitem: JSON.stringify(lspItem),
         clientId: this.#clientId,
+        offsetEncoding: this.#offsetEncoding,
         resolvable: this.#resolvable,
         lineOnRequest: this.#lineOnRequest,
+        requestPosition: this.#requestPosition,
+        suggestPosition: this.#suggestPosition,
       },
     };
   }

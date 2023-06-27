@@ -38,8 +38,15 @@ type Response = {
 export type UserData = {
   lspitem: string;
   clientId: number;
+  offsetEncoding: OffsetEncoding;
   resolvable: boolean;
+  // e.g.
+  // call getbuf
   lineOnRequest: string;
+  // call getbuf|
+  requestPosition: LSP.Position;
+  // call |getbuf
+  suggestPosition: LSP.Position;
 };
 
 export type ConfirmBehavior = "insert" | "replace";
@@ -65,6 +72,13 @@ export class Source extends BaseSource<Params> {
   override async gather(
     args: GatherArguments<Params>,
   ): Promise<DdcGatherItems<UserData>> {
+    const lineOnRequest = await fn.getline(args.denops, ".");
+    const line = await fn.line(args.denops, ".") - 1;
+    const requestPosition = {
+      line,
+      character: args.completePos + args.completeStr.length,
+    } satisfies LSP.Position;
+
     const params = await args.denops.call(
       "luaeval",
       "vim.lsp.util.make_position_params()",
@@ -82,8 +96,6 @@ export class Source extends BaseSource<Params> {
       [params, args.context.input.slice(-1), args.completeStr.length],
     ) as Response;
 
-    const lineOnRequest = await fn.getline(args.denops, ".");
-
     const items: Item<UserData>[] = [];
     let isIncomplete = false;
 
@@ -94,6 +106,7 @@ export class Source extends BaseSource<Params> {
         resolvable,
         lineOnRequest,
         args.completePos,
+        requestPosition,
       );
 
       if (Array.isArray(result)) {
