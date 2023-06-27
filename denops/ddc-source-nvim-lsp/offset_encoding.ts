@@ -1,27 +1,30 @@
-const OffsetEncoding = [
-  /**
-   * Character offsets count UTF-8 code units (e.g bytes).
-   */
-  "utf-8",
+/**
+ * A type indicating how positions are encoded,
+ * specifically what column offsets mean.
+ * @link https://microsoft.github.io/language-server-protocol/specifications/specification-current/#positionEncodingKind
+ */
+export type OffsetEncoding = UTF8 | UTF16 | UTF32;
 
-  /**
-   * Character offsets count UTF-16 code units.
-   *
-   * This is the default and must always be supported by servers
-   */
-  "utf-16",
+/**
+ * Character offsets count UTF-8 code units (e.g bytes).
+ */
+type UTF8 = "utf-8";
 
-  /**
-   * Character offsets count UTF-32 code units.
-   *
-   * Implementation note: these are the same as Unicode code points,
-   * so this `PositionEncodingKind` may also be used for an
-   * encoding-agnostic representation of character offsets.
-   */
-  "utf-32",
-] as const satisfies readonly string[];
+/**
+ * Character offsets count UTF-16 code units.
+ *
+ * This is the default and must always be supported by servers
+ */
+type UTF16 = "utf-16";
 
-export type OffsetEncoding = typeof OffsetEncoding[number];
+/**
+ * Character offsets count UTF-32 code units.
+ *
+ * Implementation note: these are the same as Unicode code points,
+ * so this `PositionEncodingKind` may also be used for an
+ * encoding-agnostic representation of character offsets.
+ */
+type UTF32 = "utf-32";
 
 export function decodeUtfIndex(
   line: string,
