@@ -1,13 +1,13 @@
 import {
   BaseSource,
   DdcGatherItems,
+  Denops,
   fn,
   GatherArguments,
   Item,
   LSP,
   OnCompleteDoneArguments,
   OnInitArguments,
-  vars,
 } from "../ddc-source-nvim-lsp/deps.ts";
 import { OffsetEncoding } from "../ddc-source-nvim-lsp/offset_encoding.ts";
 import CompletionItem from "../ddc-source-nvim-lsp/completion_item.ts";
@@ -52,6 +52,7 @@ export type UserData = {
 export type ConfirmBehavior = "insert" | "replace";
 
 type Params = {
+  snippetEngine: string; // ID of denops#callback. Required!
   enableResolveItem: boolean;
   enableAdditionalTextEdit: boolean;
   confirmBehavior: ConfirmBehavior;
@@ -130,20 +131,127 @@ export class Source extends BaseSource<Params> {
   override async onCompleteDone(
     args: OnCompleteDoneArguments<Params, UserData>,
   ): Promise<void> {
-    await args.denops.cmd("echom message", { messange: "hi" });
-    // console.log(args.userData);
-    // const vimCompletedItem = await vars.v.get(
-    //   args.denops,
-    //   "completed_item",
-    // ) as Item<UserData>;
-    // console.log(vimCompletedItem);
+    const { denops, userData, sourceParams: params } = args;
+
+    // If the user confirms by entering the next input, the expansion process is not performed.
+    const itemWord = await denops.eval(`v:completed_item.word`) as string;
+    const beforeLine = await denops.eval(
+      `getline(".")[:getcurpos()[2]-2]`,
+    ) as string;
+    if (!beforeLine.endsWith(itemWord)) {
+      return;
+    }
+
+    // Restore the requested state
+    await fn.setline(denops, ".", userData.lineOnRequest);
+    await this.setCursor(
+      denops,
+      userData.requestPosition,
+    );
+
+    const lspItem = JSON.parse(userData.lspitem) as LSP.CompletionItem;
+    const { textEdit, snippetBody } = CompletionItem.extractTextEdit(
+      lspItem,
+      params.confirmBehavior,
+      {
+        start: userData.suggestPosition,
+        end: userData.requestPosition,
+      },
+      userData.lineOnRequest,
+      userData.offsetEncoding,
+    );
+
+    await this.applyTextEdit(denops, textEdit);
+    if (snippetBody) {
+      if (params.snippetEngine === "") {
+        this.printError(denops, "Snippet engine is not registered!");
+      } else {
+        await denops.call(
+          "denops#callback#call",
+          params.snippetEngine,
+          snippetBody,
+        );
+      }
+    }
+
+    if (params.enableAdditionalTextEdit && lspItem.additionalTextEdits) {
+      await this.applyAdditionalTextEdit(
+        denops,
+        lspItem.additionalTextEdits,
+        userData.offsetEncoding,
+      );
+    }
+  }
+
+  private async setCursor(
+    denops: Denops,
+    position: LSP.Position,
+  ): Promise<void> {
+    const lnum = position.line + 1;
+    const line = await fn.getline(denops, lnum);
+    const col = byteLength(line.slice(0, position.character)) + 1;
+    await fn.cursor(denops, lnum, col);
+  }
+
+  private async applyTextEdit(
+    denops: Denops,
+    textEdit: LSP.TextEdit,
+  ): Promise<void> {
+    await denops.call(
+      `luaeval`,
+      `vim.lsp.util.apply_text_edits(_A, 0, 'utf-16')`,
+      [textEdit],
+    );
+    const insert_lines = textEdit.newText.split("\n");
+    if (insert_lines.length === 1) {
+      await this.setCursor(denops, {
+        line: textEdit.range.start.line,
+        character: textEdit.range.start.character + insert_lines[0].length,
+      });
+    } else {
+      await this.setCursor(denops, {
+        line: textEdit.range.start.line + insert_lines.length - 1,
+        character: insert_lines[insert_lines.length - 1].length,
+      });
+    }
+  }
+
+  private async applyAdditionalTextEdit(
+    denops: Denops,
+    textEdit: LSP.TextEdit[],
+    offsetEncoding: OffsetEncoding,
+  ): Promise<void> {
+    await denops.call(
+      `luaeval`,
+      `vim.lsp.util.apply_text_edits(_A[1], 0, _A[2])`,
+      [textEdit, offsetEncoding],
+    );
+  }
+
+  private async printError(
+    denops: Denops,
+    message: Error | string,
+  ) {
+    await denops.call(
+      `ddc#util#print_error`,
+      message.toString(),
+      "ddc-source-nvim-lsp",
+    );
   }
 
   override params(): Params {
     return {
+      snippetEngine: "",
       enableResolveItem: true,
       enableAdditionalTextEdit: true,
-      confirmBehavior: "insert",
+      confirmBehavior: "replace",
     };
   }
+}
+
+const ENCODER = new TextEncoder();
+function byteLength(
+  str: string,
+) {
+  return ENCODER.encode(str).length;
 }

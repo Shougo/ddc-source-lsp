@@ -1,4 +1,4 @@
-import { Denops, Item, LSP } from "./deps.ts";
+import { Item, LSP } from "./deps.ts";
 import { decodeUtfIndex, OffsetEncoding } from "./offset_encoding.ts";
 import createSelectText from "./select_text.ts";
 import { ConfirmBehavior, UserData } from "../@ddc-sources/nvim-lsp.ts";
@@ -39,6 +39,50 @@ export default class CompletionItem {
   #completePos: number;
   #requestPosition: LSP.Position;
   #suggestPosition: LSP.Position;
+
+  static extractTextEdit(
+    lspItem: LSP.CompletionItem,
+    confirmBehavior: ConfirmBehavior,
+    range: LSP.Range,
+    lineOnRequest: string,
+    offsetEncoding: OffsetEncoding,
+  ): { textEdit: LSP.TextEdit; snippetBody?: string } {
+    const newText = lspItem.textEdit?.newText ??
+      lspItem.insertText ??
+      lspItem.label;
+    if (lspItem.textEdit) {
+      if ("range" in lspItem.textEdit) {
+        range = lspItem.textEdit.range;
+      } else {
+        range = lspItem.textEdit[confirmBehavior];
+      }
+      range = CompletionItem.decodeRange(range, lineOnRequest, offsetEncoding);
+    }
+    if (lspItem.insertTextFormat === LSP.InsertTextFormat.Snippet) {
+      return {
+        textEdit: { range, newText: "" },
+        snippetBody: newText,
+      };
+    }
+    return { textEdit: { range, newText } };
+  }
+
+  static decodeRange(
+    range: LSP.Range,
+    line: string,
+    offsetEncoding: OffsetEncoding,
+  ): LSP.Range {
+    return {
+      start: {
+        line: range.start.line,
+        character: decodeUtfIndex(line, range.start.character, offsetEncoding),
+      },
+      end: {
+        line: range.end.line,
+        character: decodeUtfIndex(line, range.end.character, offsetEncoding),
+      },
+    };
+  }
 
   constructor(
     clientId: number,

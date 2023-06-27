@@ -7,7 +7,6 @@ export {
   assertEquals,
   type Denops,
   fn,
-  vars,
 } from "https://deno.land/x/ddc_vim@v3.7.0/deps.ts";
 export type {
   GatherArguments,
