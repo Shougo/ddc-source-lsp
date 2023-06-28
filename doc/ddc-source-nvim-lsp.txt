@@ -1,7 +1,7 @@
 *ddc-source-nvim-lsp.txt*	nvim-lsp completion for ddc.vim
 
 Authors: Shougo <Shougo.Matsu at gmail.com>
-         uga-rosa <uga663 at gmail.com>
+         uga-rosa <uga6603 at gmail.com>
 License: MIT license
 
 CONTENTS					*ddc-source-nvim-lsp-contents*
