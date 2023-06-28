@@ -37,7 +37,7 @@ export default async function linePatch(
   }
 }
 
-export async function setCursor(
+async function setCursor(
   denops: Denops,
   position: LSP.Position,
 ): Promise<void> {
