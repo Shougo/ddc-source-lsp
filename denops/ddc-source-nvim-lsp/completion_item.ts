@@ -1,6 +1,7 @@
-import { Item, LSP } from "./deps.ts";
+import { Item, LSP, PumHighlight } from "./deps.ts";
 import { decodeUtfIndex, OffsetEncoding } from "./offset_encoding.ts";
 import createSelectText from "./select_text.ts";
+import { byteLength } from "./line_patch.ts";
 import { UserData } from "../@ddc-sources/nvim-lsp.ts";
 
 export default class CompletionItem {
@@ -68,10 +69,12 @@ export default class CompletionItem {
     defaults?: LSP.CompletionList["itemDefaults"],
   ): Item<UserData> {
     lspItem = this.fillDefaults(lspItem, defaults);
+    const { abbr, highlights } = this.getAbbr(lspItem);
     return {
       word: createSelectText(this.getWord(lspItem)),
-      abbr: this.getAbbr(lspItem),
+      abbr,
       kind: CompletionItem.Kind[lspItem.kind ?? 1],
+      highlights,
       user_data: {
         lspitem: JSON.stringify(lspItem),
         clientId: this.#clientId,
@@ -155,10 +158,29 @@ export default class CompletionItem {
 
   private getAbbr(
     lspItem: LSP.CompletionItem,
-  ): string {
-    if (lspItem.insertTextFormat === LSP.InsertTextFormat.Snippet) {
-      return `${lspItem.label}~`;
-    }
-    return lspItem.label;
+  ): { abbr: string; highlights?: PumHighlight[] } {
+    const abbr = lspItem.insertTextFormat === LSP.InsertTextFormat.Snippet
+      ? `${lspItem.label}~`
+      : lspItem.label;
+    return {
+      abbr,
+      highlights: this.isDeprecated(lspItem)
+        ? [{
+          type: "abbr",
+          // The property 'name' only makes sense in vim.
+          name: "",
+          hl_group: "DdcNvimLspDeprecated",
+          col: 1,
+          width: byteLength(abbr),
+        }]
+        : undefined,
+    };
+  }
+
+  private isDeprecated(
+    lspItem: LSP.CompletionItem,
+  ): boolean {
+    return lspItem.deprecated ||
+      !!lspItem.tags?.includes(LSP.CompletionItemTag.Deprecated);
   }
 }

@@ -52,7 +52,7 @@ async function setCursor(
 }
 
 const ENCODER = new TextEncoder();
-function byteLength(
+export function byteLength(
   str: string,
 ) {
   return ENCODER.encode(str).length;

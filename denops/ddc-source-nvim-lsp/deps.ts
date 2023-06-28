@@ -2,6 +2,7 @@ export {
   BaseSource,
   type DdcGatherItems,
   type Item,
+  type PumHighlight,
 } from "https://deno.land/x/ddc_vim@v3.7.0/types.ts";
 export {
   assertEquals,
