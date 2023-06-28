@@ -27,7 +27,7 @@ export default async function linePatch(
   if (insert_lines.length === 1) {
     await setCursor(denops, {
       line,
-      character: textEdit.range.end.character + insert_lines[0].length,
+      character: textEdit.range.start.character + insert_lines[0].length,
     });
   } else {
     await setCursor(denops, {
