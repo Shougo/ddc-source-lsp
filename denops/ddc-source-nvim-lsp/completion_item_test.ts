@@ -1,4 +1,4 @@
-import { assertEquals, Denops, fn, LSP, test } from "./test_deps.ts";
+import { assertEquals, Denops, LSP, nvim, test } from "./test_deps.ts";
 import CompletionItem from "./completion_item.ts";
 import { OffsetEncoding } from "./offset_encoding.ts";
 import { Params } from "../@ddc-sources/nvim-lsp.ts";
@@ -28,11 +28,7 @@ async function setup(args: {
   const completePos = args.buffer[line].indexOf("|");
   args.buffer[line] = args.buffer[line].replace("|", args.input);
 
-  const bufnr = await fn.bufadd(args.denops, "ddc-nvim-lsp/test");
-  await fn.bufload(args.denops, bufnr);
-  await fn.deletebufline(args.denops, bufnr, 1, "$");
-  await fn.setbufline(args.denops, bufnr, 1, args.buffer);
-  await args.denops.cmd(`buffer ${bufnr}`);
+  await nvim.nvim_buf_set_lines(args.denops, 0, 0, -1, true, args.buffer);
   await setCursor(args.denops, {
     line,
     character: completePos + args.input.length,
@@ -88,7 +84,14 @@ test({
     assertEquals(ddcItem.abbr, "/div");
 
     await CompletionItem.confirm(denops, lspItem, ddcItem.user_data!, params);
-    assertEquals(await fn.getline(denops, "."), "</div>");
-    assertEquals(await fn.getpos(denops, "."), [0, 2, 6, 0]);
+
+    assertEquals(
+      await nvim.nvim_buf_get_lines(denops, 0, 0, -1, true),
+      ["<div>", "</div>"],
+    );
+    assertEquals(
+      await nvim.nvim_win_get_cursor(denops, 0),
+      [2, 5],
+    );
   },
 });
