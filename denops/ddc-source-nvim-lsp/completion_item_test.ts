@@ -77,7 +77,7 @@ function makeRange(
 }
 
 test({
-  name: "Indent fixing completion (vscode-html-language-server)",
+  name: "indent fixing completion (vscode-html-language-server)",
   mode: "nvim",
   fn: async (denops) => {
     const lspItem = {
@@ -94,7 +94,7 @@ test({
       input: "d",
       buffer: [
         "<div>",
-        "  </|>",
+        "  </|foo>",
       ],
       lspItem,
     });
@@ -106,7 +106,7 @@ test({
 
     assertBuffer(denops, [
       "<div>",
-      "</div|>",
+      "</div|foo>",
     ]);
   },
 });
