@@ -1,0 +1,46 @@
+name: integration
+
+env:
+  DENO_VERSION: 1.x
+
+on:
+  schedule:
+    - cron: "0 7 * * 0"
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: ${{ env.DENO_VERSION }}
+      - uses: leafo/gh-actions-lua@v8
+        with:
+          luaVersion: "luajit-2.1.0-beta3"
+      - uses: leafo/gh-actions-luarocks@v4
+      - run: luarocks install luacheck
+
+      - name: Check
+        run: deno task check
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: denoland/setup-deno@v1
+        with:
+          deno-version: ${{ env.DENO_VERSION }}
+      - uses: rhysd/action-setup-vim@v1
+        with:
+          version: nightly
+          neovim: true
+
+      - name: Test
+        run: deno task test
