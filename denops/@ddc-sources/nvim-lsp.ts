@@ -216,8 +216,8 @@ export class Source extends BaseSource<Params> {
   override params(): Params {
     return {
       snippetEngine: "",
-      enableResolveItem: true,
-      enableAdditionalTextEdit: true,
+      enableResolveItem: false,
+      enableAdditionalTextEdit: false,
       confirmBehavior: "insert",
     };
   }
