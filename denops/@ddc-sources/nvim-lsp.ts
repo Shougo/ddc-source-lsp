@@ -268,7 +268,7 @@ export class Source extends BaseSource<Params> {
       snippetEngine: "",
       enableResolveItem: true,
       enableAdditionalTextEdit: true,
-      confirmBehavior: "replace",
+      confirmBehavior: "insert",
     };
   }
 }
