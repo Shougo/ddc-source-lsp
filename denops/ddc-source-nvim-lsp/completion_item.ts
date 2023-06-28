@@ -1,8 +1,10 @@
-import { Item, LSP, PumHighlight } from "./deps.ts";
+import { Denops, Item, LSP, PumHighlight } from "./deps.ts";
 import { decodeUtfIndex, OffsetEncoding } from "./offset_encoding.ts";
 import createSelectText from "./select_text.ts";
-import { byteLength } from "./line_patch.ts";
-import { UserData } from "../@ddc-sources/nvim-lsp.ts";
+import linePatch, { byteLength } from "./line_patch.ts";
+import { Params, UserData } from "../@ddc-sources/nvim-lsp.ts";
+import LineContext from "./line_context.ts";
+import { printError } from "./util.ts";
 
 export default class CompletionItem {
   static Kind = {
@@ -46,6 +48,64 @@ export default class CompletionItem {
     return lspItem.textEdit?.newText ??
       lspItem.insertText ??
       lspItem.label;
+  }
+
+  static async confirm(
+    denops: Denops,
+    lspItem: LSP.CompletionItem,
+    userData: UserData,
+    params: Params,
+  ): Promise<void> {
+    // Restore the requested state
+    let ctx = await LineContext.create(denops);
+    await linePatch(
+      denops,
+      ctx.character - userData.suggestCharacter,
+      0,
+      userData.lineOnRequest.slice(
+        userData.suggestCharacter,
+        userData.requestCharacter,
+      ),
+    );
+
+    ctx = await LineContext.create(denops);
+    const insertText = CompletionItem.getInsertText(lspItem);
+    let before: number, after: number;
+    if (!lspItem.textEdit) {
+      before = ctx.character - userData.suggestCharacter;
+      after = 0;
+    } else {
+      const range = "range" in lspItem.textEdit
+        ? lspItem.textEdit.range
+        : lspItem.textEdit[params.confirmBehavior];
+      before = ctx.character - range.start.character;
+      after = range.end.character - ctx.character;
+    }
+
+    // Apply additionalTextEdits
+    if (params.enableAdditionalTextEdit && lspItem.additionalTextEdits) {
+      await denops.call(
+        `luaeval`,
+        `vim.lsp.util.apply_text_edits(_A[1], 0, _A[2])`,
+        [lspItem.additionalTextEdits, userData.offsetEncoding],
+      );
+    }
+
+    const isSnippet = lspItem.insertTextFormat === LSP.InsertTextFormat.Snippet;
+    if (!isSnippet) {
+      await linePatch(denops, before, after, insertText);
+    } else {
+      await linePatch(denops, before, after, "");
+      if (params.snippetEngine === "") {
+        printError(denops, "Snippet engine is not registered!");
+      } else {
+        await denops.call(
+          "denops#callback#call",
+          params.snippetEngine,
+          insertText,
+        );
+      }
+    }
   }
 
   constructor(

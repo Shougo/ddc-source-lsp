@@ -22,6 +22,7 @@ import { OffsetEncoding } from "../ddc-source-nvim-lsp/offset_encoding.ts";
 import CompletionItem from "../ddc-source-nvim-lsp/completion_item.ts";
 import LineContext from "../ddc-source-nvim-lsp/line_context.ts";
 import linePatch from "../ddc-source-nvim-lsp/line_patch.ts";
+import { printError } from "../ddc-source-nvim-lsp/util.ts";
 
 type Client = {
   id: number;
@@ -49,7 +50,7 @@ export type UserData = {
   suggestCharacter: number;
 };
 
-type Params = {
+export type Params = {
   snippetEngine: string; // ID of denops#callback. Required!
   enableResolveItem: boolean;
   enableAdditionalTextEdit: boolean;
@@ -112,7 +113,7 @@ export class Source extends BaseSource<Params> {
       return items;
     })).then((items) => items.flat(1))
       .catch((e) => {
-        this.printError(denops, e);
+        printError(denops, e);
         return [];
       });
 
@@ -170,7 +171,7 @@ export class Source extends BaseSource<Params> {
   }: OnCompleteDoneArguments<Params, UserData>): Promise<void> {
     // No expansion unless confirmed by pum#map#confirm()
     const itemWord = await denops.eval(`v:completed_item.word`) as string;
-    let ctx = await LineContext.create(denops);
+    const ctx = await LineContext.create(denops);
     if (!ctx.text.endsWith(itemWord, ctx.character)) {
       return;
     }
@@ -185,80 +186,12 @@ export class Source extends BaseSource<Params> {
     // :h undo-break
     await denops.cmd(`let &undolevels = &undolevels`);
 
-    // Restore the requested state
-    ctx = await LineContext.create(denops);
-    await linePatch(
-      denops,
-      ctx.character - userData.suggestCharacter,
-      0,
-      userData.lineOnRequest.slice(
-        userData.suggestCharacter,
-        userData.requestCharacter,
-      ),
-    );
-
     const lspItem = JSON.parse(userData.lspitem) as LSP.CompletionItem;
-
-    ctx = await LineContext.create(denops);
-    const insertText = CompletionItem.getInsertText(lspItem);
-    let before: number, after: number;
-    if (!lspItem.textEdit) {
-      before = ctx.character - userData.suggestCharacter;
-      after = 0;
-    } else {
-      const range = "range" in lspItem.textEdit
-        ? lspItem.textEdit.range
-        : lspItem.textEdit[params.confirmBehavior];
-      before = ctx.character - range.start.character;
-      after = range.end.character - ctx.character;
-    }
-
-    // Apply additionalTextEdits
-    if (params.enableAdditionalTextEdit && lspItem.additionalTextEdits) {
-      await this.applyAdditionalTextEdit(
-        denops,
-        lspItem.additionalTextEdits,
-        userData.offsetEncoding,
-      );
-    }
-
-    const isSnippet = lspItem.insertTextFormat === LSP.InsertTextFormat.Snippet;
-    if (!isSnippet) {
-      await linePatch(denops, before, after, insertText);
-    } else {
-      await linePatch(denops, before, after, "");
-      if (params.snippetEngine === "") {
-        this.printError(denops, "Snippet engine is not registered!");
-      } else {
-        await denops.call(
-          "denops#callback#call",
-          params.snippetEngine,
-          insertText,
-        );
-      }
-    }
-  }
-
-  private async applyAdditionalTextEdit(
-    denops: Denops,
-    textEdit: LSP.TextEdit[],
-    offsetEncoding: OffsetEncoding,
-  ): Promise<void> {
-    await denops.call(
-      `luaeval`,
-      `vim.lsp.util.apply_text_edits(_A[1], 0, _A[2])`,
-      [textEdit, offsetEncoding],
-    );
-  }
-
-  private async printError(
-    denops: Denops,
-    message: Error | string,
-  ) {
-    await denops.call(
-      `ddc#util#print_error`,
-      message.toString(),
-      "ddc-source-nvim-lsp",
+    await CompletionItem.confirm(
+      denops,
+      lspItem,
+      userData,
+      params,
     );
   }
 
