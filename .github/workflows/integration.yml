@@ -34,6 +34,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          path: "./repo"
+      - uses: actions/checkout@v3
+        with:
+          repository: "vim-denops/denops.vim"
+          path: "./denops.vim"
       - uses: denoland/setup-deno@v1
         with:
           deno-version: ${{ env.DENO_VERSION }}
@@ -41,6 +47,8 @@ jobs:
         with:
           version: nightly
           neovim: true
-
       - name: Test
         run: deno task test
+        env:
+          DENOPS_TEST_DENOPS_PATH: "../denops.vim"
+        working-directory: ./repo
