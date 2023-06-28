@@ -82,12 +82,11 @@ test({
   fn: async (denops) => {
     const lspItem = {
       label: "/div",
+      filterText: "  </div",
       textEdit: {
         range: makeRange(1, 0, 1, 5),
         newText: "</div",
       },
-      kind: 10, // Property
-      filterText: "  </div",
     } satisfies LSP.CompletionItem;
     const ddcItem = await setup({
       denops,
@@ -107,6 +106,108 @@ test({
     assertBuffer(denops, [
       "<div>",
       "</div|foo>",
+    ]);
+  },
+});
+
+test({
+  name: "dot-to-arrow completion (clangd)",
+  mode: "nvim",
+  fn: async (denops) => {
+    const lspItem = {
+      label: " prop",
+      filterText: "prop",
+      textEdit: {
+        range: makeRange(0, 3, 0, 4),
+        newText: "->prop",
+      },
+    } satisfies LSP.CompletionItem;
+    const ddcItem = await setup({
+      denops,
+      input: "p",
+      buffer: [
+        "obj.|foo",
+      ],
+      lspItem,
+    });
+
+    assertEquals(ddcItem.word, "prop");
+    assertEquals(ddcItem.abbr, " prop");
+
+    await CompletionItem.confirm(denops, lspItem, ddcItem.user_data!, params);
+
+    assertBuffer(denops, ["obj->prop|foo"]);
+  },
+});
+
+test({
+  name: "symbol reference completion (typescript-language-server)",
+  mode: "nvim",
+  fn: async (denops) => {
+    const lspItem = {
+      label: "Symbol",
+      filterText: ".Symbol",
+      textEdit: {
+        range: makeRange(0, 2, 0, 3),
+        newText: "[Symbol]",
+      },
+    } satisfies LSP.CompletionItem;
+    const ddcItem = await setup({
+      denops,
+      input: "S",
+      buffer: [
+        "[].|foo",
+      ],
+      lspItem,
+    });
+
+    assertEquals(ddcItem.word, "Symbol");
+    assertEquals(ddcItem.abbr, "Symbol");
+
+    await CompletionItem.confirm(denops, lspItem, ddcItem.user_data!, params);
+
+    assertBuffer(denops, ["[][Symbol]|foo"]);
+  },
+});
+
+test({
+  name: "extreme additionalTextEdits completion (rust-analyzer)",
+  mode: "nvim",
+  fn: async (denops) => {
+    const lspItem = {
+      label: "dpg",
+      filterText: "dpg",
+      textEdit: {
+        insert: makeRange(2, 5, 2, 8),
+        replace: makeRange(2, 5, 2, 8),
+        newText: `dpg!("")`,
+      },
+      additionalTextEdits: [{
+        range: makeRange(1, 10, 2, 5),
+        newText: "",
+      }],
+    } satisfies LSP.CompletionItem;
+    const ddcItem = await setup({
+      denops,
+      input: "d",
+      buffer: [
+        "fn main()",
+        `  let s = ""`,
+        "    .|foo",
+        "}",
+      ],
+      lspItem,
+    });
+
+    assertEquals(ddcItem.word, "dpg");
+    assertEquals(ddcItem.abbr, "dpg");
+
+    await CompletionItem.confirm(denops, lspItem, ddcItem.user_data!, params);
+
+    assertBuffer(denops, [
+      "fn main() {",
+      `  let s = dbg!("")|`,
+      "}",
     ]);
   },
 });
