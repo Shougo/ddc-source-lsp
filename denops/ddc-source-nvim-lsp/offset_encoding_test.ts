@@ -1,5 +1,5 @@
+import { assertEquals } from "./test_deps.ts";
 import { decodeUtfIndex } from "./offset_encoding.ts";
-import { assertEquals } from "./deps.ts";
 
 Deno.test("utf-8", () => {
   assertEquals(decodeUtfIndex("🗿🗿🗿", 4, "utf-8"), 2);

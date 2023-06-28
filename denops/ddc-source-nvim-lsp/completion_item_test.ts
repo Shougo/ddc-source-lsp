@@ -1,5 +1,5 @@
+import { assertEquals, Denops, fn, LSP, test } from "./test_deps.ts";
 import CompletionItem from "./completion_item.ts";
-import { assertEquals, LSP } from "./deps.ts";
 import { OffsetEncoding } from "./offset_encoding.ts";
 
 const ClientId = 0 as const satisfies number;

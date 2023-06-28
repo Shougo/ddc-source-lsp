@@ -1,5 +1,5 @@
+import { assertEquals } from "./test_deps.ts";
 import createSelectText from "./select_text.ts";
-import { assertEquals } from "./deps.ts";
 
 Deno.test({
   name: "parse snippet",
