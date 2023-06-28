@@ -22,7 +22,6 @@ import { OffsetEncoding } from "../ddc-source-nvim-lsp/offset_encoding.ts";
 import CompletionItem from "../ddc-source-nvim-lsp/completion_item.ts";
 import LineContext from "../ddc-source-nvim-lsp/line_context.ts";
 import linePatch from "../ddc-source-nvim-lsp/line_patch.ts";
-import { printError } from "../ddc-source-nvim-lsp/util.ts";
 
 type Client = {
   id: number;
@@ -113,7 +112,7 @@ export class Source extends BaseSource<Params> {
       return items;
     })).then((items) => items.flat(1))
       .catch((e) => {
-        printError(denops, e);
+        this.printError(denops, e);
         return [];
       });
 
@@ -162,6 +161,17 @@ export class Source extends BaseSource<Params> {
         throw e;
       }
     }
+  }
+
+  private async printError(
+    denops: Denops,
+    message: Error | string,
+  ) {
+    await denops.call(
+      `ddc#util#print_error`,
+      message.toString(),
+      "ddc-source-nvim-lsp",
+    );
   }
 
   override async onCompleteDone({

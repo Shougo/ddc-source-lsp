@@ -4,7 +4,6 @@ import createSelectText from "./select_text.ts";
 import linePatch, { byteLength } from "./line_patch.ts";
 import { Params, UserData } from "../@ddc-sources/nvim-lsp.ts";
 import LineContext from "./line_context.ts";
-import { printError } from "./util.ts";
 
 export default class CompletionItem {
   static Kind = {
@@ -97,15 +96,11 @@ export default class CompletionItem {
       await linePatch(denops, before, after, insertText);
     } else {
       await linePatch(denops, before, after, "");
-      if (params.snippetEngine === "") {
-        printError(denops, "Snippet engine is not registered!");
-      } else {
-        await denops.call(
-          "denops#callback#call",
-          params.snippetEngine,
-          insertText,
-        );
-      }
+      await denops.call(
+        "denops#callback#call",
+        params.snippetEngine,
+        insertText,
+      );
     }
 
     // Execute command
