@@ -80,10 +80,11 @@ PARAMS						*ddc-source-nvim-lsp-params*
 
 				*ddc-source-nvim-lsp-param-snippetEngine*
 snippetEngine		(string)
-		Required!
-		The language server may return snippet as completion candidate,
-		so work with another plugin to expand it. Register with
+		The language server may return snippet as items, so work with
+		another plugin to expand it. Register with
 		denops#callback#register and specify its id in this param.
+
+		NOTE: If not registered, snippet items will be filtered.
 >vim
 		" https://github.com/hrsh7th/vim-vsnip
 		denops#callback#register({ body -> vsnip#anonymous(body) })
@@ -100,6 +101,7 @@ snippetEngine		(string)
 		  require('snippy').expand_snippet(body)
 		end)
 <
+		Default: ""
 
 				*ddc-source-nvim-lsp-param-enableResolveItem*
 enableResolveItem	(boolean)
