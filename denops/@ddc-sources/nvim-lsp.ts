@@ -164,11 +164,11 @@ export class Source extends BaseSource<Params> {
     }
   }
 
-  override async onCompleteDone(
-    args: OnCompleteDoneArguments<Params, UserData>,
-  ): Promise<void> {
-    const { denops, userData, sourceParams: params } = args;
-
+  override async onCompleteDone({
+    denops,
+    userData,
+    sourceParams: params,
+  }: OnCompleteDoneArguments<Params, UserData>): Promise<void> {
     // If the user confirms by entering the next input,
     // the expansion process is not performed.
     const itemWord = await denops.eval(`v:completed_item.word`) as string;
