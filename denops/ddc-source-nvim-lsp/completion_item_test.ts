@@ -103,7 +103,7 @@ test({
 
     await CompletionItem.confirm(denops, lspItem, ddcItem.user_data!, params);
 
-    assertBuffer(denops, [
+    await assertBuffer(denops, [
       "<div>",
       "</div|foo>",
     ]);
@@ -118,7 +118,7 @@ test({
       label: " prop",
       filterText: "prop",
       textEdit: {
-        range: makeRange(0, 3, 0, 4),
+        range: makeRange(0, 3, 0, 5),
         newText: "->prop",
       },
     } satisfies LSP.CompletionItem;
@@ -136,7 +136,7 @@ test({
 
     await CompletionItem.confirm(denops, lspItem, ddcItem.user_data!, params);
 
-    assertBuffer(denops, ["obj->prop|foo"]);
+    await assertBuffer(denops, ["obj->prop|foo"]);
   },
 });
 
@@ -148,7 +148,7 @@ test({
       label: "Symbol",
       filterText: ".Symbol",
       textEdit: {
-        range: makeRange(0, 2, 0, 3),
+        range: makeRange(0, 2, 0, 4),
         newText: "[Symbol]",
       },
     } satisfies LSP.CompletionItem;
@@ -166,7 +166,7 @@ test({
 
     await CompletionItem.confirm(denops, lspItem, ddcItem.user_data!, params);
 
-    assertBuffer(denops, ["[][Symbol]|foo"]);
+    await assertBuffer(denops, ["[][Symbol]|foo"]);
   },
 });
 
@@ -175,12 +175,12 @@ test({
   mode: "nvim",
   fn: async (denops) => {
     const lspItem = {
-      label: "dpg",
-      filterText: "dpg",
+      label: "dbg",
+      filterText: "dbg",
       textEdit: {
-        insert: makeRange(2, 5, 2, 8),
-        replace: makeRange(2, 5, 2, 8),
-        newText: `dpg!("")`,
+        insert: makeRange(2, 5, 2, 6),
+        replace: makeRange(2, 5, 2, 9),
+        newText: `dbg!("")`,
       },
       additionalTextEdits: [{
         range: makeRange(1, 10, 2, 5),
@@ -191,7 +191,7 @@ test({
       denops,
       input: "d",
       buffer: [
-        "fn main()",
+        "fn main() {",
         `  let s = ""`,
         "    .|foo",
         "}",
@@ -199,14 +199,14 @@ test({
       lspItem,
     });
 
-    assertEquals(ddcItem.word, "dpg");
-    assertEquals(ddcItem.abbr, "dpg");
+    assertEquals(ddcItem.word, "dbg");
+    assertEquals(ddcItem.abbr, "dbg");
 
     await CompletionItem.confirm(denops, lspItem, ddcItem.user_data!, params);
 
-    assertBuffer(denops, [
+    await assertBuffer(denops, [
       "fn main() {",
-      `  let s = dbg!("")|`,
+      `  let s = dbg!("")|foo`,
       "}",
     ]);
   },
