@@ -1,0 +1,9 @@
+{
+  "lock": false,
+  "tasks": {
+    "pre-commit": "deno task fmt && deno task check && deno task test",
+    "test": "deno test -A",
+    "check": "deno check **/*.ts && deno fmt --check **/*.ts && deno lint && luacheck lua/*",
+    "fmt": "deno fmt **/*.ts && stylua lua/*"
+  }
+}

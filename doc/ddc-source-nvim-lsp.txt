@@ -1,6 +1,7 @@
 *ddc-source-nvim-lsp.txt*	nvim-lsp completion for ddc.vim
 
-Author: Shougo <Shougo.Matsu at gmail.com>
+Authors: Shougo <Shougo.Matsu at gmail.com>
+         uga-rosa <uga6603 at gmail.com>
 License: MIT license
 
 CONTENTS					*ddc-source-nvim-lsp-contents*
@@ -25,6 +26,18 @@ Please install both "ddc.vim" and "denops.vim".
 https://github.com/Shougo/ddc.vim
 https://github.com/vim-denops/denops.vim
 
+We recommend using "pum.vim" and "ddc-ui-pum".
+
+https://github.com/Shougo/pum.vim
+https://github.com/Shougo/ddc-ui-pum
+
+You will also need a snippet plugin that can expand snippets in LSP format.
+e.g.
+https://github.com/hrsh7th/vim-vsnip
+https://github.com/SirVer/ultisnips
+https://github.com/L3MON4D3/LuaSnip
+https://github.com/dcampos/nvim-snippy
+
 You must use neovim with nvim-lsp configuration.
 
 If you want to read the documentation for items, please use
@@ -35,9 +48,17 @@ https://github.com/matsui54/denops-popup-preview.vim
 
 ==============================================================================
 EXAMPLES					*ddc-source-nvim-lsp-examples*
->
+
+To take advantage of all the features, you need to set client_capabilities.
+>lua
+	local capabilities = require("ddc_nvim_lsp").make_client_capabilities()
+	require("lspconfig").denols.setup({
+	  capabilities = capabilities,
+	})
+<
+>vim
 	call ddc#custom#patch_global('sources', ['nvim-lsp'])
-	
+
 	call ddc#custom#patch_global('sourceOptions', #{
 	      \   nvim-lsp: #{
 	      \     mark: 'lsp',
@@ -45,33 +66,71 @@ EXAMPLES					*ddc-source-nvim-lsp-examples*
 	      \   })
 	      \ })
 
-	" Use Customized labels
-	call ddc#custom#patch_global('sourceOptions', #{
-	      \   nvim-lsp: #{
-	      \     converters: ['converter_kind_labels'],
-	      \   })
-	      \ })
+	" Register snippet engine (vim-vsnip)
 	call ddc#custom#patch_global('sourceParams', #{
-	      \   converter_kind_labels: #{
-	      \     kindLabels: #{ Class: 'c' },
-	      \   },
+	      \   nvim-lsp: #{
+	      \     snippetEngine: denops#callback#register({
+	      \           body -> vsnip#anonymous(body) }),
+	      \   }
 	      \ })
 <
 
 ==============================================================================
 PARAMS						*ddc-source-nvim-lsp-params*
 
+				*ddc-source-nvim-lsp-param-snippetEngine*
+snippetEngine		(string)
+		The language server may return snippet as items, so work with
+		another plugin to expand it. Register with
+		denops#callback#register and specify its id in this param.
+
+		NOTE: If not registered, snippet items will be filtered.
+>vim
+		" https://github.com/hrsh7th/vim-vsnip
+		denops#callback#register({ body -> vsnip#anonymous(body) })
+		" https://github.com/SirVer/ultisnips
+		denops#callback#register({ body -> UltiSnips#Anon(body) })
+<
+>lua
+		-- https://github.com/L3MON4D3/LuaSnip
+		vim.fn["denops#callback#register"](function(body)
+		  require('luasnip').lsp_expand(body)
+		end)
+		-- https://github.com/dcampos/nvim-snippy
+		vim.fn["denops#callback#register"](function(body)
+		  require('snippy').expand_snippet(body)
+		end)
+<
+		Default: ""
+
 				*ddc-source-nvim-lsp-param-enableResolveItem*
 enableResolveItem	(boolean)
-		Enable "resolve_item" LSP action.
-		NOTE: "ddc-ui-pum" is required.
+		Enable completionItem/resolve
+
+		NOTE: "pum.vim" and "ddc-ui-pum" are required.
+		https://github.com/Shougo/pum.vim
 		https://github.com/Shougo/ddc-ui-pum
 
-			*ddc-filter-converter_kind_labels-param-kindLabels*
-kindLabels	(Record<string, string>)
-		Customized labels for kind.
+		Default: v:false
 
-		Default: {}
+			*ddc-source-nvim-lsp-param-enableAdditionalTextEdit*
+enableAdditionalTextEdit	(boolean)
+		Enables supplementary editing apart from the cursor. For
+		instance, it allows the auto-import of the
+		typescript-language-server, as well as macro-expansion via
+		rust-analyzer.
+		To use this feature,
+		|ddc-source-nvim-lsp-param-enableResolveItem| must be v:true.
+
+		Default: v:false
+
+				*ddc-source-nvim-lsp-param-confirmBehavior*
+confirmBehavior		("insert" | "replace")
+		- "insert":	Inserts the selected item and moves adjacent
+				text to the right.
+		- "replace":	Replaces adjacent text with the selected item.
+
+		Default: "insert"
 
 
 ==============================================================================
