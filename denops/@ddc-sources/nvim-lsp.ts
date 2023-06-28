@@ -169,14 +169,10 @@ export class Source extends BaseSource<Params> {
     userData,
     sourceParams: params,
   }: OnCompleteDoneArguments<Params, UserData>): Promise<void> {
-    // If the user confirms by entering the next input,
-    // the expansion process is not performed.
+    // No expansion unless confirmed by pum#map#confirm()
     const itemWord = await denops.eval(`v:completed_item.word`) as string;
     let ctx = await LineContext.create(denops);
-    if (
-      ctx.text !== userData.lineOnRequest && // use pum#map#select_relative
-      !ctx.text.endsWith(itemWord, ctx.character) // use pum#map#insert_relative
-    ) {
+    if (!ctx.text.endsWith(itemWord, ctx.character)) {
       return;
     }
 
