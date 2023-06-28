@@ -16,7 +16,7 @@ const OffsetEncoding = "utf-16" as const satisfies OffsetEncoding;
 const Resolvable = false as const satisfies boolean;
 
 // (1,0)-index, byte
-function searchCursor(
+export function searchCursor(
   buffer: string[],
   insert: string,
 ): { row: number; col: number; completePos: number } {

@@ -1,6 +1,7 @@
 import { Denops, fn, LSP } from "./deps.ts";
 import LineContext from "./line_context.ts";
 
+// utf-16 offset
 export default async function linePatch(
   denops: Denops,
   before: number,
