@@ -3,13 +3,13 @@ export {
   type DdcGatherItems,
   type Item,
   type PumHighlight,
-} from "https://deno.land/x/ddc_vim@v3.7.0/types.ts";
-export { type Denops, fn } from "https://deno.land/x/ddc_vim@v3.7.0/deps.ts";
+} from "https://deno.land/x/ddc_vim@v3.7.2/types.ts";
+export { type Denops, fn } from "https://deno.land/x/ddc_vim@v3.7.2/deps.ts";
 export type {
   GatherArguments,
   OnCompleteDoneArguments,
   OnInitArguments,
-} from "https://deno.land/x/ddc_vim@v3.7.0/base/source.ts";
+} from "https://deno.land/x/ddc_vim@v3.7.2/base/source.ts";
 
 export { register } from "https://deno.land/x/denops_std@v5.0.1/lambda/mod.ts";
 export {
