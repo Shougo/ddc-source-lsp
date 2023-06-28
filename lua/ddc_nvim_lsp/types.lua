@@ -113,4 +113,4 @@ local _ = {
 ---@class lsp.Command
 ---@field title string
 ---@field command string
----@field arguments any[]
+---@field arguments? any[]

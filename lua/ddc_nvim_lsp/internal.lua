@@ -41,7 +41,6 @@ end
 ---@return lsp.CompletionItem? lspitem
 local function resolve(clientId, lspitem)
   local client = vim.lsp.get_client_by_id(clientId)
-  -- https://microsoft.github.io/language-server-protocol/specifications/specification-current/#completionItem_resolve
   local response = client.request_sync("completionItem/resolve", lspitem, 1000, 0)
   if response.err == nil and response.result then
     return response.result
@@ -92,6 +91,21 @@ function M.setup()
       end
     end,
   })
+end
+
+---@param clientId number
+---@param command lsp.Command
+function M.execute(clientId, command)
+  local client = vim.lsp.get_client_by_id(clientId)
+  if client == nil then
+    return
+  end
+  command.title = nil
+  client.request("workspace/executeCommand", command, function(err)
+    if err then
+      vim.notify(err, vim.log.levels.ERROR)
+    end
+  end, 0)
 end
 
 return M

@@ -91,6 +91,7 @@ export default class CompletionItem {
       );
     }
 
+    // Expand main part
     const isSnippet = lspItem.insertTextFormat === LSP.InsertTextFormat.Snippet;
     if (!isSnippet) {
       await linePatch(denops, before, after, insertText);
@@ -105,6 +106,15 @@ export default class CompletionItem {
           insertText,
         );
       }
+    }
+
+    // Execute command
+    if (lspItem.command) {
+      await denops.call(
+        "luaeval",
+        `require("ddc_nvim_lsp.internal").execute(_A[1], _A[2])`,
+        [userData.clientId, lspItem.command],
+      );
     }
   }
 
