@@ -37,7 +37,7 @@ export default class CompletionItem {
   #offsetEncoding: OffsetEncoding;
   #resolvable: boolean;
   #lineOnRequest: string;
-  #completePos: number;
+  #suggestCharacter: number;
   #requestCharacter: number;
 
   static getInsertText(
@@ -53,14 +53,14 @@ export default class CompletionItem {
     offsetEncoding: OffsetEncoding,
     resolvable: boolean,
     lineOnRequest: string,
-    completePos: number,
+    suggestCharacter: number,
     requestCharacter: number,
   ) {
     this.#clientId = clientId;
     this.#offsetEncoding = offsetEncoding;
     this.#resolvable = resolvable;
     this.#lineOnRequest = lineOnRequest;
-    this.#completePos = completePos;
+    this.#suggestCharacter = suggestCharacter;
     this.#requestCharacter = requestCharacter;
   }
 
@@ -81,8 +81,8 @@ export default class CompletionItem {
         offsetEncoding: this.#offsetEncoding,
         resolvable: this.#resolvable,
         lineOnRequest: this.#lineOnRequest,
+        suggestCharacter: this.#suggestCharacter,
         requestCharacter: this.#requestCharacter,
-        suggestCharacter: this.#completePos,
       },
     };
   }
@@ -125,7 +125,7 @@ export default class CompletionItem {
       return lspItem.label;
     }
     const text = lspItem.filterText.trim();
-    const defaultOffset = this.#completePos;
+    const defaultOffset = this.#suggestCharacter;
     let offset = this.getOffset(lspItem, defaultOffset);
     if (offset < defaultOffset) {
       const prefix = this.#lineOnRequest.slice(offset, defaultOffset);

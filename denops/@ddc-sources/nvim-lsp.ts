@@ -74,7 +74,6 @@ export class Source extends BaseSource<Params> {
     const denops = args.denops;
 
     const lineOnRequest = await fn.getline(denops, ".");
-    const requestCharacter = args.completePos + args.completeStr.length;
     let isIncomplete = false;
 
     const clients = await denops.call(
@@ -94,7 +93,7 @@ export class Source extends BaseSource<Params> {
         client.provider.resolveProvider === true,
         lineOnRequest,
         args.completePos,
-        requestCharacter,
+        args.completePos + args.completeStr.length,
       );
 
       const items: Item<UserData>[] = [];
