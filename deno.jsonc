@@ -1,0 +1,8 @@
+{
+  "lock": false,
+  "tasks": {
+    "test": "deno test -A **/*_test.ts",
+    "check": "deno check **/*.ts && deno fmt --check && deno lint && luacheck lua/*",
+    "fmt": "deno fmt && stylua ./lua"
+  }
+}
