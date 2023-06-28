@@ -48,7 +48,15 @@ https://github.com/matsui54/denops-popup-preview.vim
 
 ==============================================================================
 EXAMPLES					*ddc-source-nvim-lsp-examples*
->
+
+To take advantage of all the features, you need to set client_capabilities.
+>lua
+	local capabilities = require("ddc_nvim_lsp").make_client_capabilities()
+	require("lspconfig").denols.setup({
+	  capabilities = capabilities,
+	})
+<
+>vim
 	call ddc#custom#patch_global('sources', ['nvim-lsp'])
 
 	call ddc#custom#patch_global('sourceOptions', #{
