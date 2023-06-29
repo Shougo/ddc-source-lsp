@@ -232,13 +232,13 @@ export default class CompletionItem {
       highlights: this.isDeprecated(lspItem)
         ? [{
           type: "abbr",
-          // The property 'name' only makes sense in vim.
+          // NOTE: The property 'name' only makes sense in Vim.
           name: "",
           hl_group: "DdcNvimLspDeprecated",
           col: 1,
           width: byteLength(abbr),
         }]
-        : undefined,
+        : [],
     };
   }
 
