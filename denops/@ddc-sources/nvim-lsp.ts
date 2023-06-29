@@ -21,7 +21,6 @@ import {
 import { OffsetEncoding } from "../ddc-source-nvim-lsp/offset_encoding.ts";
 import CompletionItem from "../ddc-source-nvim-lsp/completion_item.ts";
 import LineContext from "../ddc-source-nvim-lsp/line_context.ts";
-import linePatch from "../ddc-source-nvim-lsp/line_patch.ts";
 
 type Client = {
   id: number;
@@ -194,23 +193,25 @@ export class Source extends BaseSource<Params> {
       return;
     }
 
-    // Set undo point
-    await linePatch(
-      denops,
-      ctx.character - userData.suggestCharacter,
-      0,
-      itemWord,
-    );
-    // :h undo-break
-    await denops.cmd(`let &undolevels = &undolevels`);
-
     const lspItem = JSON.parse(userData.lspitem) as LSP.CompletionItem;
-    await CompletionItem.confirm(
-      denops,
-      lspItem,
-      userData,
-      params,
-    );
+
+    // If item.word is sufficient, do not confirm()
+    if (
+      CompletionItem.getInsertText(lspItem) !== itemWord ||
+      (params.enableAdditionalTextEdit &&
+        lspItem.additionalTextEdits)
+    ) {
+      // Set undo point
+      // :h undo-break
+      await denops.cmd(`let &undolevels = &undolevels`);
+
+      await CompletionItem.confirm(
+        denops,
+        lspItem,
+        userData,
+        params,
+      );
+    }
   }
 
   override params(): Params {
