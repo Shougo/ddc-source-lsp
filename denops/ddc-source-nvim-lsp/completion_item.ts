@@ -49,6 +49,15 @@ export default class CompletionItem {
       lspItem.label;
   }
 
+  static isReplace(
+    lspItem: LSP.CompletionItem,
+  ): boolean {
+    return lspItem.textEdit !== undefined &&
+      "replace" in lspItem.textEdit &&
+      lspItem.textEdit.replace.end.character !==
+        lspItem.textEdit.insert.end.character;
+  }
+
   static async confirm(
     denops: Denops,
     lspItem: LSP.CompletionItem,

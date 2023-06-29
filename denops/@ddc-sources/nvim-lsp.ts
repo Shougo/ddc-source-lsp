@@ -199,7 +199,9 @@ export class Source extends BaseSource<Params> {
     if (
       CompletionItem.getInsertText(lspItem) !== itemWord ||
       (params.enableAdditionalTextEdit &&
-        lspItem.additionalTextEdits)
+        lspItem.additionalTextEdits) ||
+      (params.confirmBehavior === "replace" &&
+        CompletionItem.isReplace(lspItem))
     ) {
       // Set undo point
       // :h undo-break
