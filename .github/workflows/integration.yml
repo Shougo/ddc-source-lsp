@@ -9,9 +9,17 @@ on:
   push:
     branches:
       - main
+    paths:
+      - **.ts
+      - **.lua
+      - **.vim
   pull_request:
     branches:
       - main
+    paths:
+      - **.ts
+      - **.lua
+      - **.vim
 
 jobs:
   check:
