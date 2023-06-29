@@ -10,7 +10,6 @@ import {
   Item,
   LSP,
   OnCompleteDoneArguments,
-  OnInitArguments,
   register,
 } from "../ddc-source-nvim-lsp/deps.ts";
 import {
@@ -56,17 +55,6 @@ export type Params = {
 };
 
 export class Source extends BaseSource<Params> {
-  override async onInit(
-    args: OnInitArguments<Params>,
-  ): Promise<void> {
-    if (args.sourceParams.enableResolveItem) {
-      await args.denops.call(
-        "luaeval",
-        `require("ddc_nvim_lsp.internal").setup()`,
-      );
-    }
-  }
-
   override async gather(
     args: GatherArguments<Params>,
   ): Promise<DdcGatherItems<UserData>> {
@@ -186,14 +174,18 @@ export class Source extends BaseSource<Params> {
     userData,
     sourceParams: params,
   }: OnCompleteDoneArguments<Params, UserData>): Promise<void> {
-    // No expansion unless confirmed by pum#map#confirm()
+    // No expansion unless confirmed by pum#map#confirm() or complete_CTRL-Y
+    // (native confirm)
     const itemWord = await denops.eval(`v:completed_item.word`) as string;
     const ctx = await LineContext.create(denops);
     if (!ctx.text.endsWith(itemWord, ctx.character)) {
       return;
     }
 
-    const lspItem = JSON.parse(userData.lspitem) as LSP.CompletionItem;
+    let lspItem = JSON.parse(userData.lspitem) as LSP.CompletionItem;
+    if (params.enableResolveItem) {
+      lspItem = await this.resolve(denops, userData.clientId, lspItem);
+    }
 
     // If item.word is sufficient, do not confirm()
     if (
@@ -214,6 +206,19 @@ export class Source extends BaseSource<Params> {
         params,
       );
     }
+  }
+
+  private async resolve(
+    denops: Denops,
+    clientId: number,
+    lspItem: LSP.CompletionItem,
+  ): Promise<LSP.CompletionItem> {
+    const resolvedItem = await denops.call(
+      "luaeval",
+      `require("ddc_nvim_lsp.internal").resolve(_A[1], _A[2])`,
+      [clientId, lspItem],
+    ) as LSP.CompletionItem | null;
+    return resolvedItem ?? lspItem;
   }
 
   override params(): Params {

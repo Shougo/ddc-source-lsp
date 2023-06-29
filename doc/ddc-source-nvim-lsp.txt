@@ -28,11 +28,6 @@ https://github.com/vim-denops/denops.vim
 
 You must use neovim with "nvim-lsp" configuration.
 
-We recommend using "pum.vim" and "ddc-ui-pum" to enable some features.
-
-https://github.com/Shougo/pum.vim
-https://github.com/Shougo/ddc-ui-pum
-
 You also need a snippet plugin if you want to expand snippets in LSP
 format.
 e.g.
@@ -109,10 +104,6 @@ snippetEngine		(string)
 				*ddc-source-nvim-lsp-param-enableResolveItem*
 enableResolveItem	(boolean)
 		Enable LSP's "completionItem/resolve" feature.
-
-		NOTE: "pum.vim" and "ddc-ui-pum" are required.
-		https://github.com/Shougo/pum.vim
-		https://github.com/Shougo/ddc-ui-pum
 
 		Default: v:false
 

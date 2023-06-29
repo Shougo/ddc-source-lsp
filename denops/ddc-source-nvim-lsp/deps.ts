@@ -8,7 +8,6 @@ export { type Denops, fn } from "https://deno.land/x/ddc_vim@v3.7.2/deps.ts";
 export type {
   GatherArguments,
   OnCompleteDoneArguments,
-  OnInitArguments,
 } from "https://deno.land/x/ddc_vim@v3.7.2/base/source.ts";
 
 export { register } from "https://deno.land/x/denops_std@v5.0.1/lambda/mod.ts";
