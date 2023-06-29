@@ -21,17 +21,17 @@ call ddc#custom#patch_global('sources', ['nvim-lsp'])
 call ddc#custom#patch_global('sourceOptions', #{
       \   nvim-lsp: #{
       \     mark: 'lsp',
-      \     forceCompletionPattern: '\.\w*|:\w*|->\w*'
+      \     forceCompletionPattern: '\.\w*|:\w*|->\w*',
       \   },
       \ })
 
-" Use Customized labels
+" Register snippet engine (vim-vsnip)
 call ddc#custom#patch_global('sourceParams', #{
       \   nvim-lsp: #{
-      \     kindLabels: #{
-      \       Class: 'c',
-      \     },
-      \   },
+      \     snippetEngine: denops#callback#register({
+      \           body -> vsnip#anonymous(body)
+      \     }),
+      \   }
       \ })
 ```
 
