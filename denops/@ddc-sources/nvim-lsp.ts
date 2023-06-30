@@ -178,7 +178,7 @@ export class Source extends BaseSource<Params> {
     // (native confirm)
     const itemWord = await denops.eval(`v:completed_item.word`) as string;
     const ctx = await LineContext.create(denops);
-    if (!ctx.text.endsWith(itemWord, ctx.character)) {
+    if (ctx.text.slice(userData.suggestCharacter, ctx.character) !== itemWord) {
       return;
     }
 
