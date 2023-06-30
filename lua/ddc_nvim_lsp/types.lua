@@ -1,44 +1,47 @@
----@see https://microsoft.github.io/language-server-protocol/specifications/specification-current/#completionList
----@class lsp.CompletionList
----@field isIncomplete boolean
----@field itemDefaults? lsp.itemDefaults
----@field items lsp.CompletionItem[]
+---@class ddc.lsp
+local lsp = {}
 
----@class lsp.itemDefaults
+---@see https://microsoft.github.io/language-server-protocol/specifications/specification-current/#completionList
+---@class ddc.lsp.CompletionList
+---@field isIncomplete boolean
+---@field itemDefaults? ddc.lsp.itemDefaults
+---@field items ddc.lsp.CompletionItem[]
+
+---@class ddc.lsp.itemDefaults
 ---@field commitCharacters? string[]
----@field editRange? lsp.Range | { insert: lsp.Range, replace: lsp.Range }
----@field insertTextFormat? lsp.InsertTextFormat
----@field insertTextMode? lsp.InsertTextMode
+---@field editRange? ddc.lsp.Range | { insert: ddc.lsp.Range, replace: ddc.lsp.Range }
+---@field insertTextFormat? ddc.lsp.InsertTextFormat
+---@field insertTextMode? ddc.lsp.InsertTextMode
 ---@field data? any
 
 ---@see https://microsoft.github.io/language-server-protocol/specifications/specification-current/#completionItem
----@class lsp.CompletionItem
+---@class ddc.lsp.CompletionItem
 ---@field label string
----@field labelDetails? lsp.CompletionItemLabelDetails
----@field kind? lsp.CompletionItemKind
----@field tags? lsp.CompletionItemTag[]
+---@field labelDetails? ddc.lsp.CompletionItemLabelDetails
+---@field kind? ddc.lsp.CompletionItemKind
+---@field tags? ddc.lsp.CompletionItemTag[]
 ---@field detail? string
----@field documentation? string | lsp.MarkupContent
+---@field documentation? string | ddc.lsp.MarkupContent
 ---@field deprecated? boolean
 ---@field preselect? boolean
 ---@field sortText? string
 ---@field filterText? string
 ---@field insertText? string
----@field insertTextFormat? lsp.InsertTextFormat
----@field insertTextMode? lsp.InsertTextMode
----@field textEdit? lsp.TextEdit | lsp.InsertReplaceEdit
+---@field insertTextFormat? ddc.lsp.InsertTextFormat
+---@field insertTextMode? ddc.lsp.InsertTextMode
+---@field textEdit? ddc.lsp.TextEdit | ddc.lsp.InsertReplaceEdit
 ---@field textEditText? string
----@field additionalTextEdits? lsp.TextEdit[]
+---@field additionalTextEdits? ddc.lsp.TextEdit[]
 ---@field commitCharacters? string[]
----@field command? lsp.Command
+---@field command? ddc.lsp.Command
 ---@field data? any
 
----@class lsp.CompletionItemLabelDetails
+---@class ddc.lsp.CompletionItemLabelDetails
 ---@field detail? string
 ---@field description? string
 
----@enum lsp.CompletionItemKind
-local _ = {
+---@enum ddc.lsp.CompletionItemKind
+lsp.CompletionItemKind = {
   Text = 1,
   Method = 2,
   Function = 3,
@@ -65,52 +68,55 @@ local _ = {
   Operator = 24,
   TypeParameter = 25,
 }
+lsp.CompletionItemKind = vim.tbl_add_reverse_lookup(lsp.CompletionItemKind)
 
----@enum lsp.CompletionItemTag
-local _ = {
+---@enum ddc.lsp.CompletionItemTag
+lsp.CompletionItemTag = {
   Deprecated = 1,
 }
 
----@class lsp.MarkupContent
----@field kind lsp.MarkupKind
+---@class ddc.lsp.MarkupContent
+---@field kind ddc.lsp.MarkupKind
 ---@field value string
 
----@enum lsp.MarkupKind
-local _ = {
+---@enum ddc.lsp.MarkupKind
+lsp.MarkupKind = {
   PlainText = "plaintext",
   Markdown = "markdown",
 }
 
----@enum lsp.InsertTextFormat
-local _ = {
+---@enum ddc.lsp.InsertTextFormat
+lsp.InsertTextFormat = {
   PlainText = 1,
   Snippet = 2,
 }
 
----@enum lsp.InsertTextMode
-local _ = {
+---@enum ddc.lsp.InsertTextMode
+lsp.InsertTextMode = {
   asIs = 1,
   adjustIndentation = 2,
 }
 
----@class lsp.TextEdit
----@field range lsp.Range
+---@class ddc.lsp.TextEdit
+---@field range ddc.lsp.Range
 ---@field newText string
 
----@class lsp.Range
----@field start lsp.Position
----@field end lsp.Position
+---@class ddc.lsp.Range
+---@field start ddc.lsp.Position
+---@field end ddc.lsp.Position
 
----@class lsp.Position
+---@class ddc.lsp.Position
 ---@field line number
 ---@field character number
 
----@class lsp.InsertReplaceEdit
+---@class ddc.lsp.InsertReplaceEdit
 ---@field newText string
----@field insert lsp.Range
----@field replace lsp.Range
+---@field insert ddc.lsp.Range
+---@field replace ddc.lsp.Range
 
----@class lsp.Command
+---@class ddc.lsp.Command
 ---@field title string
 ---@field command string
 ---@field arguments? any[]
+
+return lsp

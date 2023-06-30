@@ -37,8 +37,8 @@ function M.request(clientId, params, denops)
 end
 
 ---@param clientId number
----@param lspitem lsp.CompletionItem
----@return lsp.CompletionItem? lspitem
+---@param lspitem ddc.lsp.CompletionItem
+---@return ddc.lsp.CompletionItem? lspitem
 function M.resolve(clientId, lspitem)
   local client = vim.lsp.get_client_by_id(clientId)
   local response = client.request_sync("completionItem/resolve", lspitem, 1000, 0)
@@ -48,7 +48,7 @@ function M.resolve(clientId, lspitem)
 end
 
 ---@param clientId number
----@param command lsp.Command
+---@param command ddc.lsp.Command
 function M.execute(clientId, command)
   local client = vim.lsp.get_client_by_id(clientId)
   if client == nil then
