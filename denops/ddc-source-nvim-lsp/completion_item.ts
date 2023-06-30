@@ -2,7 +2,7 @@ import { Denops, Item, LSP, PumHighlight } from "./deps.ts";
 import { decodeUtfIndex, OffsetEncoding } from "./offset_encoding.ts";
 import createSelectText from "./select_text.ts";
 import linePatch, { byteLength } from "./line_patch.ts";
-import { Params, UserData } from "../@ddc-sources/nvim-lsp.ts";
+import { ConfirmBehavior, Params, UserData } from "../@ddc-sources/nvim-lsp.ts";
 import LineContext from "./line_context.ts";
 
 export default class CompletionItem {
@@ -51,11 +51,16 @@ export default class CompletionItem {
 
   static isReplace(
     lspItem: LSP.CompletionItem,
+    confirmBehavior: ConfirmBehavior,
   ): boolean {
-    return lspItem.textEdit !== undefined &&
-      "replace" in lspItem.textEdit &&
-      lspItem.textEdit.replace.end.character !==
-        lspItem.textEdit.insert.end.character;
+    const textEdit = lspItem.textEdit;
+    if (!textEdit) {
+      return false;
+    }
+    const range = "range" in textEdit
+      ? textEdit.range
+      : textEdit[confirmBehavior];
+    return range.start.character !== range.end.character;
   }
 
   static async confirm(
