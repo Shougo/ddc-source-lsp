@@ -199,12 +199,7 @@ export class Source extends BaseSource<Params> {
       // :h undo-break
       await denops.cmd(`let &undolevels = &undolevels`);
 
-      await CompletionItem.confirm(
-        denops,
-        lspItem,
-        userData,
-        params,
-      );
+      await CompletionItem.confirm(denops, lspItem, userData, params);
     }
   }
 
