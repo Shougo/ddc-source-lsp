@@ -200,10 +200,7 @@ export default class CompletionItem {
   private getWord(
     lspItem: LSP.CompletionItem,
   ): string {
-    if (!lspItem.filterText) {
-      return lspItem.label;
-    }
-    const text = lspItem.filterText.trim();
+    const text = (lspItem.filterText ?? lspItem.label).trim();
     const defaultOffset = this.#suggestCharacter;
     let offset = this.getOffset(lspItem, defaultOffset);
     if (offset < defaultOffset) {
