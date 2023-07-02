@@ -1,3 +1,5 @@
+local lsp = require("ddc_nvim_lsp.types")
+
 local M = {}
 
 ---@class Client
@@ -55,9 +57,18 @@ function M.execute(clientId, command)
     return
   end
   command.title = nil
+  ---@param err ddc.lsp.ResponseError
   client.request("workspace/executeCommand", command, function(err)
-    if err then
-      vim.notify(err, vim.log.levels.ERROR)
+    if err and err.code ~= lsp.ErrorCodes.ContentModified then
+      vim.notify(
+        ("%s: %s: %s"):format(
+          client.name,
+          lsp.ErrorCodes[err.code] or tostring(err.code),
+          err.message
+        ),
+        vim.log.levels.ERROR
+      )
+      vim.cmd.redraw()
     end
   end, 0)
 end

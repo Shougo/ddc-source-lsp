@@ -119,4 +119,35 @@ lsp.InsertTextMode = {
 ---@field command string
 ---@field arguments? any[]
 
+---@see https://microsoft.github.io/language-server-protocol/specifications/specification-current/#errorCodes
+---@class ddc.lsp.ErrorCodes
+lsp.ErrorCodes = {
+  ParseError = -32700,
+  InvalidRequest = -32600,
+  MethodNotFound = -32601,
+  InvalidParams = -32602,
+  InternalError = -32603,
+  jsonrpcReservedErrorRangeStart = -32099,
+  ---@deprecated use jsonrpcReservedErrorRangeStart
+  serverErrorStart = lsp.ErrorCodes.jsonrpcReservedErrorRangeStart,
+  ServerNotInitialized = -32002,
+  UnknownErrorCode = -32001,
+  jsonrpcReservedErrorRangeEnd = -32000,
+  ---@deprecated use jsonrpcReservedErrorRangeEnd
+  serverErrorEnd = lsp.ErrorCodes.jsonrpcReservedErrorRangeEnd,
+  lspReservedErrorRangeStart = -32899,
+  RequestFailed = -32803,
+  ServerCancelled = -32802,
+  ContentModified = -32801,
+  RequestCancelled = -32800,
+  lspReservedErrorRangeEnd = -32800,
+}
+lsp.ErrorCodes = vim.tbl_add_reverse_lookup(lsp.ErrorCodes)
+
+---@see https://microsoft.github.io/language-server-protocol/specifications/specification-current/#responseError
+---@class ddc.lsp.ResponseError
+---@field code ddc.lsp.ErrorCodes | number
+---@field message string
+---@field data? unknown
+
 return lsp
