@@ -48,10 +48,27 @@ function M.request(clientId, params, denops)
   end, 0)
 end
 
+---Neovim may put true, etc. in key when converting from vim script.
+---:h lua-special-tbl
+---@param tbl table
+local function normalize(tbl)
+  for key, value in pairs(tbl) do
+    local key_t = type(key)
+    if key_t == "string" or key_t == "number" then
+      if type(value) == "table" then
+        normalize(value)
+      end
+    else
+      tbl[key] = nil
+    end
+  end
+end
+
 ---@param clientId number
 ---@param lspitem ddc.lsp.CompletionItem
 ---@return ddc.lsp.CompletionItem? lspitem
 function M.resolve(clientId, lspitem)
+  normalize(lspitem)
   local client = vim.lsp.get_client_by_id(clientId)
   local response = client.request_sync("completionItem/resolve", lspitem, 1000, 0)
   M.log(client.name, response.err)
