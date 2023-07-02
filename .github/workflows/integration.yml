@@ -10,16 +10,16 @@ on:
     branches:
       - main
     paths:
-      - **.ts
-      - **.lua
-      - **.vim
+      - '**/*.ts'
+      - '**/*.lua'
+      - '**/*.vim'
   pull_request:
     branches:
       - main
     paths:
-      - **.ts
-      - **.lua
-      - **.vim
+      - '**/*.ts'
+      - '**/*.lua'
+      - '**/*.vim'
 
 jobs:
   check:
