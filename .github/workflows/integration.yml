@@ -13,6 +13,7 @@ on:
       - '**/*.ts'
       - '**/*.lua'
       - '**/*.vim'
+      - '.github/workflows/integration.yml'
   pull_request:
     branches:
       - main
@@ -20,6 +21,7 @@ on:
       - '**/*.ts'
       - '**/*.lua'
       - '**/*.vim'
+      - '.github/workflows/integration.yml'
 
 jobs:
   check:
