@@ -1,6 +1,15 @@
 local lsp = require("ddc_nvim_lsp.types")
 
-local M = {}
+local M = {
+  opt = {
+    debug = false,
+  },
+}
+
+---@param opt table?
+function M.setup(opt)
+  M.opt = vim.tbl_extend("force", M.opt, opt or {})
+end
 
 ---@class Client
 ---@field id number
@@ -32,6 +41,7 @@ function M.request(clientId, params, denops)
     return
   end
   client.request("textDocument/completion", params, function(err, result)
+    M.log(client.name, err)
     if err == nil and result then
       vim.fn["denops#notify"](denops.name, denops.id, { result })
     end
@@ -44,6 +54,7 @@ end
 function M.resolve(clientId, lspitem)
   local client = vim.lsp.get_client_by_id(clientId)
   local response = client.request_sync("completionItem/resolve", lspitem, 1000, 0)
+  M.log(client.name, response.err)
   if response.err == nil and response.result then
     return response.result
   end
@@ -59,18 +70,22 @@ function M.execute(clientId, command)
   command.title = nil
   ---@param err ddc.lsp.ResponseError
   client.request("workspace/executeCommand", command, function(err)
-    if err and err.code ~= lsp.ErrorCodes.ContentModified then
-      vim.notify(
-        ("%s: %s: %s"):format(
-          client.name,
-          lsp.ErrorCodes[err.code] or tostring(err.code),
-          err.message
-        ),
-        vim.log.levels.ERROR
-      )
-      vim.cmd.redraw()
-    end
+    M.log(client.name, err)
   end, 0)
+end
+
+---@param client_name string
+---@param err? ddc.lsp.ResponseError
+function M.log(client_name, err)
+  if err == nil or not M.opt.debug then
+    return
+  end
+
+  vim.notify(
+    ("%s: %s: %s"):format(client_name, lsp.ErrorCodes[err.code] or err.code, err.message),
+    vim.log.levels.ERROR
+  )
+  vim.cmd.redraw()
 end
 
 return M
