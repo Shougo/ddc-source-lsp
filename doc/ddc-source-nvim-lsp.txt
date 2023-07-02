@@ -10,6 +10,7 @@ Introduction		|ddc-source-nvim-lsp-introduction|
 Install			|ddc-source-nvim-lsp-install|
 Examples		|ddc-source-nvim-lsp-examples|
 Params			|ddc-source-nvim-lsp-params|
+FAQ			|ddc-source-nvim-lsp-faq|
 
 
 ==============================================================================
@@ -126,6 +127,17 @@ confirmBehavior		("insert" | "replace")
 		- "replace":	Replaces adjacent text with the selected item.
 
 		Default: "insert"
+
+
+==============================================================================
+FREQUENTLY ASKED QUESTIONS (FAQ)		*ddc-source-nvim-lsp-faq*
+
+Q: The snippet is double expanded.
+
+A: Remove vim-vsnip-integ and use ddc-source-vsnip instead.
+Since vim-vsnip-integ sets autocmd, please remove it completely from |'rtp'|.
+
+https://github.com/uga-rosa/ddc-source-vsnip
 
 
 ==============================================================================
