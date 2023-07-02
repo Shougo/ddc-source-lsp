@@ -128,21 +128,22 @@ lsp.ErrorCodes = {
   InvalidParams = -32602,
   InternalError = -32603,
   jsonrpcReservedErrorRangeStart = -32099,
-  ---@deprecated use jsonrpcReservedErrorRangeStart
-  serverErrorStart = lsp.ErrorCodes.jsonrpcReservedErrorRangeStart,
   ServerNotInitialized = -32002,
   UnknownErrorCode = -32001,
   jsonrpcReservedErrorRangeEnd = -32000,
-  ---@deprecated use jsonrpcReservedErrorRangeEnd
-  serverErrorEnd = lsp.ErrorCodes.jsonrpcReservedErrorRangeEnd,
   lspReservedErrorRangeStart = -32899,
   RequestFailed = -32803,
   ServerCancelled = -32802,
   ContentModified = -32801,
   RequestCancelled = -32800,
-  lspReservedErrorRangeEnd = -32800,
+  -- It doesn't denote a real error code.
+  -- lspReservedErrorRangeEnd = -32800,
 }
 lsp.ErrorCodes = vim.tbl_add_reverse_lookup(lsp.ErrorCodes)
+---@deprecated use jsonrpcReservedErrorRangeStart
+lsp.ErrorCodes.serverErrorStart = lsp.ErrorCodes.jsonrpcReservedErrorRangeStart
+---@deprecated use jsonrpcReservedErrorRangeEnd
+lsp.ErrorCodes.serverErrorEnd = lsp.ErrorCodes.jsonrpcReservedErrorRangeEnd
 
 ---@see https://microsoft.github.io/language-server-protocol/specifications/specification-current/#responseError
 ---@class ddc.lsp.ResponseError
