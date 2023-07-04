@@ -21,8 +21,6 @@ function M.make_client_capabilities()
           "documentation",
           "detail",
           "additionalTextEdits",
-          "sortText",
-          "filterText",
           "insertText",
           "textEdit",
           "insertTextFormat",
