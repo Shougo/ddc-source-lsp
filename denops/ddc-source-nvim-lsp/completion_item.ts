@@ -1,9 +1,15 @@
-import { Denops, Item, LSP, PumHighlight } from "./deps.ts";
-import { decodeUtfIndex, OffsetEncoding } from "./offset_encoding.ts";
+import {
+  Denops,
+  Item,
+  LineContext,
+  linePatch,
+  LSP,
+  OffsetEncoding,
+  PumHighlight,
+  toUtf16Index,
+} from "./deps.ts";
 import createSelectText from "./select_text.ts";
-import linePatch, { byteLength } from "./line_patch.ts";
 import { ConfirmBehavior, Params, UserData } from "../@ddc-sources/nvim-lsp.ts";
-import LineContext from "./line_context.ts";
 
 export default class CompletionItem {
   static Kind = {
@@ -223,7 +229,7 @@ export default class CompletionItem {
     }
     const range = "range" in textEdit ? textEdit.range : textEdit.insert;
     const character = range.start.character;
-    const offset = decodeUtfIndex(
+    const offset = toUtf16Index(
       this.#lineOnRequest,
       character,
       this.#offsetEncoding,
@@ -259,4 +265,11 @@ export default class CompletionItem {
     return lspItem.deprecated ||
       !!lspItem.tags?.includes(LSP.CompletionItemTag.Deprecated);
   }
+}
+
+const ENCODER = new TextEncoder();
+export function byteLength(
+  s: string,
+): number {
+  return ENCODER.encode(s).length;
 }

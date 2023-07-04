@@ -8,7 +8,9 @@ import {
   fn,
   GatherArguments,
   Item,
+  LineContext,
   LSP,
+  OffsetEncoding,
   OnCompleteDoneArguments,
   register,
 } from "../ddc-source-nvim-lsp/deps.ts";
@@ -17,9 +19,7 @@ import {
   CompletionParams,
   CompletionTriggerKind,
 } from "../ddc-source-nvim-lsp/types.ts";
-import { OffsetEncoding } from "../ddc-source-nvim-lsp/offset_encoding.ts";
 import CompletionItem from "../ddc-source-nvim-lsp/completion_item.ts";
-import LineContext from "../ddc-source-nvim-lsp/line_context.ts";
 
 type Client = {
   id: number;

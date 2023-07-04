@@ -1,8 +1,7 @@
+import { OffsetEncoding } from "./deps.ts";
 import { assertEquals, Denops, LSP, nvim, test } from "./test_deps.ts";
-import CompletionItem from "./completion_item.ts";
-import { OffsetEncoding } from "./offset_encoding.ts";
+import CompletionItem, { byteLength } from "./completion_item.ts";
 import { Params } from "../@ddc-sources/nvim-lsp.ts";
-import { byteLength } from "./line_patch.ts";
 
 const params: Params = {
   snippetEngine: "",
