@@ -100,7 +100,13 @@ test({
     assertEquals(ddcItem.word, "div");
     assertEquals(ddcItem.abbr, "/div");
 
-    await CompletionItem.confirm(denops, lspItem, ddcItem.user_data!, params);
+    await CompletionItem.confirm(
+      denops,
+      lspItem,
+      lspItem,
+      ddcItem.user_data!,
+      params,
+    );
 
     await assertBuffer(denops, [
       "<div>",
@@ -133,7 +139,13 @@ test({
     assertEquals(ddcItem.word, "prop");
     assertEquals(ddcItem.abbr, " prop");
 
-    await CompletionItem.confirm(denops, lspItem, ddcItem.user_data!, params);
+    await CompletionItem.confirm(
+      denops,
+      lspItem,
+      lspItem,
+      ddcItem.user_data!,
+      params,
+    );
 
     await assertBuffer(denops, ["obj->prop|foo"]);
   },
@@ -163,7 +175,13 @@ test({
     assertEquals(ddcItem.word, "Symbol");
     assertEquals(ddcItem.abbr, "Symbol");
 
-    await CompletionItem.confirm(denops, lspItem, ddcItem.user_data!, params);
+    await CompletionItem.confirm(
+      denops,
+      lspItem,
+      lspItem,
+      ddcItem.user_data!,
+      params,
+    );
 
     await assertBuffer(denops, ["[][Symbol]|foo"]);
   },
@@ -201,7 +219,13 @@ test({
     assertEquals(ddcItem.word, "dbg");
     assertEquals(ddcItem.abbr, "dbg");
 
-    await CompletionItem.confirm(denops, lspItem, ddcItem.user_data!, params);
+    await CompletionItem.confirm(
+      denops,
+      lspItem,
+      lspItem,
+      ddcItem.user_data!,
+      params,
+    );
 
     await assertBuffer(denops, [
       "fn main() {",

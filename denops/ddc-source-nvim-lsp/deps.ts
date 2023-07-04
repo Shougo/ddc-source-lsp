@@ -19,10 +19,13 @@ export type {
 export { register } from "https://deno.land/x/denops_std@v5.0.1/lambda/mod.ts";
 
 export {
+  applyTextEdits,
+  getCursor,
+  isPositionBefore,
   LineContext,
   linePatch,
   type OffsetEncoding,
   toUtf16Index,
-} from "https://deno.land/x/denops_lsputil@v0.4.6/mod.ts";
+} from "https://deno.land/x/denops_lsputil@v0.4.7/mod.ts";
 
 export * as LSP from "npm:vscode-languageserver-types@3.17.3";

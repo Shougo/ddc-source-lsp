@@ -1,5 +1,8 @@
 import {
+  applyTextEdits,
   Denops,
+  getCursor,
+  isPositionBefore,
   Item,
   LineContext,
   linePatch,
@@ -72,6 +75,7 @@ export class CompletionItem {
   static async confirm(
     denops: Denops,
     lspItem: LSP.CompletionItem,
+    unresolvedItem: LSP.CompletionItem,
     userData: UserData,
     params: Params,
   ): Promise<void> {
@@ -101,12 +105,13 @@ export class CompletionItem {
       after = range.end.character - ctx.character;
     }
 
-    // Apply additionalTextEdits
-    if (params.enableAdditionalTextEdit && lspItem.additionalTextEdits) {
-      await denops.call(
-        `luaeval`,
-        `vim.lsp.util.apply_text_edits(_A[1], 0, _A[2])`,
-        [lspItem.additionalTextEdits, userData.offsetEncoding],
+    // Apply sync additionalTextEdits
+    if (params.enableAdditionalTextEdit && unresolvedItem.additionalTextEdits) {
+      await applyTextEdits(
+        denops,
+        0,
+        unresolvedItem.additionalTextEdits,
+        userData.offsetEncoding,
       );
     }
 
@@ -121,6 +126,27 @@ export class CompletionItem {
         params.snippetEngine,
         insertText,
       );
+    }
+
+    // Apply async additionalTextEdits
+    if (
+      params.enableResolveItem &&
+      unresolvedItem.additionalTextEdits === undefined &&
+      lspItem.additionalTextEdits
+    ) {
+      const cursor = await getCursor(denops);
+      if (
+        !lspItem.additionalTextEdits.some((edit) =>
+          isPositionBefore(cursor, edit.range.start)
+        )
+      ) {
+        await applyTextEdits(
+          denops,
+          0,
+          lspItem.additionalTextEdits,
+          userData.offsetEncoding,
+        );
+      }
     }
 
     // Execute command

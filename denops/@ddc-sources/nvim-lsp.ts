@@ -182,10 +182,10 @@ export class Source extends BaseSource<Params> {
       return;
     }
 
-    let lspItem = JSON.parse(userData.lspitem) as LSP.CompletionItem;
-    if (params.enableResolveItem) {
-      lspItem = await this.resolve(denops, userData.clientId, lspItem);
-    }
+    const unresolvedItem = JSON.parse(userData.lspitem) as LSP.CompletionItem;
+    const lspItem = params.enableResolveItem
+      ? await this.resolve(denops, userData.clientId, unresolvedItem)
+      : unresolvedItem;
 
     // If item.word is sufficient, do not confirm()
     if (
@@ -198,7 +198,13 @@ export class Source extends BaseSource<Params> {
       // :h undo-break
       await denops.cmd(`let &undolevels = &undolevels`);
 
-      await CompletionItem.confirm(denops, lspItem, userData, params);
+      await CompletionItem.confirm(
+        denops,
+        lspItem,
+        unresolvedItem,
+        userData,
+        params,
+      );
     }
   }
 
