@@ -11,7 +11,7 @@ import {
 import createSelectText from "./select_text.ts";
 import { ConfirmBehavior, Params, UserData } from "../@ddc-sources/nvim-lsp.ts";
 
-export default class CompletionItem {
+export class CompletionItem {
   static Kind = {
     1: "Text",
     2: "Method",

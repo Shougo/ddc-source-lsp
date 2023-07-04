@@ -19,7 +19,7 @@ import {
   CompletionParams,
   CompletionTriggerKind,
 } from "../ddc-source-nvim-lsp/types.ts";
-import CompletionItem from "../ddc-source-nvim-lsp/completion_item.ts";
+import { CompletionItem } from "../ddc-source-nvim-lsp/completion_item.ts";
 
 type Client = {
   id: number;
