@@ -121,11 +121,15 @@ export class CompletionItem {
       await linePatch(denops, before, after, insertText);
     } else {
       await linePatch(denops, before, after, "");
-      await denops.call(
-        "denops#callback#call",
-        params.snippetEngine,
-        insertText,
-      );
+      if (typeof params.snippetEngine === "string") {
+        await denops.call(
+          "denops#callback#call",
+          params.snippetEngine,
+          insertText,
+        );
+      } else {
+        await params.snippetEngine({ denops, body: insertText });
+      }
     }
 
     // Apply async additionalTextEdits

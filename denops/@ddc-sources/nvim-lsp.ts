@@ -47,8 +47,15 @@ export type UserData = {
   suggestCharacter: number;
 };
 
+export type SnippetEngineArgs = {
+  body: string;
+  denops: Denops;
+};
+
 export type Params = {
-  snippetEngine: string; // ID of denops#callback. Required!
+  snippetEngine:
+    | string // ID of denops#callback. Required!
+    | ((args: SnippetEngineArgs) => Promise<void>);
   enableResolveItem: boolean;
   enableAdditionalTextEdit: boolean;
   confirmBehavior: ConfirmBehavior;
