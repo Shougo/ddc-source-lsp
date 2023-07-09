@@ -1,4 +1,4 @@
-import { BaseFilter, Item } from "https://deno.land/x/ddc_vim@v3.6.0/types.ts";
+import { BaseFilter, Item } from "https://deno.land/x/ddc_vim@v3.9.0/types.ts";
 
 type Params = {
   kindLabels: Record<string, string>;
