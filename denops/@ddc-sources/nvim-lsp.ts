@@ -49,7 +49,7 @@ export type UserData = {
 
 export type Params = {
   snippetEngine:
-    | string // ID of denops#callback. Required!
+    | string // ID of denops#callback.
     | ((body: string) => Promise<void>);
   enableResolveItem: boolean;
   enableAdditionalTextEdit: boolean;
