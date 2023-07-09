@@ -78,10 +78,13 @@ To take advantage of all the features, you need to set client_capabilities.
 PARAMS						*ddc-source-nvim-lsp-params*
 
 				*ddc-source-nvim-lsp-param-snippetEngine*
-snippetEngine		(string)
+snippetEngine		(string|function)
 		The language server may return snippet as items, so work with
 		another plugin to expand it. Register with
-		denops#callback#register and specify its id in this param.
+		|denops#callback#register()| and specify its id in this param.
+
+		NOTE: If you use |ddc#custom#load_config()|, you can pass
+		TypeScript function directly.
 
 		NOTE: If it is not registered, snippet items will be filtered.
 >vim
