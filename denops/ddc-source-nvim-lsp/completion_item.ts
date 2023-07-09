@@ -128,7 +128,7 @@ export class CompletionItem {
           insertText,
         );
       } else {
-        await params.snippetEngine({ denops, body: insertText });
+        await params.snippetEngine(insertText);
       }
     }
 
