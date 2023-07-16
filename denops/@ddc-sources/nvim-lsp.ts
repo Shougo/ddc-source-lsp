@@ -152,7 +152,7 @@ export class Source extends BaseSource<Params> {
         `require("ddc_nvim_lsp.internal").request(_A[1], _A[2], _A[3])`,
         [client.id, params, { name: denops.name, id }],
       );
-      return await deadline(defer, 1_000);
+      return await deadline(defer, args.sourceOptions.timeout);
     } catch (e) {
       if (!(e instanceof DeadlineError)) {
         throw e;
