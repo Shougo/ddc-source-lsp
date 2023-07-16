@@ -66,7 +66,7 @@ export class Source extends BaseSource<Params> {
     const isSnippetEngineRegistered = args.sourceParams.snippetEngine !== "";
     const isValid = (lspItem: LSP.CompletionItem) =>
       isSnippetEngineRegistered ||
-      lspItem.kind !== LSP.CompletionItemKind.Snippet;
+      lspItem.insertTextFormat !== LSP.InsertTextFormat.Snippet;
     let isIncomplete = false;
 
     const clients = await denops.call(
