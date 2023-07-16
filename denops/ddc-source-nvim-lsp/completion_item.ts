@@ -117,7 +117,7 @@ export class CompletionItem {
 
     // Expand main part
     const isSnippet = lspItem.insertTextFormat === LSP.InsertTextFormat.Snippet;
-    if (!isSnippet) {
+    if (!isSnippet || params.snippetEngine === "") {
       await linePatch(denops, before, after, insertText);
     } else {
       await linePatch(denops, before, after, "");
