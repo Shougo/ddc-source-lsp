@@ -4,7 +4,7 @@ Authors: Shougo <Shougo.Matsu at gmail.com>
          uga-rosa <uga6603 at gmail.com>
 License: MIT license
 
-CONTENTS					*ddc-filter-converter_kind_labels-contents*
+CONTENTS			*ddc-filter-converter_kind_labels-contents*
 
 Introduction		|ddc-filter-converter_kind_labels-introduction|
 Examples		|ddc-filter-converter_kind_labels-examples|
@@ -13,14 +13,14 @@ FAQ			|ddc-filter-converter_kind_labels-faq|
 
 
 ==============================================================================
-INTRODUCTION				*ddc-filter-converter_kind_labels-introduction*
+INTRODUCTION		*ddc-filter-converter_kind_labels-introduction*
 
 This filter converts lsp kind label to your setting.
-This converter is specifically disigned for |ddc-source-nvim-lsp|.
+This converter is specifically disigned for "ddc-source-nvim-lsp".
 
 
 ==============================================================================
-EXAMPLES					*ddc-filter-converter_kind_labels-examples*
+EXAMPLES			*ddc-filter-converter_kind_labels-examples*
 >
 	call ddu#custom#patch_global(#{
 	    \   sourceOptions: #{
@@ -32,15 +32,15 @@ EXAMPLES					*ddc-filter-converter_kind_labels-examples*
 <
 
 ==============================================================================
-PARAMS						*ddc-filter-converter_kind_labels-params*
+PARAMS				*ddc-filter-converter_kind_labels-params*
 
 			*ddu-filter-converter_kind_labels-param-kindLabels*
 kindLabels		(|Dictionary|)
-	This represents your setting labels corresponding to lsp kind labels. 
+	This represents your setting labels corresponding to lsp kind labels.
 	Each your setting apply to each label.
 
-	NOTE
-	Valid keys are bellow.
+	NOTE:
+	The valid keys are bellow.
 		Text,
 		Method,
 		Function,
@@ -70,11 +70,10 @@ kindLabels		(|Dictionary|)
 	Default: {}
 
 
-
 ==============================================================================
-FREQUENTLY ASKED QUESTIONS (FAQ)		*ddc-filter-converter_kind_labels-faq*
+FREQUENTLY ASKED QUESTIONS (FAQ)	*ddc-filter-converter_kind_labels-faq*
 
-Q: I want to use VScode-like icon.
+Q: I want to use "VScode" like icon.
 
 A: You can setting like bellow.
 >

@@ -47,6 +47,7 @@ https://github.com/matsui54/denops-popup-preview.vim
 EXAMPLES					*ddc-source-nvim-lsp-examples*
 
 To take advantage of all the features, you need to set client_capabilities.
+
 >lua
 	local capabilities = require(
 	    "ddc_nvim_lsp").make_client_capabilities()
@@ -137,8 +138,9 @@ FREQUENTLY ASKED QUESTIONS (FAQ)		*ddc-source-nvim-lsp-faq*
 
 Q: The snippet is double expanded.
 
-A: Remove vim-vsnip-integ and use ddc-source-vsnip instead.
-Since vim-vsnip-integ sets autocmd, please remove it completely from |'rtp'|.
+A: Remove "vim-vsnip-integ" and use "ddc-source-vsnip" instead.
+Since "vim-vsnip-integ" sets |:autocmd|, please remove it completely from
+'runtimepath'.
 
 https://github.com/uga-rosa/ddc-source-vsnip
 
