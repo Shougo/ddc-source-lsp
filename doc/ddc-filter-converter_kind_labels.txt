@@ -116,6 +116,15 @@ A: You can setting like bellow.
 	    \         Event: "",
 	    \         Operator: "",
 	    \         TypeParameter: ""
+	    \       },
+	    \       kindHlGroups: #{
+	    \         Method: "Function",
+	    \         Function: "Function",
+	    \         Constructor: "Function",
+	    \         Field: "Identifier",
+	    \         Variable: "Identifier",
+	    \         Class: "Structure",
+	    \         Interface: "Structure"
 	    \       }
 	    \     }
 	    \   }
