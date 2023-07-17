@@ -39,7 +39,6 @@ kindLabels		(|Dictionary|)
 	This represents your setting labels corresponding to lsp kind labels.
 	Each your setting apply to each label.
 
-	NOTE:
 	The valid keys are bellow.
 		Text,
 		Method,
