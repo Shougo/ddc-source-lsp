@@ -2,6 +2,7 @@ import { BaseFilter, Item } from "https://deno.land/x/ddc_vim@v3.9.0/types.ts";
 
 type Params = {
   kindLabels: Record<string, string>;
+  kindHlGroups: Record<string, string>;
 };
 
 export class Filter extends BaseFilter<Params> {
@@ -21,6 +22,7 @@ export class Filter extends BaseFilter<Params> {
   override params(): Params {
     return {
       kindLabels: {},
+      kindHlGroups: {},
     };
   }
 }
