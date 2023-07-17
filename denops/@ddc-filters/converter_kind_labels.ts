@@ -12,26 +12,30 @@ export class Filter extends BaseFilter<Params> {
     items: Item[];
   }): Promise<Item[]> {
     const labels = args.filterParams.kindLabels;
-    const hlGrouns = args.filterParams.kindHlGroups;
+    const hlGroups = args.filterParams.kindHlGroups;
+
     for (const item of args.items) {
-      // extract hl_group here before item.kind is overwritten
-      const hl_group = hlGrouns[item.kind ?? ""];
-      item.kind = item.kind && item.kind in labels
-        ? labels[item.kind]
-        : item.kind;
+      const kind = item.kind ?? ""
+
+      item.kind = labels[kind] ?? item.kind;
+
+      const hl_group = hlGroups[kind];
       if (!hl_group) continue;
-      const highlights = item.highlights ?? [];
+      const hlName = `lsp-kind-label-${kind}`;
+      const highlights =
+        item.highlights?.filter((hl) => hl.name !== hlName) ?? [];
       item.highlights = [
         ...highlights,
         {
-          name: "lsp-kind-label",
+          name: hlName,
           type: "kind",
-          hl_group: hl_group,
+          hl_group,
           col: 1,
-          width: byteLength(item.kind ?? ""),
+          width: byteLength(kind),
         },
       ];
     }
+
     return Promise.resolve(args.items);
   }
 

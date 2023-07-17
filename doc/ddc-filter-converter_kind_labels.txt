@@ -70,10 +70,11 @@ kindLabels		(|Dictionary|)
 
 			*ddu-filter-converter_kind_labels-param-kindHlGroups*
 kindHlGroups		(|Dictionary|)
-	This represents your setting labels highlight corresponding to lsp kind labels.
+	This represents your setting labels highlight corresponding to lsp
+	kind labels.
 	Each your setting apply to each label.
-	Dictionary value must be the highlight such as "Identifier", "Red",
-	"Function"...
+	Dictionary value must be the highlight name such as "Identifier",
+	"Red", "Function"... in |highlight-groups|.
 
 	The valid keys are same above.
 
