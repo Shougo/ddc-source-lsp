@@ -15,15 +15,15 @@ export class Filter extends BaseFilter<Params> {
     const hlGroups = args.filterParams.kindHlGroups;
 
     for (const item of args.items) {
-      const kind = item.kind ?? ""
+      const kind = item.kind ?? "";
 
       item.kind = labels[kind] ?? item.kind;
 
       const hl_group = hlGroups[kind];
       if (!hl_group) continue;
       const hlName = `lsp-kind-label-${kind}`;
-      const highlights =
-        item.highlights?.filter((hl) => hl.name !== hlName) ?? [];
+      const highlights = item.highlights?.filter((hl) => hl.name !== hlName) ??
+        [];
       item.highlights = [
         ...highlights,
         {
