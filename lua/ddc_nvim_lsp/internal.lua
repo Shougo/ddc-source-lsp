@@ -42,9 +42,7 @@ function M.request(clientId, params, denops)
   end
   client.request("textDocument/completion", params, function(err, result)
     M.log(client.name, err)
-    if err == nil and result then
-      vim.fn["denops#notify"](denops.name, denops.id, { result })
-    end
+    vim.fn["denops#notify"](denops.name, denops.id, { result })
   end, 0)
 end
 
