@@ -117,7 +117,10 @@ export class CompletionItem {
 
     // Expand main part
     // If snippetEngine is unregistered, snippet candidates are excluded at the time of gather.
-    const isSnippet = lspItem.insertTextFormat === LSP.InsertTextFormat.Snippet;
+    const placeholder = /\$\{?\d/;
+    const isSnippet =
+      lspItem.insertTextFormat === LSP.InsertTextFormat.Snippet &&
+      placeholder.test(insertText);
     if (!isSnippet) {
       await linePatch(denops, before, after, insertText);
     } else {
