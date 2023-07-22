@@ -50,6 +50,14 @@ export class CompletionItem {
   #suggestCharacter: number;
   #requestCharacter: number;
 
+  static isSnippet(
+    lspItem: LSP.CompletionItem,
+  ): boolean {
+    const insertText = this.getInsertText(lspItem);
+    return lspItem.insertTextFormat === LSP.InsertTextFormat.Snippet &&
+      /(?:\$\{?\d|\n)/.test(insertText);
+  }
+
   static getInsertText(
     lspItem: LSP.CompletionItem,
   ): string {
@@ -92,7 +100,6 @@ export class CompletionItem {
     );
 
     ctx = await LineContext.create(denops);
-    const insertText = CompletionItem.getInsertText(lspItem);
     let before: number, after: number;
     if (!lspItem.textEdit) {
       before = ctx.character - userData.suggestCharacter;
@@ -117,11 +124,8 @@ export class CompletionItem {
 
     // Expand main part
     // If snippetEngine is unregistered, snippet candidates are excluded at the time of gather.
-    const placeholder = /\$\{?\d/;
-    const isSnippet =
-      lspItem.insertTextFormat === LSP.InsertTextFormat.Snippet &&
-      placeholder.test(insertText);
-    if (!isSnippet) {
+    const insertText = this.getInsertText(lspItem);
+    if (!this.isSnippet(lspItem)) {
       await linePatch(denops, before, after, insertText);
     } else {
       await linePatch(denops, before, after, "");

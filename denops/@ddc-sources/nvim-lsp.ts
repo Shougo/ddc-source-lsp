@@ -64,11 +64,9 @@ export class Source extends BaseSource<Params> {
 
     const lineOnRequest = await fn.getline(denops, ".");
     const isSnippetEngineRegistered = args.sourceParams.snippetEngine !== "";
-    const placeholder = /\$\{?\d/;
     const isValid = (lspItem: LSP.CompletionItem) =>
       isSnippetEngineRegistered ||
-      lspItem.insertTextFormat !== LSP.InsertTextFormat.Snippet ||
-      !placeholder.test(CompletionItem.getInsertText(lspItem));
+      !CompletionItem.isSnippet(lspItem);
     let isIncomplete = false;
 
     const clients = await denops.call(
