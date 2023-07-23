@@ -13,6 +13,7 @@ import {
 } from "./deps.ts";
 import createSelectText from "./select_text.ts";
 import { ConfirmBehavior, Params, UserData } from "../@ddc-sources/nvim-lsp.ts";
+import * as snippet from "./snippet.ts";
 
 export class CompletionItem {
   static Kind = {
@@ -123,21 +124,12 @@ export class CompletionItem {
     }
 
     // Expand main part
-    // If snippetEngine is unregistered, snippet candidates are excluded at the time of gather.
     const insertText = this.getInsertText(lspItem);
-    if (!this.isSnippet(lspItem)) {
-      await linePatch(denops, before, after, insertText);
-    } else {
+    if (this.isSnippet(lspItem)) {
       await linePatch(denops, before, after, "");
-      if (typeof params.snippetEngine === "string") {
-        await denops.call(
-          "denops#callback#call",
-          params.snippetEngine,
-          insertText,
-        );
-      } else {
-        await params.snippetEngine(insertText);
-      }
+      await snippet.expand(denops, insertText, params.snippetEngine);
+    } else {
+      await linePatch(denops, before, after, insertText);
     }
 
     // Apply async additionalTextEdits

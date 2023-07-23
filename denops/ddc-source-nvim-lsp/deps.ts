@@ -10,7 +10,11 @@ export {
   type Item,
   type PumHighlight,
 } from "https://deno.land/x/ddc_vim@v3.9.0/types.ts";
-export { type Denops, fn } from "https://deno.land/x/ddc_vim@v3.9.0/deps.ts";
+export {
+  type Denops,
+  fn,
+  op,
+} from "https://deno.land/x/ddc_vim@v3.9.0/deps.ts";
 export type {
   GatherArguments,
   OnCompleteDoneArguments,
@@ -26,6 +30,6 @@ export {
   linePatch,
   type OffsetEncoding,
   toUtf16Index,
-} from "https://deno.land/x/denops_lsputil@v0.5.3/mod.ts";
+} from "https://deno.land/x/denops_lsputil@v0.5.4/mod.ts";
 
 export * as LSP from "npm:vscode-languageserver-types@3.17.4-next.0";
