@@ -63,10 +63,6 @@ export class Source extends BaseSource<Params> {
     const denops = args.denops;
 
     const lineOnRequest = await fn.getline(denops, ".");
-    const isSnippetEngineRegistered = args.sourceParams.snippetEngine !== "";
-    const isValid = (lspItem: LSP.CompletionItem) =>
-      isSnippetEngineRegistered ||
-      !CompletionItem.isSnippet(lspItem);
     let isIncomplete = false;
 
     const clients = await denops.call(
@@ -93,15 +89,11 @@ export class Source extends BaseSource<Params> {
 
       if (Array.isArray(result)) {
         for (const lspItem of result) {
-          if (isValid(lspItem)) {
-            items.push(completionItem.toDdcItem(lspItem));
-          }
+          items.push(completionItem.toDdcItem(lspItem));
         }
       } else {
         for (const lspItem of result.items) {
-          if (isValid(lspItem)) {
-            items.push(completionItem.toDdcItem(lspItem, result.itemDefaults));
-          }
+          items.push(completionItem.toDdcItem(lspItem, result.itemDefaults));
         }
         isIncomplete = isIncomplete || result.isIncomplete;
       }
