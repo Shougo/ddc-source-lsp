@@ -86,8 +86,6 @@ snippetEngine		(string | function)
 
 		NOTE: If you use |ddc#custom#load_config()|, you can pass
 		TypeScript function directly.
-
-		NOTE: If it is not registered, snippet items will be filtered.
 >vim
 		" https://github.com/hrsh7th/vim-vsnip
 		denops#callback#register({ body -> vsnip#anonymous(body) })
