@@ -22,7 +22,6 @@ async function setup(args: {
   lspItem: LSP.CompletionItem;
 }) {
   const { row, col, completePos } = searchCursor(args.buffer, args.input);
-
   await nvim.nvim_buf_set_lines(args.denops, 0, 0, -1, true, args.buffer);
   await nvim.nvim_win_set_cursor(args.denops, 0, [row, col]);
 
