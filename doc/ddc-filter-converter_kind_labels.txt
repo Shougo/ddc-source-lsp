@@ -22,7 +22,7 @@ This converter is specifically disigned for "ddc-source-nvim-lsp".
 ==============================================================================
 EXAMPLES			*ddc-filter-converter_kind_labels-examples*
 >
-	call ddu#custom#patch_global(#{
+	call ddc#custom#patch_global(#{
 	    \   sourceOptions: #{
 	    \     nvim-lsp: #{
 	    \       converters: [ 'converter_kind_labels' ],
