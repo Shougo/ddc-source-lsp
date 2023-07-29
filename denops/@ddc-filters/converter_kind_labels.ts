@@ -1,4 +1,4 @@
-import { BaseFilter, Item } from "https://deno.land/x/ddc_vim@v3.9.0/types.ts";
+import { BaseFilter, Item } from "../ddc-source-nvim-lsp/deps.ts";
 import { byteLength } from "../ddc-source-nvim-lsp/completion_item.ts";
 
 type Params = {

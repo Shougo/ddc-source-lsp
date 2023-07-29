@@ -5,6 +5,7 @@ export {
 } from "https://deno.land/std@0.193.0/async/mod.ts";
 
 export {
+  BaseFilter,
   BaseSource,
   type DdcGatherItems,
   type Item,
@@ -19,6 +20,9 @@ export type {
   GatherArguments,
   OnCompleteDoneArguments,
 } from "https://deno.land/x/ddc_vim@v3.9.0/base/source.ts";
+export type {
+  FilterArguments,
+} from "https://deno.land/x/ddc_vim@v3.9.0/base/filter.ts";
 
 export { register } from "https://deno.land/x/denops_std@v5.0.1/lambda/mod.ts";
 
