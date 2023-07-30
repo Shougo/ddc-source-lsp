@@ -78,6 +78,34 @@ priority		(|List|)
 	followed by `Method` and `Function` with the same priority, then `Field`,
 	`Variable`, and so on.
 
+	Default: [
+	  "Snippet",
+	  "Method",
+	  "Function",
+	  "Constructor",
+	  "Field",
+	  "Variable",
+	  "Class",
+	  "Interface",
+	  "Module",
+	  "Property",
+	  "Unit",
+	  "Value",
+	  "Enum",
+	  "Keyword",
+	  "Color",
+	  "File",
+	  "Reference",
+	  "Folder",
+	  "EnumMember",
+	  "Constant",
+	  "Struct",
+	  "Event",
+	  "Operator",
+	  "TypeParameter",
+	  "Text",
+	]
+
 
 ==============================================================================
 vim:tw=78:ts=8:noet:ft=help:norl:

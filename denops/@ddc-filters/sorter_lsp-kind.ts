@@ -34,7 +34,33 @@ export class Filter extends BaseFilter<Params> {
 
   params(): Params {
     return {
-      priority: [],
+      priority: [
+        "Snippet",
+        "Method",
+        "Function",
+        "Constructor",
+        "Field",
+        "Variable",
+        "Class",
+        "Interface",
+        "Module",
+        "Property",
+        "Unit",
+        "Value",
+        "Enum",
+        "Keyword",
+        "Color",
+        "File",
+        "Reference",
+        "Folder",
+        "EnumMember",
+        "Constant",
+        "Struct",
+        "Event",
+        "Operator",
+        "TypeParameter",
+        "Text",
+      ],
     };
   }
 }
