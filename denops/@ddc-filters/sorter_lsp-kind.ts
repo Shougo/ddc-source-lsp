@@ -34,10 +34,11 @@ export class Filter extends BaseFilter<Params> {
 
   params(): Params {
     const priority = Object.values(CompletionItem.Kind);
-    // "Snippet" at the beginning, "Text" at the end.
-    priority.splice(14, 1);
-    priority.splice(0, 1);
+    // "Snippet" at the beginning
+    priority.splice(priority.indexOf("Snippet"), 1);
     priority.unshift("Snippet");
+    // "Text" at the end
+    priority.splice(priority.indexOf("Text"), 1);
     priority.push("Text");
     return { priority };
   }
