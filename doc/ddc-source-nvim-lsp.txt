@@ -62,6 +62,7 @@ To take advantage of all the features, you need to set client_capabilities.
 	      \   nvim-lsp: #{
 	      \     mark: 'lsp',
 	      \     forceCompletionPattern: '\.\w*|:\w*|->\w*',
+	      \     sorters: ['sorter_lsp-kind'],
 	      \   },
 	      \ })
 
