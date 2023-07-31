@@ -199,6 +199,8 @@ export class Source extends BaseSource<Params> {
         userData,
         params,
       );
+
+      await denops.call("ddc#skip_next_complete");
     }
   }
 
