@@ -33,34 +33,12 @@ export class Filter extends BaseFilter<Params> {
   }
 
   params(): Params {
-    return {
-      priority: [
-        "Snippet",
-        "Method",
-        "Function",
-        "Constructor",
-        "Field",
-        "Variable",
-        "Class",
-        "Interface",
-        "Module",
-        "Property",
-        "Unit",
-        "Value",
-        "Enum",
-        "Keyword",
-        "Color",
-        "File",
-        "Reference",
-        "Folder",
-        "EnumMember",
-        "Constant",
-        "Struct",
-        "Event",
-        "Operator",
-        "TypeParameter",
-        "Text",
-      ],
-    };
+    const priority = Object.values(CompletionItem.Kind);
+    // "Snippet" at the beginning, "Text" at the end.
+    priority.splice(14, 1);
+    priority.splice(0, 1);
+    priority.unshift("Snippet");
+    priority.push("Text");
+    return { priority };
   }
 }
