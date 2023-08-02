@@ -57,6 +57,8 @@ export type Params = {
 };
 
 export class Source extends BaseSource<Params> {
+  #item_cache: Record<Client["id"], Item<UserData>[]> = {};
+
   override async gather(
     args: GatherArguments<Params>,
   ): Promise<DdcGatherItems<UserData>> {
@@ -71,6 +73,10 @@ export class Source extends BaseSource<Params> {
     ) as Client[];
 
     const items = await Promise.all(clients.map(async (client) => {
+      if (this.#item_cache[client.id]) {
+        return this.#item_cache[client.id];
+      }
+
       const result = await this.request(denops, client, args);
       if (!result) {
         return [];
@@ -85,18 +91,16 @@ export class Source extends BaseSource<Params> {
         args.completePos + args.completeStr.length,
       );
 
-      const items: Item<UserData>[] = [];
-
-      if (Array.isArray(result)) {
-        for (const lspItem of result) {
-          items.push(completionItem.toDdcItem(lspItem));
-        }
-      } else {
-        for (const lspItem of result.items) {
-          items.push(completionItem.toDdcItem(lspItem, result.itemDefaults));
-        }
-        isIncomplete = isIncomplete || result.isIncomplete;
+      const completionList = Array.isArray(result)
+        ? { items: result, isIncomplete: false }
+        : result;
+      const items = completionList.items.map((lspItem) =>
+        completionItem.toDdcItem(lspItem, completionList.itemDefaults)
+      );
+      if (!completionList.isIncomplete) {
+        this.#item_cache[client.id] = items;
       }
+      isIncomplete = isIncomplete || completionList.isIncomplete;
 
       return items;
     })).then((items) => items.flat(1))
@@ -104,6 +108,10 @@ export class Source extends BaseSource<Params> {
         this.printError(denops, e);
         return [];
       });
+
+    if (!isIncomplete) {
+      this.#item_cache = {};
+    }
 
     return {
       items,
