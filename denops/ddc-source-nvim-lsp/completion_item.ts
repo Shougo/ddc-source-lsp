@@ -70,6 +70,8 @@ export class CompletionItem {
   static isReplace(
     lspItem: LSP.CompletionItem,
     confirmBehavior: ConfirmBehavior,
+    suggestCharacter: number,
+    requestCharacter: number,
   ): boolean {
     const textEdit = lspItem.textEdit;
     if (!textEdit) {
@@ -78,7 +80,8 @@ export class CompletionItem {
     const range = "range" in textEdit
       ? textEdit.range
       : textEdit[confirmBehavior];
-    return range.start.character !== range.end.character;
+    return range.start.character < suggestCharacter ||
+      range.end.character > requestCharacter;
   }
 
   static async confirm(
