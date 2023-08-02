@@ -63,7 +63,6 @@ export class Source extends BaseSource<Params> {
     const denops = args.denops;
 
     const lineOnRequest = await fn.getline(denops, ".");
-    let isIncomplete = false;
 
     const clients = await denops.call(
       "luaeval",
@@ -95,7 +94,6 @@ export class Source extends BaseSource<Params> {
         for (const lspItem of result.items) {
           items.push(completionItem.toDdcItem(lspItem, result.itemDefaults));
         }
-        isIncomplete = isIncomplete || result.isIncomplete;
       }
 
       return items;
@@ -105,10 +103,7 @@ export class Source extends BaseSource<Params> {
         return [];
       });
 
-    return {
-      items,
-      isIncomplete,
-    };
+    return items;
   }
 
   private async request(
