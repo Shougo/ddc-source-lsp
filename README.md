@@ -14,6 +14,10 @@ https://github.com/Shougo/ddc.vim
 
 ### neovim with LSP configuration
 
+Although not required, it is recommended that this plugin be used.
+
+https://github.com/uga-rosa/ddc-nvim-lsp-setup
+
 ## Configuration
 
 To take advantage of all the features, you need to set client_capabilities.
