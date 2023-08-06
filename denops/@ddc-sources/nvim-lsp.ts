@@ -54,6 +54,7 @@ export type Params = {
   enableResolveItem: boolean;
   enableAdditionalTextEdit: boolean;
   confirmBehavior: ConfirmBehavior;
+  snippetIndicator: string;
 };
 
 function isDefined<T>(x: T | undefined): x is T {
@@ -95,6 +96,7 @@ export class Source extends BaseSource<Params> {
         args.completePos,
         args.completePos + args.completeStr.length,
         cursorLine,
+        args.sourceParams.snippetIndicator,
       );
 
       const completionList = Array.isArray(result)
@@ -245,6 +247,7 @@ export class Source extends BaseSource<Params> {
       enableResolveItem: false,
       enableAdditionalTextEdit: false,
       confirmBehavior: "insert",
+      snippetIndicator: "~",
     };
   }
 }

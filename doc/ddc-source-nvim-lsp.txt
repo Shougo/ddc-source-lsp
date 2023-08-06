@@ -108,6 +108,15 @@ snippetEngine		(string | function)
 <
 		Default: ""
 
+				*ddc-source-nvim-lsp-param-snippetIndicator*
+snippetIndicator		(string)
+		The indicator string for snippet items added to the end of
+		a completion item.
+
+		NOTE: This affects ddc-item-attribute-abbr.
+
+		Default: "~"
+
 				*ddc-source-nvim-lsp-param-enableResolveItem*
 enableResolveItem	(boolean)
 		Enable LSP's "completionItem/resolve" feature.
