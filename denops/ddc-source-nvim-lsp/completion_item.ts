@@ -187,10 +187,9 @@ export class CompletionItem {
     defaults?: LSP.CompletionList["itemDefaults"],
   ): Item<UserData> {
     lspItem = this.fillDefaults(lspItem, defaults);
-    const word = createSelectText(this.getWord(lspItem));
-    const { abbr, highlights } = this.getAbbr(lspItem, word);
+    const { abbr, highlights } = this.getAbbr(lspItem);
     return {
-      word,
+      word: createSelectText(this.getWord(lspItem)),
       abbr,
       kind: CompletionItem.Kind[lspItem.kind ?? 1],
       highlights,
@@ -274,10 +273,10 @@ export class CompletionItem {
 
   private getAbbr(
     lspItem: LSP.CompletionItem,
-    word: string,
   ): { abbr: string; highlights?: PumHighlight[] } {
-    const abbr = word +
-      (lspItem.insertTextFormat === LSP.InsertTextFormat.Snippet ? "~" : "");
+    const abbr = lspItem.insertTextFormat === LSP.InsertTextFormat.Snippet
+      ? `${lspItem.label}~`
+      : lspItem.label;
     return {
       abbr,
       highlights: this.isDeprecated(lspItem)
