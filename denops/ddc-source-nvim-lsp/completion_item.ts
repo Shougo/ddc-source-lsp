@@ -184,9 +184,25 @@ export class CompletionItem {
 
   toDdcItem(
     lspItem: LSP.CompletionItem,
+    cursorLine: number,
     defaults?: LSP.CompletionList["itemDefaults"],
-  ): Item<UserData> {
+  ): Item<UserData> | undefined {
     lspItem = this.fillDefaults(lspItem, defaults);
+
+    // Some LSs return candidates that violate the protocol and should be filtered.
+    // > *Note:* The range of the edit must be a single line range and it must
+    // > contain the position at which completion has been requested.
+    const textEdit = lspItem.textEdit;
+    if (textEdit) {
+      const range = "range" in textEdit ? textEdit.range : textEdit.insert;
+      if (
+        range.start.line !== range.end.line ||
+        range.start.line !== cursorLine
+      ) {
+        return;
+      }
+    }
+
     const { abbr, highlights } = this.getAbbr(lspItem);
     return {
       word: createSelectText(this.getWord(lspItem)),

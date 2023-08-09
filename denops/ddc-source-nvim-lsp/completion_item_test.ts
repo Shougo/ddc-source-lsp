@@ -33,7 +33,11 @@ async function setup(args: {
     completePos,
     completePos + args.input.length,
   );
-  return completionItem.toDdcItem(args.lspItem);
+  const ddcItem = completionItem.toDdcItem(args.lspItem, row - 1);
+  if (ddcItem === undefined) {
+    throw new Error("Protocol violations");
+  }
+  return ddcItem;
 }
 
 function makeRange(

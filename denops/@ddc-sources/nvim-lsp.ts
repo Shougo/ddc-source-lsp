@@ -56,6 +56,10 @@ export type Params = {
   confirmBehavior: ConfirmBehavior;
 };
 
+function isDefined<T>(x: T | undefined): x is T {
+  return x !== undefined;
+}
+
 export class Source extends BaseSource<Params> {
   #item_cache: Record<Client["id"], Item<UserData>[]> = {};
 
@@ -66,6 +70,7 @@ export class Source extends BaseSource<Params> {
 
     const lineOnRequest = await fn.getline(denops, ".");
     let isIncomplete = false;
+    const cursorLine = (await fn.line(denops, ".")) - 1;
 
     const clients = await denops.call(
       "luaeval",
@@ -95,8 +100,12 @@ export class Source extends BaseSource<Params> {
         ? { items: result, isIncomplete: false }
         : result;
       const items = completionList.items.map((lspItem) =>
-        completionItem.toDdcItem(lspItem, completionList.itemDefaults)
-      );
+        completionItem.toDdcItem(
+          lspItem,
+          cursorLine,
+          completionList.itemDefaults,
+        )
+      ).filter(isDefined);
       if (!completionList.isIncomplete) {
         this.#item_cache[client.id] = items;
       }
