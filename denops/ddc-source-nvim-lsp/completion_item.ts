@@ -50,6 +50,7 @@ export class CompletionItem {
   #lineOnRequest: string;
   #suggestCharacter: number;
   #requestCharacter: number;
+  #cursorLine: number;
 
   static isSnippet(
     lspItem: LSP.CompletionItem,
@@ -173,6 +174,7 @@ export class CompletionItem {
     lineOnRequest: string,
     suggestCharacter: number,
     requestCharacter: number,
+    cursorLine: number,
   ) {
     this.#clientId = clientId;
     this.#offsetEncoding = offsetEncoding;
@@ -180,27 +182,28 @@ export class CompletionItem {
     this.#lineOnRequest = lineOnRequest;
     this.#suggestCharacter = suggestCharacter;
     this.#requestCharacter = requestCharacter;
+    this.#cursorLine = cursorLine;
   }
 
   toDdcItem(
     lspItem: LSP.CompletionItem,
-    cursorLine: number,
     defaults?: LSP.CompletionList["itemDefaults"],
   ): Item<UserData> | undefined {
     lspItem = this.fillDefaults(lspItem, defaults);
 
-    // Some LSs return candidates that violate the protocol and should be filtered.
-    // > *Note:* The range of the edit must be a single line range and it must
-    // > contain the position at which completion has been requested.
-    const textEdit = lspItem.textEdit;
-    if (textEdit) {
-      const range = "range" in textEdit ? textEdit.range : textEdit.insert;
-      if (
-        range.start.line !== range.end.line ||
-        range.start.line !== cursorLine
-      ) {
-        return;
-      }
+    let isInvalid = false;
+    // validate label
+    isInvalid = isInvalid || !lspItem.label;
+    // validate range
+    if (lspItem.textEdit) {
+      const range = "range" in lspItem.textEdit
+        ? lspItem.textEdit.range
+        : lspItem.textEdit.insert;
+      isInvalid = isInvalid || range.start.line !== range.end.line ||
+        range.start.line !== this.#cursorLine;
+    }
+    if (isInvalid) {
+      return;
     }
 
     const { abbr, highlights } = this.getAbbr(lspItem);

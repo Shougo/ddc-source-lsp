@@ -94,6 +94,7 @@ export class Source extends BaseSource<Params> {
         lineOnRequest,
         args.completePos,
         args.completePos + args.completeStr.length,
+        cursorLine,
       );
 
       const completionList = Array.isArray(result)
@@ -102,7 +103,6 @@ export class Source extends BaseSource<Params> {
       const items = completionList.items.map((lspItem) =>
         completionItem.toDdcItem(
           lspItem,
-          cursorLine,
           completionList.itemDefaults,
         )
       ).filter(isDefined);

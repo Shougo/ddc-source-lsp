@@ -32,8 +32,9 @@ async function setup(args: {
     args.buffer[row - 1],
     completePos,
     completePos + args.input.length,
+    row - 1,
   );
-  const ddcItem = completionItem.toDdcItem(args.lspItem, row - 1);
+  const ddcItem = completionItem.toDdcItem(args.lspItem);
   if (ddcItem === undefined) {
     throw new Error("Protocol violations");
   }
