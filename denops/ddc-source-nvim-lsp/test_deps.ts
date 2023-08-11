@@ -7,4 +7,4 @@ export { batch } from "https://deno.land/x/denops_std@v5.0.1/batch/mod.ts";
 
 export { test } from "https://deno.land/x/denops_test@v1.4.0/mod.ts";
 
-export * as LSP from "npm:vscode-languageserver-types@3.17.3";
+export * as LSP from "npm:vscode-languageserver-types@3.17.4-next.1";

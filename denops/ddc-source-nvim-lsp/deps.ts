@@ -10,19 +10,19 @@ export {
   type DdcGatherItems,
   type Item,
   type PumHighlight,
-} from "https://deno.land/x/ddc_vim@v4.0.1/types.ts";
+} from "https://deno.land/x/ddc_vim@v4.0.2/types.ts";
 export {
   type Denops,
   fn,
   op,
-} from "https://deno.land/x/ddc_vim@v4.0.1/deps.ts";
+} from "https://deno.land/x/ddc_vim@v4.0.2/deps.ts";
 export type {
   GatherArguments,
   OnCompleteDoneArguments,
-} from "https://deno.land/x/ddc_vim@v4.0.1/base/source.ts";
+} from "https://deno.land/x/ddc_vim@v4.0.2/base/source.ts";
 export type {
   FilterArguments,
-} from "https://deno.land/x/ddc_vim@v4.0.1/base/filter.ts";
+} from "https://deno.land/x/ddc_vim@v4.0.2/base/filter.ts";
 
 export { register } from "https://deno.land/x/denops_std@v5.0.1/lambda/mod.ts";
 
@@ -38,4 +38,4 @@ export {
 
 export * as u from "https://deno.land/x/unknownutil@v3.4.0/mod.ts";
 
-export * as LSP from "npm:vscode-languageserver-types@3.17.3";
+export * as LSP from "npm:vscode-languageserver-types@3.17.4-next.1";

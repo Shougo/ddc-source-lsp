@@ -21,8 +21,8 @@ import {
   CompletionTriggerKind,
 } from "../ddc-source-nvim-lsp/types.ts";
 import { CompletionItem } from "../ddc-source-nvim-lsp/completion_item.ts";
-import { GetPreviewerArguments } from "https://deno.land/x/ddc_vim@v4.0.1/base/source.ts";
-import { Previewer } from "https://deno.land/x/ddc_vim@v4.0.1/types.ts";
+import { GetPreviewerArguments } from "https://deno.land/x/ddc_vim@v4.0.2/base/source.ts";
+import { Previewer } from "https://deno.land/x/ddc_vim@v4.0.2/types.ts";
 
 type Client = {
   id: number;
