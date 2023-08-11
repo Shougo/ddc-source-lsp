@@ -280,7 +280,12 @@ export class Source extends BaseSource<Params> {
     }
 
     // documentation
-    if (lspItem.documentation) {
+    if (
+      (typeof lspItem.documentation === "string" &&
+        lspItem.documentation.length > 0) ||
+      (typeof lspItem.documentation === "object" &&
+        lspItem.documentation.value.length > 0)
+    ) {
       if (contents.length > 0) {
         contents.push("---");
       }
