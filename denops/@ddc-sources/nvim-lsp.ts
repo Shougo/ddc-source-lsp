@@ -13,6 +13,7 @@ import {
   OffsetEncoding,
   OnCompleteDoneArguments,
   register,
+  u,
 } from "../ddc-source-nvim-lsp/deps.ts";
 import {
   CompletionOptions,
@@ -20,6 +21,8 @@ import {
   CompletionTriggerKind,
 } from "../ddc-source-nvim-lsp/types.ts";
 import { CompletionItem } from "../ddc-source-nvim-lsp/completion_item.ts";
+import { GetPreviewerArguments } from "https://deno.land/x/ddc_vim@v4.0.1/base/source.ts";
+import { Previewer } from "https://deno.land/x/ddc_vim@v4.0.1/types.ts";
 
 type Client = {
   id: number;
@@ -237,6 +240,63 @@ export class Source extends BaseSource<Params> {
       [clientId, lspItem],
     ) as LSP.CompletionItem | null;
     return resolvedItem ?? lspItem;
+  }
+
+  override async getPreviewer({
+    denops,
+    item,
+  }: GetPreviewerArguments<Params, UserData>): Promise<Previewer> {
+    const userData = item.user_data;
+    if (userData === undefined) {
+      return { kind: "empty" };
+    }
+    const unresolvedItem = JSON.parse(userData.lspitem) as LSP.CompletionItem;
+    const lspItem = await this.resolve(
+      denops,
+      userData.clientId,
+      unresolvedItem,
+    );
+    const contents: string[] = [];
+
+    // detail
+    if (lspItem.detail) {
+      contents.push(...this.converter(lspItem.detail));
+    }
+
+    // import from (denols)
+    if (
+      u.isObjectOf({
+        tsc: u.isObjectOf({
+          source: u.isString,
+        }),
+      })(unresolvedItem.data)
+    ) {
+      if (contents.length > 0) {
+        contents.push("---");
+      }
+      contents.push(`import from \`${unresolvedItem.data.tsc.source}\``);
+    }
+
+    // documentation
+    if (lspItem.documentation) {
+      if (contents.length > 0) {
+        contents.push("---");
+      }
+      contents.push(...this.converter(lspItem.documentation));
+    }
+
+    return { kind: "markdown", contents };
+  }
+
+  converter(doc: string | LSP.MarkupContent): string[] {
+    if (typeof doc === "string") {
+      return doc.replaceAll(/\r\n?/g, "\n").split("\n");
+    } else {
+      const value = doc.kind === LSP.MarkupKind.PlainText
+        ? `<text>\n${doc.value}\n</text>`
+        : doc.value;
+      return value.replace(/\r\n?/g, "\n").split("\n");
+    }
   }
 
   override params(): Params {

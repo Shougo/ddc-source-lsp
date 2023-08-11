@@ -36,4 +36,6 @@ export {
   toUtf16Index,
 } from "https://deno.land/x/denops_lsputil@v0.5.4/mod.ts";
 
+export * as u from "https://deno.land/x/unknownutil@v3.4.0/mod.ts";
+
 export * as LSP from "npm:vscode-languageserver-types@3.17.3";
