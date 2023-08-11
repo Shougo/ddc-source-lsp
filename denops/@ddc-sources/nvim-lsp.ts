@@ -12,6 +12,7 @@ import {
   LSP,
   OffsetEncoding,
   OnCompleteDoneArguments,
+  op,
   register,
   u,
 } from "../ddc-source-nvim-lsp/deps.ts";
@@ -259,6 +260,25 @@ export class Source extends BaseSource<Params> {
       unresolvedItem,
     );
     const contents: string[] = [];
+
+    // snippet
+    if (lspItem.kind === 15) {
+      const insertText = CompletionItem.getInsertText(lspItem);
+      const body = await denops.call(
+        "luaeval",
+        "vim.lsp.util.parse_snippet(_A[1])",
+        [insertText],
+      ) as string;
+      const filetype = await op.filetype.get(denops);
+      return {
+        kind: "markdown",
+        contents: [
+          "```" + filetype,
+          ...body.replaceAll(/\r\n?/g, "\n").split("\n"),
+          "```",
+        ],
+      };
+    }
 
     // detail
     if (lspItem.detail) {
