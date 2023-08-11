@@ -9,6 +9,7 @@ const params: Params = {
   enableResolveItem: false,
   enableAdditionalTextEdit: true,
   confirmBehavior: "insert",
+  snippetIndicator: "~",
 };
 
 const ClientId = 0 as const satisfies number;
@@ -33,6 +34,7 @@ async function setup(args: {
     completePos,
     completePos + args.input.length,
     row - 1,
+    "~",
   );
   const ddcItem = completionItem.toDdcItem(args.lspItem);
   if (ddcItem === undefined) {

@@ -51,6 +51,7 @@ export class CompletionItem {
   #suggestCharacter: number;
   #requestCharacter: number;
   #cursorLine: number;
+  #snippetIndicator: string;
 
   static isSnippet(
     lspItem: LSP.CompletionItem,
@@ -175,6 +176,7 @@ export class CompletionItem {
     suggestCharacter: number,
     requestCharacter: number,
     cursorLine: number,
+    snippetIndicator: string,
   ) {
     this.#clientId = clientId;
     this.#offsetEncoding = offsetEncoding;
@@ -183,6 +185,7 @@ export class CompletionItem {
     this.#suggestCharacter = suggestCharacter;
     this.#requestCharacter = requestCharacter;
     this.#cursorLine = cursorLine;
+    this.#snippetIndicator = snippetIndicator;
   }
 
   toDdcItem(
@@ -294,7 +297,7 @@ export class CompletionItem {
     lspItem: LSP.CompletionItem,
   ): { abbr: string; highlights?: PumHighlight[] } {
     const abbr = lspItem.insertTextFormat === LSP.InsertTextFormat.Snippet
-      ? `${lspItem.label}~`
+      ? `${lspItem.label}${this.#snippetIndicator}`
       : lspItem.label;
     return {
       abbr,
