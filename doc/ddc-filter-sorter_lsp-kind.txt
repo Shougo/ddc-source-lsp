@@ -3,21 +3,21 @@
 Author:  uga-rosa <uga6603@gmail.com>
 License: MIT License
 
-CONTENTS				*ddc-filter-sorter_lsp-kind-contents*
+CONTENTS                                 *ddc-filter-sorter_lsp-kind-contents*
 
-Introduction				|ddc-filter-sorter_lsp-kind-introduction|
-Examples				|ddc-filter-sorter_lsp-kind-examples|
-Params					|ddc-filter-sorter_lsp-kind-params|
+Introduction			|ddc-filter-sorter_lsp-kind-introduction|
+Examples			|ddc-filter-sorter_lsp-kind-examples|
+Params				|ddc-filter-sorter_lsp-kind-params|
 
 
 ==============================================================================
-INTRODUCTION			*ddc-filter-sorter_lsp-kind-introduction*
+INTRODUCTION                         *ddc-filter-sorter_lsp-kind-introduction*
 
 Sort source-nvim-lsp items by kinds.
 
 
 ==============================================================================
-EXAMPLES				*ddc-filter-sorter_lsp-kind-examples*
+EXAMPLES                                 *ddc-filter-sorter_lsp-kind-examples*
 >
 	call ddc#custom#patch_global(#{
 	      \ sourceOptions: #{
@@ -39,9 +39,9 @@ EXAMPLES				*ddc-filter-sorter_lsp-kind-examples*
 <
 
 ==============================================================================
-PARAMS					*ddc-filter-sorter_lsp-kind-params*
+PARAMS                                     *ddc-filter-sorter_lsp-kind-params*
 
-				*ddc-filter-sorter_lsp-kind-param-priority*
+                                   *ddc-filter-sorter_lsp-kind-param-priority*
 priority		(|List|)
 	The type is `(LspKind | LspKind[])[]` and LspKind is a union type.
 >
@@ -74,9 +74,9 @@ priority		(|List|)
 <
 	The previous element has higher priority, and by making it an array,
 	multiple LspKinds can have the same priority. For example, in
-	|ddc-filter-sorter_lsp-kind-examples|, `Enum` has the highest priority,
-	followed by `Method` and `Function` with the same priority, then `Field`,
-	`Variable`, and so on.
+	|ddc-filter-sorter_lsp-kind-examples|, `Enum` has the highest
+	priority, followed by `Method` and `Function` with the same priority,
+	then `Field`, `Variable`, and so on.
 
 	Default: [
 	  "Snippet",

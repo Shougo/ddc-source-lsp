@@ -4,7 +4,7 @@ Authors: Shougo <Shougo.Matsu at gmail.com>
          uga-rosa <uga6603 at gmail.com>
 License: MIT license
 
-CONTENTS					*ddc-source-nvim-lsp-contents*
+CONTENTS                                        *ddc-source-nvim-lsp-contents*
 
 Introduction		|ddc-source-nvim-lsp-introduction|
 Install			|ddc-source-nvim-lsp-install|
@@ -14,13 +14,13 @@ FAQ			|ddc-source-nvim-lsp-faq|
 
 
 ==============================================================================
-INTRODUCTION				*ddc-source-nvim-lsp-introduction*
+INTRODUCTION                                *ddc-source-nvim-lsp-introduction*
 
 This source collects items from "nvim-lsp".
 
 
 ==============================================================================
-INSTALL						*ddc-source-nvim-lsp-install*
+INSTALL                                          *ddc-source-nvim-lsp-install*
 
 Please install both "ddc.vim" and "denops.vim".
 
@@ -44,7 +44,7 @@ https://github.com/matsui54/denops-popup-preview.vim
 
 
 ==============================================================================
-EXAMPLES					*ddc-source-nvim-lsp-examples*
+EXAMPLES                                        *ddc-source-nvim-lsp-examples*
 
 To take advantage of all the features, you need to set client_capabilities.
 
@@ -77,9 +77,9 @@ To take advantage of all the features, you need to set client_capabilities.
 <
 
 ==============================================================================
-PARAMS						*ddc-source-nvim-lsp-params*
+PARAMS                                            *ddc-source-nvim-lsp-params*
 
-				*ddc-source-nvim-lsp-param-snippetEngine*
+                                     *ddc-source-nvim-lsp-param-snippetEngine*
 snippetEngine		(string | function)
 		The language server may return snippet as items, so work with
 		another plugin to expand it. Register with
@@ -108,8 +108,8 @@ snippetEngine		(string | function)
 <
 		Default: ""
 
-				*ddc-source-nvim-lsp-param-snippetIndicator*
-snippetIndicator		(string)
+                                  *ddc-source-nvim-lsp-param-snippetIndicator*
+snippetIndicator	(string)
 		The indicator string for snippet items added to the end of
 		a completion item.
 
@@ -117,13 +117,13 @@ snippetIndicator		(string)
 
 		Default: "~"
 
-				*ddc-source-nvim-lsp-param-enableResolveItem*
+                                 *ddc-source-nvim-lsp-param-enableResolveItem*
 enableResolveItem	(boolean)
 		Enable LSP's "completionItem/resolve" feature.
 
 		Default: v:false
 
-			*ddc-source-nvim-lsp-param-enableAdditionalTextEdit*
+                          *ddc-source-nvim-lsp-param-enableAdditionalTextEdit*
 enableAdditionalTextEdit	(boolean)
 		Enable supplementary editing apart from the cursor. For
 		instance, it allows the auto-import of the
@@ -135,7 +135,7 @@ enableAdditionalTextEdit	(boolean)
 
 		Default: v:false
 
-				*ddc-source-nvim-lsp-param-confirmBehavior*
+                                   *ddc-source-nvim-lsp-param-confirmBehavior*
 confirmBehavior		("insert" | "replace")
 		- "insert":	Inserts the selected item and moves adjacent
 				text to the right.
