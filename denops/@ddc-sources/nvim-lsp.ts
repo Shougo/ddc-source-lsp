@@ -65,6 +65,10 @@ function isDefined<T>(x: T | undefined): x is T {
   return x !== undefined;
 }
 
+function splitLines(str: string): string[] {
+  return str.replaceAll(/\r\n?/g, "\n").split("\n");
+}
+
 export class Source extends BaseSource<Params> {
   #item_cache: Record<Client["id"], Item<UserData>[]> = {};
 
@@ -317,12 +321,12 @@ export class Source extends BaseSource<Params> {
 
   converter(doc: string | LSP.MarkupContent): string[] {
     if (typeof doc === "string") {
-      return doc.replaceAll(/\r\n?/g, "\n").split("\n");
+      return splitLines(doc);
     } else {
       const value = doc.kind === LSP.MarkupKind.PlainText
         ? `<text>\n${doc.value}\n</text>`
-        : doc.value;
-      return value.replace(/\r\n?/g, "\n").split("\n");
+        : doc.value ?? "";
+      return splitLines(value);
     }
   }
 
