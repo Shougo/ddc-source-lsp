@@ -263,6 +263,7 @@ export class Source extends BaseSource<Params> {
       userData.clientId,
       unresolvedItem,
     );
+    const filetype = await op.filetype.get(denops);
     const contents: string[] = [];
 
     // snippet
@@ -273,7 +274,6 @@ export class Source extends BaseSource<Params> {
         "vim.lsp.util.parse_snippet(_A[1])",
         [insertText],
       ) as string;
-      const filetype = await op.filetype.get(denops);
       return {
         kind: "markdown",
         contents: [
@@ -286,7 +286,11 @@ export class Source extends BaseSource<Params> {
 
     // detail
     if (lspItem.detail) {
-      contents.push(...this.converter(lspItem.detail));
+      contents.push(
+        "```" + filetype,
+        ...splitLines(lspItem.detail),
+        "```",
+      );
     }
 
     // import from (denols)
