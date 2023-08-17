@@ -3,7 +3,6 @@ import {
   DdcGatherItems,
   deadline,
   DeadlineError,
-  deferred,
   Denops,
   fn,
   GatherArguments,
@@ -13,7 +12,6 @@ import {
   OffsetEncoding,
   OnCompleteDoneArguments,
   op,
-  register,
   u,
 } from "../ddc-source-nvim-lsp/deps.ts";
 import {
@@ -26,7 +24,7 @@ import { GetPreviewerArguments } from "https://deno.land/x/ddc_vim@v4.0.2/base/s
 import { Previewer } from "https://deno.land/x/ddc_vim@v4.0.2/types.ts";
 
 type Client = {
-  id: number;
+  id: string;
   provider: CompletionOptions;
   offsetEncoding: OffsetEncoding;
 };
@@ -37,7 +35,7 @@ export type ConfirmBehavior = "insert" | "replace";
 
 export type UserData = {
   lspitem: string;
-  clientId: number;
+  clientId: string;
   offsetEncoding: OffsetEncoding;
   resolvable: boolean;
   // e.g.
@@ -81,10 +79,22 @@ export class Source extends BaseSource<Params> {
     let isIncomplete = false;
     const cursorLine = (await fn.line(denops, ".")) - 1;
 
-    const clients = await denops.call(
-      "luaeval",
-      `require("ddc_nvim_lsp.internal").get_clients()`,
-    ) as Client[];
+    const clients = (await denops.dispatch(
+      "lspoints",
+      "getClients",
+      await denops.call("bufnr"),
+    ) as {
+      name: string;
+      serverCapabilities: {
+        completionProvider?: CompletionOptions;
+      };
+    }[])
+      .filter((c) => c.serverCapabilities.completionProvider != null)
+      .map((c): Client => ({
+        id: c.name,
+        provider: c.serverCapabilities.completionProvider!,
+        offsetEncoding: "utf-16",
+      }));
 
     const items = await Promise.all(clients.map(async (client) => {
       if (this.#item_cache[client.id]) {
@@ -162,16 +172,16 @@ export class Source extends BaseSource<Params> {
     }
 
     try {
-      const defer = deferred<Result>();
-      const id = register(denops, (response: unknown) => {
-        defer.resolve(response as Result);
-      });
-      await denops.call(
-        `luaeval`,
-        `require("ddc_nvim_lsp.internal").request(_A[1], _A[2], _A[3])`,
-        [client.id, params, { name: denops.name, id }],
-      );
-      return await deadline(defer, args.sourceOptions.timeout);
+      return await deadline(
+        denops.dispatch(
+          "lspoints",
+          "request",
+          client.id,
+          "textDocument/completion",
+          params,
+        ),
+        args.sourceOptions.timeout,
+      ) as Result;
     } catch (e) {
       if (!(e instanceof DeadlineError)) {
         throw e;
@@ -238,13 +248,15 @@ export class Source extends BaseSource<Params> {
 
   private async resolve(
     denops: Denops,
-    clientId: number,
+    clientId: string,
     lspItem: LSP.CompletionItem,
   ): Promise<LSP.CompletionItem> {
-    const resolvedItem = await denops.call(
-      "luaeval",
-      `require("ddc_nvim_lsp.internal").resolve(_A[1], _A[2])`,
-      [clientId, lspItem],
+    const resolvedItem = await denops.dispatch(
+      "lspoints",
+      "request",
+      clientId,
+      "completionItem/resolve",
+      lspItem,
     ) as LSP.CompletionItem | null;
     return resolvedItem ?? lspItem;
   }
