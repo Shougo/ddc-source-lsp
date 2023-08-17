@@ -101,7 +101,7 @@ function M.log(client_name, err)
   end
 
   if type(err) == "string" then
-    vim.notify(("%s: %s"):format(client_name, err))
+    vim.notify(("%s: %s"):format(client_name, err), vim.log.levels.ERROR)
   else
     vim.notify(
       ("%s: %s: %s"):format(client_name, lsp.ErrorCodes[err.code] or err.code, err.message),
