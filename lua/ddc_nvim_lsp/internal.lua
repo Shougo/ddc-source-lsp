@@ -68,7 +68,11 @@ end
 function M.resolve(clientId, lspitem)
   normalize(lspitem)
   local client = vim.lsp.get_client_by_id(clientId)
-  local response = client.request_sync("completionItem/resolve", lspitem, 1000, 0)
+  local response, err = client.request_sync("completionItem/resolve", lspitem, 1000, 0)
+  if err ~= nil then
+    M.log(client.name, err)
+    return
+  end
   M.log(client.name, response.err)
   if response.err == nil and response.result then
     return response.result
@@ -90,16 +94,21 @@ function M.execute(clientId, command)
 end
 
 ---@param client_name string
----@param err? ddc.lsp.ResponseError
+---@param err? ddc.lsp.ResponseError|string
 function M.log(client_name, err)
   if err == nil or not M.opt.debug then
     return
   end
 
-  vim.notify(
-    ("%s: %s: %s"):format(client_name, lsp.ErrorCodes[err.code] or err.code, err.message),
-    vim.log.levels.ERROR
-  )
+  if type(err) == "string" then
+    vim.notify(("%s: %s"):format(client_name, err))
+  else
+    vim.notify(
+      ("%s: %s: %s"):format(client_name, lsp.ErrorCodes[err.code] or err.code, err.message),
+      vim.log.levels.ERROR
+    )
+  end
+
   vim.cmd.redraw()
 end
 
