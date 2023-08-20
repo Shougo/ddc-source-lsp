@@ -11,8 +11,7 @@ export class Filter extends BaseFilter<Params> {
     filterParams: Params;
     items: Item[];
   }): Promise<Item[]> {
-    const labels = args.filterParams.kindLabels;
-    const hlGroups = args.filterParams.kindHlGroups;
+    const { kindLabels: labels, kindHlGroups: hlGroups } = args.filterParams;
 
     for (const item of args.items) {
       const kind = item.kind ?? "";
@@ -20,12 +19,15 @@ export class Filter extends BaseFilter<Params> {
       item.kind = labels[kind] ?? item.kind;
 
       const hl_group = hlGroups[kind];
-      if (!hl_group) continue;
+      if (!hl_group) {
+        continue;
+      }
       const hlName = `lsp-kind-label-${kind}`;
-      const highlights = item.highlights?.filter((hl) => hl.name !== hlName) ??
-        [];
+      if (item.highlights?.some((hl) => hl.name === hlName)) {
+        continue;
+      }
       item.highlights = [
-        ...highlights,
+        ...item.highlights ?? [],
         {
           name: hlName,
           type: "kind",
