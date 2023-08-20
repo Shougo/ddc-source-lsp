@@ -62,12 +62,12 @@ export async function expand(
       await snippetEngine(body);
     }
   } else {
-    const textWithPlaceHolderRemoved = await denops.call(
+    const parsedText = await denops.call(
       "luaeval",
       "vim.lsp.util.parse_snippet(_A[1])",
       [body],
     ) as string;
-    const text = await adjustIndent(denops, textWithPlaceHolderRemoved);
-    await linePatch(denops, 0, 0, text);
+    const adjustedText = await adjustIndent(denops, parsedText);
+    await linePatch(denops, 0, 0, adjustedText);
   }
 }

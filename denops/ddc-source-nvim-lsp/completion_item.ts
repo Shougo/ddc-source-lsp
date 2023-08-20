@@ -56,9 +56,7 @@ export class CompletionItem {
   static isSnippet(
     lspItem: LSP.CompletionItem,
   ): boolean {
-    const insertText = this.getInsertText(lspItem);
-    return lspItem.insertTextFormat === LSP.InsertTextFormat.Snippet &&
-      /(?:\$\{?\d|\n)/.test(insertText);
+    return lspItem.insertTextFormat === LSP.InsertTextFormat.Snippet;
   }
 
   static getInsertText(
