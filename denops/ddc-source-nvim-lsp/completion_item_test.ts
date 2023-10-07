@@ -28,7 +28,7 @@ async function setup(args: {
   await nvim.nvim_win_set_cursor(args.denops, 0, [row, col]);
 
   const completionItem = new CompletionItem(
-    ClientId.toString(),
+    ClientId,
     OffsetEncoding,
     Resolvable,
     args.buffer[row - 1],

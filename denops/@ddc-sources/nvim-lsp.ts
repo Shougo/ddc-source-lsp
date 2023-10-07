@@ -26,7 +26,7 @@ import { GetPreviewerArguments } from "https://deno.land/x/ddc_vim@v4.0.5/base/s
 import { Previewer } from "https://deno.land/x/ddc_vim@v4.0.5/types.ts";
 
 type Client = {
-  id: string;
+  id: number;
   provider: CompletionOptions;
   offsetEncoding: OffsetEncoding;
 };
@@ -37,7 +37,7 @@ export type ConfirmBehavior = "insert" | "replace";
 
 export type UserData = {
   lspitem: string;
-  clientId: string;
+  clientId: number;
   offsetEncoding: OffsetEncoding;
   resolvable: boolean;
   // e.g.
@@ -92,14 +92,14 @@ export class Source extends BaseSource<Params> {
         "getClients",
         await denops.call("bufnr"),
       ) as {
-        name: string;
+        id: number;
         serverCapabilities: {
           completionProvider?: CompletionOptions;
         };
       }[])
         .filter((c) => c.serverCapabilities.completionProvider != null)
         .map((c): Client => ({
-          id: c.name,
+          id: c.id,
           provider: c.serverCapabilities.completionProvider!,
           offsetEncoding: "utf-16",
         }));
@@ -188,7 +188,7 @@ export class Source extends BaseSource<Params> {
         await denops.call(
           `luaeval`,
           `require("ddc_nvim_lsp.internal").request(_A[1], _A[2], _A[3])`,
-          [Number(client.id), params, { name: denops.name, id }],
+          [client.id, params, { name: denops.name, id }],
         );
         return await deadline(defer, args.sourceOptions.timeout);
       } else {
@@ -270,7 +270,7 @@ export class Source extends BaseSource<Params> {
   private async resolve(
     denops: Denops,
     sourceParams: Params,
-    clientId: string,
+    clientId: number,
     lspItem: LSP.CompletionItem,
   ): Promise<LSP.CompletionItem> {
     const resolvedItem =
@@ -278,7 +278,7 @@ export class Source extends BaseSource<Params> {
         ? await denops.call(
           "luaeval",
           `require("ddc_nvim_lsp.internal").resolve(_A[1], _A[2])`,
-          [Number(clientId), lspItem],
+          [clientId, lspItem],
         )
         : await denops.dispatch(
           "lspoints",

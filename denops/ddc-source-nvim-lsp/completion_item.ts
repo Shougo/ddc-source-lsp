@@ -44,7 +44,7 @@ export class CompletionItem {
     25: "TypeParameter",
   } as const satisfies Record<LSP.CompletionItemKind, string>;
 
-  #clientId: string;
+  #clientId: number;
   #offsetEncoding: OffsetEncoding;
   #resolvable: boolean;
   #lineOnRequest: string;
@@ -167,7 +167,7 @@ export class CompletionItem {
   }
 
   constructor(
-    clientId: string,
+    clientId: number,
     offsetEncoding: OffsetEncoding,
     resolvable: boolean,
     lineOnRequest: string,
