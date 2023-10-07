@@ -22,8 +22,8 @@ import {
   CompletionTriggerKind,
 } from "../ddc-source-nvim-lsp/types.ts";
 import { CompletionItem } from "../ddc-source-nvim-lsp/completion_item.ts";
-import { GetPreviewerArguments } from "https://deno.land/x/ddc_vim@v4.0.2/base/source.ts";
-import { Previewer } from "https://deno.land/x/ddc_vim@v4.0.2/types.ts";
+import { GetPreviewerArguments } from "https://deno.land/x/ddc_vim@v4.0.5/base/source.ts";
+import { Previewer } from "https://deno.land/x/ddc_vim@v4.0.5/types.ts";
 
 type Client = {
   id: string;
@@ -82,27 +82,27 @@ export class Source extends BaseSource<Params> {
     let isIncomplete = false;
     const cursorLine = (await fn.line(denops, ".")) - 1;
 
-    const clients = (args.sourceParams.lspEngine === "nvim-lsp") ?
-      await denops.call(
+    const clients = (args.sourceParams.lspEngine === "nvim-lsp")
+      ? await denops.call(
         "luaeval",
         `require("ddc_nvim_lsp.internal").get_clients()`,
-    ) as Client[] :
-      (await denops.dispatch(
+      ) as Client[]
+      : (await denops.dispatch(
         "lspoints",
         "getClients",
         await denops.call("bufnr"),
-    ) as {
-      name: string;
-      serverCapabilities: {
-        completionProvider?: CompletionOptions;
-      };
-    }[])
-    .filter((c) => c.serverCapabilities.completionProvider != null)
-    .map((c): Client => ({
-      id: c.name,
-      provider: c.serverCapabilities.completionProvider!,
-      offsetEncoding: "utf-16",
-    }));
+      ) as {
+        name: string;
+        serverCapabilities: {
+          completionProvider?: CompletionOptions;
+        };
+      }[])
+        .filter((c) => c.serverCapabilities.completionProvider != null)
+        .map((c): Client => ({
+          id: c.name,
+          provider: c.serverCapabilities.completionProvider!,
+          offsetEncoding: "utf-16",
+        }));
 
     const items = await Promise.all(clients.map(async (client) => {
       if (this.#item_cache[client.id]) {
@@ -190,7 +190,7 @@ export class Source extends BaseSource<Params> {
           `require("ddc_nvim_lsp.internal").request(_A[1], _A[2], _A[3])`,
           [Number(client.id), params, { name: denops.name, id }],
         );
-      return await deadline(defer, args.sourceOptions.timeout);
+        return await deadline(defer, args.sourceOptions.timeout);
       } else {
         return await deadline(
           denops.dispatch(
