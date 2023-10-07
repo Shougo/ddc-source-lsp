@@ -5,10 +5,11 @@ import { CompletionItem } from "./completion_item.ts";
 import { Params } from "../@ddc-sources/nvim-lsp.ts";
 
 const params: Params = {
-  snippetEngine: "",
-  enableResolveItem: false,
-  enableAdditionalTextEdit: true,
   confirmBehavior: "insert",
+  enableAdditionalTextEdit: true,
+  enableResolveItem: false,
+  lspEngine: "nvim-lsp",
+  snippetEngine: "",
   snippetIndicator: "~",
 };
 
