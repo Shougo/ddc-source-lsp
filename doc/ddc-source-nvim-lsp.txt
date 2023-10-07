@@ -79,6 +79,43 @@ To take advantage of all the features, you need to set client_capabilities.
 ==============================================================================
 PARAMS                                            *ddc-source-nvim-lsp-params*
 
+                                   *ddc-source-nvim-lsp-param-confirmBehavior*
+confirmBehavior		("insert" | "replace")
+		- "insert":	Inserts the selected item and moves adjacent
+				text to the right.
+		- "replace":	Replaces adjacent text with the selected item.
+
+		Default: "insert"
+
+                          *ddc-source-nvim-lsp-param-enableAdditionalTextEdit*
+enableAdditionalTextEdit	(boolean)
+		Enable supplementary editing apart from the cursor. For
+		instance, it allows the auto-import of the
+		typescript-language-server, as well as macro-expansion via
+		rust-analyzer.
+		To use this feature,
+		|ddc-source-nvim-lsp-param-enableResolveItem| must be
+		|v:true|.
+
+		Default: v:false
+
+                                 *ddc-source-nvim-lsp-param-enableResolveItem*
+enableResolveItem	(boolean)
+		Enable LSP's "completionItem/resolve" feature.
+
+		Default: v:false
+
+                                         *ddc-source-nvim-lsp-param-lspEngine*
+lspEngine		(string)
+		The LSP Engine to use.
+
+		- "nvim-lsp":	Use "nvim-lsp" engine.  It is neovim builtin.
+
+		- "lspoints":	Use "lspoints" engine.  It use "denops.vim".
+				https://github.com/kuuote/lspoints
+
+		Default: "nvim-lsp"
+
                                      *ddc-source-nvim-lsp-param-snippetEngine*
 snippetEngine		(string | function)
 		The language server may return snippet as items, so work with
@@ -117,35 +154,8 @@ snippetIndicator	(string)
 
 		Default: "~"
 
-                                 *ddc-source-nvim-lsp-param-enableResolveItem*
-enableResolveItem	(boolean)
-		Enable LSP's "completionItem/resolve" feature.
-
-		Default: v:false
-
-                          *ddc-source-nvim-lsp-param-enableAdditionalTextEdit*
-enableAdditionalTextEdit	(boolean)
-		Enable supplementary editing apart from the cursor. For
-		instance, it allows the auto-import of the
-		typescript-language-server, as well as macro-expansion via
-		rust-analyzer.
-		To use this feature,
-		|ddc-source-nvim-lsp-param-enableResolveItem| must be
-		|v:true|.
-
-		Default: v:false
-
-                                   *ddc-source-nvim-lsp-param-confirmBehavior*
-confirmBehavior		("insert" | "replace")
-		- "insert":	Inserts the selected item and moves adjacent
-				text to the right.
-		- "replace":	Replaces adjacent text with the selected item.
-
-		Default: "insert"
-
-
 ==============================================================================
-FREQUENTLY ASKED QUESTIONS (FAQ)		*ddc-source-nvim-lsp-faq*
+FREQUENTLY ASKED QUESTIONS (FAQ)                     *ddc-source-nvim-lsp-faq*
 
 Q: The snippet is double expanded.
 
