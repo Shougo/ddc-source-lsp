@@ -236,7 +236,12 @@ export class Source extends BaseSource<Params> {
 
     const unresolvedItem = JSON.parse(userData.lspitem) as LSP.CompletionItem;
     const lspItem = params.enableResolveItem
-      ? await this.resolve(denops, params.lspEngine, userData.clientId, unresolvedItem)
+      ? await this.resolve(
+        denops,
+        params.lspEngine,
+        userData.clientId,
+        unresolvedItem,
+      )
       : unresolvedItem;
 
     // If item.word is sufficient, do not confirm()
@@ -273,20 +278,19 @@ export class Source extends BaseSource<Params> {
     clientId: number,
     lspItem: LSP.CompletionItem,
   ): Promise<LSP.CompletionItem> {
-    const resolvedItem =
-      ((lspEngine === "nvim-lsp")
-        ? await denops.call(
-          "luaeval",
-          `require("ddc_nvim_lsp.internal").resolve(_A[1], _A[2])`,
-          [clientId, lspItem],
-        )
-        : await denops.dispatch(
-          "lspoints",
-          "request",
-          clientId,
-          "completionItem/resolve",
-          lspItem,
-        )) as LSP.CompletionItem | null;
+    const resolvedItem = ((lspEngine === "nvim-lsp")
+      ? await denops.call(
+        "luaeval",
+        `require("ddc_nvim_lsp.internal").resolve(_A[1], _A[2])`,
+        [clientId, lspItem],
+      )
+      : await denops.dispatch(
+        "lspoints",
+        "request",
+        clientId,
+        "completionItem/resolve",
+        lspItem,
+      )) as LSP.CompletionItem | null;
     return resolvedItem ?? lspItem;
   }
 
