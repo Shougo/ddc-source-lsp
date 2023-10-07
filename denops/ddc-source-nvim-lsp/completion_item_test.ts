@@ -5,10 +5,11 @@ import { CompletionItem } from "./completion_item.ts";
 import { Params } from "../@ddc-sources/nvim-lsp.ts";
 
 const params: Params = {
-  snippetEngine: "",
-  enableResolveItem: false,
-  enableAdditionalTextEdit: true,
   confirmBehavior: "insert",
+  enableAdditionalTextEdit: true,
+  enableResolveItem: false,
+  lspEngine: "nvim-lsp",
+  snippetEngine: "",
   snippetIndicator: "~",
 };
 
@@ -27,7 +28,7 @@ async function setup(args: {
   await nvim.nvim_win_set_cursor(args.denops, 0, [row, col]);
 
   const completionItem = new CompletionItem(
-    ClientId,
+    ClientId.toString(),
     OffsetEncoding,
     Resolvable,
     args.buffer[row - 1],

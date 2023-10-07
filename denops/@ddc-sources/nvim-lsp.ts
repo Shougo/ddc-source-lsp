@@ -52,13 +52,13 @@ export type UserData = {
 };
 
 export type Params = {
+  confirmBehavior: ConfirmBehavior;
+  enableResolveItem: boolean;
+  enableAdditionalTextEdit: boolean;
+  lspEngine: "nvim-lsp" | "lspoints";
   snippetEngine:
     | string // ID of denops#callback.
     | ((body: string) => Promise<void>);
-  enableResolveItem: boolean;
-  enableAdditionalTextEdit: boolean;
-  confirmBehavior: ConfirmBehavior;
-  lspEngine: "nvim-lsp" | "lspoints";
   snippetIndicator: string;
 };
 
@@ -379,11 +379,11 @@ export class Source extends BaseSource<Params> {
 
   override params(): Params {
     return {
+      confirmBehavior: "insert",
+      enableAdditionalTextEdit: false,
+      enableResolveItem: false,
       lspEngine: "nvim-lsp",
       snippetEngine: "",
-      enableResolveItem: false,
-      enableAdditionalTextEdit: false,
-      confirmBehavior: "insert",
       snippetIndicator: "~",
     };
   }
