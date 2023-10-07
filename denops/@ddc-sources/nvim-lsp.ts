@@ -82,27 +82,7 @@ export class Source extends BaseSource<Params> {
     let isIncomplete = false;
     const cursorLine = (await fn.line(denops, ".")) - 1;
 
-    const clients = (args.sourceParams.lspEngine === "nvim-lsp")
-      ? await denops.call(
-        "luaeval",
-        `require("ddc_nvim_lsp.internal").get_clients()`,
-      ) as Client[]
-      : (await denops.dispatch(
-        "lspoints",
-        "getClients",
-        await denops.call("bufnr"),
-      ) as {
-        id: number;
-        serverCapabilities: {
-          completionProvider?: CompletionOptions;
-        };
-      }[])
-        .filter((c) => c.serverCapabilities.completionProvider != null)
-        .map((c): Client => ({
-          id: c.id,
-          provider: c.serverCapabilities.completionProvider!,
-          offsetEncoding: "utf-16",
-        }));
+    const clients = await this.getClients(denops, args.sourceParams.lspEngine);
 
     const items = await Promise.all(clients.map(async (client) => {
       if (this.#item_cache[client.id]) {
@@ -154,6 +134,34 @@ export class Source extends BaseSource<Params> {
       items,
       isIncomplete,
     };
+  }
+
+  private async getClients(
+    denops: Denops,
+    lspEngine: Params["lspEngine"],
+  ): Promise<Client[]> {
+    if (lspEngine === "nvim-lsp") {
+      return await denops.call(
+        "luaeval",
+        `require("ddc_nvim_lsp.internal").get_clients()`,
+      ) as Client[];
+    }
+    return (await denops.dispatch(
+      "lspoints",
+      "getClients",
+      await denops.call("bufnr"),
+    ) as {
+      id: number;
+      serverCapabilities: {
+        completionProvider?: CompletionOptions;
+      };
+    }[])
+      .filter((c) => c.serverCapabilities.completionProvider != null)
+      .map((c): Client => ({
+        id: c.id,
+        provider: c.serverCapabilities.completionProvider!,
+        offsetEncoding: "utf-16",
+      }));
   }
 
   private async request(
