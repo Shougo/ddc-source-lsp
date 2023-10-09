@@ -32,9 +32,11 @@ export {
   isPositionBefore,
   LineContext,
   linePatch,
+  makePositionParams,
   type OffsetEncoding,
+  parseSnippet,
   toUtf16Index,
-} from "https://deno.land/x/denops_lsputil@v0.5.4/mod.ts";
+} from "https://deno.land/x/denops_lsputil@v0.7.0/mod.ts";
 
 export * as u from "https://deno.land/x/unknownutil@v3.9.0/mod.ts";
 

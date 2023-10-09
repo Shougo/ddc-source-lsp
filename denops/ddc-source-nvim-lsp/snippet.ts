@@ -1,4 +1,4 @@
-import { Denops, fn, linePatch, op } from "./deps.ts";
+import { Denops, fn, linePatch, op, parseSnippet } from "./deps.ts";
 import { Params } from "../@ddc-sources/nvim-lsp.ts";
 
 // Copyright (c) 2019 hrsh7th
@@ -62,11 +62,7 @@ export async function expand(
       await snippetEngine(body);
     }
   } else {
-    const parsedText = await denops.call(
-      "luaeval",
-      "vim.lsp.util.parse_snippet(_A[1])",
-      [body],
-    ) as string;
+    const parsedText = parseSnippet(body);
     const adjustedText = await adjustIndent(denops, parsedText);
     await linePatch(denops, 0, 0, adjustedText);
   }

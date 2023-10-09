@@ -10,9 +10,11 @@ import {
   Item,
   LineContext,
   LSP,
+  makePositionParams,
   OffsetEncoding,
   OnCompleteDoneArguments,
   op,
+  parseSnippet,
   register,
   u,
 } from "../ddc-source-nvim-lsp/deps.ts";
@@ -169,9 +171,11 @@ export class Source extends BaseSource<Params> {
     client: Client,
     args: GatherArguments<Params>,
   ): Promise<Result | undefined> {
-    const params = await denops.call(
-      "luaeval",
-      "vim.lsp.util.make_position_params()",
+    const params = await makePositionParams(
+      denops,
+      undefined,
+      undefined,
+      client.offsetEncoding,
     ) as CompletionParams;
     const trigger = args.context.input.slice(-1);
     if (client.provider.triggerCharacters?.includes(trigger)) {
@@ -324,11 +328,7 @@ export class Source extends BaseSource<Params> {
     // snippet
     if (lspItem.kind === 15) {
       const insertText = CompletionItem.getInsertText(lspItem);
-      const body = await denops.call(
-        "luaeval",
-        "vim.lsp.util.parse_snippet(_A[1])",
-        [insertText],
-      ) as string;
+      const body = parseSnippet(insertText);
       return {
         kind: "markdown",
         contents: [
