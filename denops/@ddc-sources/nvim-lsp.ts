@@ -26,6 +26,7 @@ import {
   deferred,
 } from "../ddc-source-nvim-lsp/deps/std.ts";
 import { is } from "../ddc-source-nvim-lsp/deps/unknownutil.ts";
+import { lspoints } from "../ddc-source-nvim-lsp/deps/lspoints.ts";
 import {
   CompletionOptions,
   CompletionParams,
@@ -299,20 +300,32 @@ export class Source extends BaseSource<Params> {
     clientId: number,
     lspItem: LSP.CompletionItem,
   ): Promise<LSP.CompletionItem> {
-    const resolvedItem = ((lspEngine === "nvim-lsp")
-      ? await denops.call(
+    if (lspEngine === "nvim-lsp") {
+      lspItem = await denops.call(
         "luaeval",
         `require("ddc_nvim_lsp.internal").resolve(_A[1], _A[2])`,
         [clientId, lspItem],
-      )
-      : await denops.dispatch(
+      ) as LSP.CompletionItem | null ?? lspItem;
+    } else if (lspEngine === "lspoints") {
+      const clients = await denops.dispatch(
         "lspoints",
-        "request",
-        clientId,
-        "completionItem/resolve",
-        lspItem,
-      )) as LSP.CompletionItem | null;
-    return resolvedItem ?? lspItem;
+        "getClients",
+        await fn.bufnr(denops),
+      ) as lspoints.Client[];
+      const client = clients.find((c) => c.id === clientId);
+      if (client?.serverCapabilities?.completionProvider?.resolveProvider) {
+        lspItem = await denops.dispatch(
+          "lspoints",
+          "request",
+          clientId,
+          "completionItem/resolve",
+          lspItem,
+        ) as LSP.CompletionItem | null ?? lspItem;
+      }
+    } else {
+      lspEngine satisfies never;
+    }
+    return lspItem;
   }
 
   override async getPreviewer({

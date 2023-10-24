@@ -66,8 +66,12 @@ end
 ---@param lspitem ddc.lsp.CompletionItem
 ---@return ddc.lsp.CompletionItem? lspitem
 function M.resolve(clientId, lspitem)
-  normalize(lspitem)
   local client = vim.lsp.get_client_by_id(clientId)
+  local provider = client.server_capabilities.completionProvider
+  if not provider or not provider.resolveProvider then
+    return
+  end
+  normalize(lspitem)
   local response, err = client.request_sync("completionItem/resolve", lspitem, 1000, 0)
   if err ~= nil then
     M.log(client.name, err)
