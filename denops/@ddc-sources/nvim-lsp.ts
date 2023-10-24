@@ -198,7 +198,8 @@ export class Source extends BaseSource<Params> {
     }
 
     try {
-      if (args.sourceParams.lspEngine === "nvim-lsp") {
+      const lspEngine = args.sourceParams.lspEngine;
+      if (lspEngine === "nvim-lsp") {
         const defer = deferred<Result>();
         const id = register(denops, (response: unknown) => {
           defer.resolve(response as Result);
@@ -209,7 +210,7 @@ export class Source extends BaseSource<Params> {
           [client.id, params, { name: denops.name, id }],
         );
         return await deadline(defer, args.sourceOptions.timeout);
-      } else {
+      } else if (lspEngine === "lspoints") {
         return await deadline(
           denops.dispatch(
             "lspoints",
@@ -220,6 +221,8 @@ export class Source extends BaseSource<Params> {
           ),
           args.sourceOptions.timeout,
         ) as Result;
+      } else {
+        lspEngine satisfies never;
       }
     } catch (e) {
       if (!(e instanceof DeadlineError)) {
