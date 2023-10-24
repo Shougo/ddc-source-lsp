@@ -1,31 +1,37 @@
 import {
   BaseSource,
   DdcGatherItems,
-  deadline,
-  DeadlineError,
-  deferred,
+  GatherArguments,
+  GetPreviewerArguments,
+  Item,
+  OnCompleteDoneArguments,
+  Previewer,
+} from "../ddc-source-nvim-lsp/deps/ddc.ts";
+import {
   Denops,
   fn,
-  GatherArguments,
-  Item,
+  op,
+  register,
+} from "../ddc-source-nvim-lsp/deps/denops.ts";
+import {
   LineContext,
   LSP,
   makePositionParams,
   OffsetEncoding,
-  OnCompleteDoneArguments,
-  op,
   parseSnippet,
-  register,
-  u,
-} from "../ddc-source-nvim-lsp/deps.ts";
+} from "../ddc-source-nvim-lsp/deps/lsp.ts";
+import {
+  deadline,
+  DeadlineError,
+  deferred,
+} from "../ddc-source-nvim-lsp/deps/std.ts";
+import { is } from "../ddc-source-nvim-lsp/deps/unknownutil.ts";
 import {
   CompletionOptions,
   CompletionParams,
   CompletionTriggerKind,
 } from "../ddc-source-nvim-lsp/types.ts";
 import { CompletionItem } from "../ddc-source-nvim-lsp/completion_item.ts";
-import { GetPreviewerArguments } from "https://deno.land/x/ddc_vim@v4.0.5/base/source.ts";
-import { Previewer } from "https://deno.land/x/ddc_vim@v4.0.5/types.ts";
 
 type Client = {
   id: number;
@@ -350,9 +356,9 @@ export class Source extends BaseSource<Params> {
 
     // import from (denols)
     if (
-      u.isObjectOf({
-        tsc: u.isObjectOf({
-          source: u.isString,
+      is.ObjectOf({
+        tsc: is.ObjectOf({
+          source: is.String,
         }),
       })(unresolvedItem.data)
     ) {

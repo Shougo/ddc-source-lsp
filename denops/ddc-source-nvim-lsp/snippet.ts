@@ -1,4 +1,5 @@
-import { Denops, fn, linePatch, op, parseSnippet } from "./deps.ts";
+import { Denops, fn, op } from "./deps/denops.ts";
+import { linePatch, parseSnippet } from "./deps/lsp.ts";
 import { Params } from "../@ddc-sources/nvim-lsp.ts";
 
 // Copyright (c) 2019 hrsh7th

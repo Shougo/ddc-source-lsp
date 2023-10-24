@@ -1,4 +1,4 @@
-import { batch, Denops, nvim, op, test } from "./test_deps.ts";
+import { batch, Denops, nvim, op, test } from "./deps/denops.ts";
 import { assertBuffer, searchCursor } from "./test_util.ts";
 import { expand } from "./snippet.ts";
 

@@ -1,4 +1,4 @@
-import { BaseFilter, Item } from "../ddc-source-nvim-lsp/deps.ts";
+import { BaseFilter, Item } from "../ddc-source-nvim-lsp/deps/ddc.ts";
 import { byteLength } from "../ddc-source-nvim-lsp/completion_item.ts";
 
 type Params = {

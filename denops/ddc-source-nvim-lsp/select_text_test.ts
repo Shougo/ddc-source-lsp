@@ -1,4 +1,4 @@
-import { assertEquals } from "./test_deps.ts";
+import { assertEquals } from "./deps/std.ts";
 import createSelectText from "./select_text.ts";
 
 Deno.test({

@@ -1,4 +1,5 @@
-import { assertEquals, Denops, nvim } from "./test_deps.ts";
+import { assertEquals } from "./deps/std.ts";
+import { Denops, nvim } from "./deps/denops.ts";
 import { byteLength } from "./completion_item.ts";
 
 // (1,0)-index, byte

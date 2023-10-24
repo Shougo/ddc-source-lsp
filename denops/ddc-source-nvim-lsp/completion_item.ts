@@ -1,16 +1,15 @@
 import {
   applyTextEdits,
-  Denops,
   getCursor,
   isPositionBefore,
-  Item,
   LineContext,
   linePatch,
   LSP,
   OffsetEncoding,
-  PumHighlight,
   toUtf16Index,
-} from "./deps.ts";
+} from "./deps/lsp.ts";
+import { Item, PumHighlight } from "./deps/ddc.ts";
+import { Denops } from "./deps/denops.ts";
 import createSelectText from "./select_text.ts";
 import { ConfirmBehavior, Params, UserData } from "../@ddc-sources/nvim-lsp.ts";
 import * as snippet from "./snippet.ts";

@@ -1,5 +1,6 @@
-import { OffsetEncoding } from "./deps.ts";
-import { assertEquals, Denops, LSP, nvim, test } from "./test_deps.ts";
+import { LSP, OffsetEncoding } from "./deps/lsp.ts";
+import { assertEquals } from "./deps/std.ts";
+import { Denops, nvim, test } from "./deps/denops.ts";
 import { assertBuffer, searchCursor } from "./test_util.ts";
 import { CompletionItem } from "./completion_item.ts";
 import { Params } from "../@ddc-sources/nvim-lsp.ts";

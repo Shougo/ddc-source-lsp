@@ -1,4 +1,4 @@
-import { LSP } from "./deps.ts";
+import { LSP } from "./deps/lsp.ts";
 
 /**
  * How a completion was triggered
