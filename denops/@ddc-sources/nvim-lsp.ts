@@ -91,7 +91,8 @@ export class Source extends BaseSource<Params> {
     let isIncomplete = false;
     const cursorLine = (await fn.line(denops, ".")) - 1;
 
-    const clients = await this.getClients(denops, args.sourceParams.lspEngine);
+    const clients = await this.getClients(denops, args.sourceParams.lspEngine)
+      .catch(() => []);
 
     const items = await Promise.all(clients.map(async (client) => {
       if (this.#item_cache[client.id]) {
