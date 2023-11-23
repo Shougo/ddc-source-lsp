@@ -29,13 +29,13 @@ https://github.com/vim-denops/denops.vim
 
 You must use neovim with "nvim-lsp" configuration.
 
-You also need a snippet plugin if you want to expand snippets in LSP
-format.
+You also need a snippet plugin if you want to expand snippets in LSP format.
 e.g.
 https://github.com/hrsh7th/vim-vsnip
 https://github.com/SirVer/ultisnips
 https://github.com/L3MON4D3/LuaSnip
 https://github.com/dcampos/nvim-snippy
+If you are using neovim nightly, then |vim.snippet| would be another option.
 
 If you want to read the documentation for items, please use
 "denops-popup-preview.vim".
