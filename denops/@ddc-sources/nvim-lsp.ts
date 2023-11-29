@@ -7,12 +7,7 @@ import {
   OnCompleteDoneArguments,
   Previewer,
 } from "../ddc-source-nvim-lsp/deps/ddc.ts";
-import {
-  Denops,
-  fn,
-  op,
-  register,
-} from "../ddc-source-nvim-lsp/deps/denops.ts";
+import { Denops, fn, op } from "../ddc-source-nvim-lsp/deps/denops.ts";
 import {
   LineContext,
   LSP,
@@ -20,25 +15,11 @@ import {
   OffsetEncoding,
   parseSnippet,
 } from "../ddc-source-nvim-lsp/deps/lsp.ts";
-import {
-  deadline,
-  DeadlineError,
-  deferred,
-} from "../ddc-source-nvim-lsp/deps/std.ts";
+import { DeadlineError } from "../ddc-source-nvim-lsp/deps/std.ts";
 import { is } from "../ddc-source-nvim-lsp/deps/unknownutil.ts";
-import { lspoints } from "../ddc-source-nvim-lsp/deps/lspoints.ts";
-import {
-  CompletionOptions,
-  CompletionParams,
-  CompletionTriggerKind,
-} from "../ddc-source-nvim-lsp/types.ts";
 import { CompletionItem } from "../ddc-source-nvim-lsp/completion_item.ts";
-
-type Client = {
-  id: number;
-  provider: CompletionOptions;
-  offsetEncoding: OffsetEncoding;
-};
+import { request } from "../ddc-source-nvim-lsp/request.ts";
+import { Client, getClients } from "../ddc-source-nvim-lsp/client.ts";
 
 type Result = LSP.CompletionList | LSP.CompletionItem[];
 
@@ -46,7 +27,7 @@ export type ConfirmBehavior = "insert" | "replace";
 
 export type UserData = {
   lspitem: string;
-  clientId: number;
+  clientId: number | string;
   offsetEncoding: OffsetEncoding;
   resolvable: boolean;
   // e.g.
@@ -64,7 +45,7 @@ export type Params = {
   confirmBehavior: ConfirmBehavior;
   enableResolveItem: boolean;
   enableAdditionalTextEdit: boolean;
-  lspEngine: "nvim-lsp" | "lspoints";
+  lspEngine: "nvim-lsp" | "vim-lsp" | "lspoints";
   snippetEngine:
     | string // ID of denops#callback.
     | ((body: string) => Promise<void>);
@@ -91,7 +72,7 @@ export class Source extends BaseSource<Params> {
     let isIncomplete = false;
     const cursorLine = (await fn.line(denops, ".")) - 1;
 
-    const clients = await this.getClients(denops, args.sourceParams.lspEngine)
+    const clients = await getClients(denops, args.sourceParams.lspEngine)
       .catch(() => []);
 
     const items = await Promise.all(clients.map(async (client) => {
@@ -146,34 +127,6 @@ export class Source extends BaseSource<Params> {
     };
   }
 
-  private async getClients(
-    denops: Denops,
-    lspEngine: Params["lspEngine"],
-  ): Promise<Client[]> {
-    if (lspEngine === "nvim-lsp") {
-      return await denops.call(
-        "luaeval",
-        `require("ddc_nvim_lsp.internal").get_clients()`,
-      ) as Client[];
-    }
-    return (await denops.dispatch(
-      "lspoints",
-      "getClients",
-      await denops.call("bufnr"),
-    ) as {
-      id: number;
-      serverCapabilities: {
-        completionProvider?: CompletionOptions;
-      };
-    }[])
-      .filter((c) => c.serverCapabilities.completionProvider != null)
-      .map((c): Client => ({
-        id: c.id,
-        provider: c.serverCapabilities.completionProvider!,
-        offsetEncoding: "utf-16",
-      }));
-  }
-
   private async request(
     denops: Denops,
     client: Client,
@@ -184,48 +137,29 @@ export class Source extends BaseSource<Params> {
       undefined,
       undefined,
       client.offsetEncoding,
-    ) as CompletionParams;
+    ) as LSP.CompletionParams;
     const trigger = args.context.input.slice(-1);
     if (client.provider.triggerCharacters?.includes(trigger)) {
       params.context = {
-        triggerKind: CompletionTriggerKind.TriggerCharacter,
+        triggerKind: LSP.CompletionTriggerKind.TriggerCharacter,
         triggerCharacter: trigger,
       };
     } else {
       params.context = {
         triggerKind: args.isIncomplete
-          ? CompletionTriggerKind.TriggerForIncompleteCompletions
-          : CompletionTriggerKind.Invoked,
+          ? LSP.CompletionTriggerKind.TriggerForIncompleteCompletions
+          : LSP.CompletionTriggerKind.Invoked,
       };
     }
 
     try {
-      const lspEngine = args.sourceParams.lspEngine;
-      if (lspEngine === "nvim-lsp") {
-        const defer = deferred<Result>();
-        const id = register(denops, (response: unknown) => {
-          defer.resolve(response as Result);
-        });
-        await denops.call(
-          `luaeval`,
-          `require("ddc_nvim_lsp.internal").request(_A[1], _A[2], _A[3])`,
-          [client.id, params, { name: denops.name, id }],
-        );
-        return await deadline(defer, args.sourceOptions.timeout);
-      } else if (lspEngine === "lspoints") {
-        return await deadline(
-          denops.dispatch(
-            "lspoints",
-            "request",
-            client.id,
-            "textDocument/completion",
-            params,
-          ),
-          args.sourceOptions.timeout,
-        ) as Result;
-      } else {
-        lspEngine satisfies never;
-      }
+      return await request(
+        denops,
+        args.sourceParams.lspEngine,
+        "textDocument/completion",
+        params,
+        { client, timeout: args.sourceOptions.timeout },
+      ) as Result;
     } catch (e) {
       if (!(e instanceof DeadlineError)) {
         throw e;
@@ -298,35 +232,21 @@ export class Source extends BaseSource<Params> {
   private async resolve(
     denops: Denops,
     lspEngine: Params["lspEngine"],
-    clientId: number,
+    clientId: number | string,
     lspItem: LSP.CompletionItem,
   ): Promise<LSP.CompletionItem> {
-    if (lspEngine === "nvim-lsp") {
-      lspItem = await denops.call(
-        "luaeval",
-        `require("ddc_nvim_lsp.internal").resolve(_A[1], _A[2])`,
-        [clientId, lspItem],
-      ) as LSP.CompletionItem | null ?? lspItem;
-    } else if (lspEngine === "lspoints") {
-      const clients = await denops.dispatch(
-        "lspoints",
-        "getClients",
-        await fn.bufnr(denops),
-      ) as lspoints.Client[];
-      const client = clients.find((c) => c.id === clientId);
-      if (client?.serverCapabilities?.completionProvider?.resolveProvider) {
-        lspItem = await denops.dispatch(
-          "lspoints",
-          "request",
-          clientId,
-          "completionItem/resolve",
-          lspItem,
-        ) as LSP.CompletionItem | null ?? lspItem;
-      }
-    } else {
-      lspEngine satisfies never;
+    const clients = await getClients(denops, lspEngine);
+    const client = clients.find((c) => c.id === clientId);
+    if (!client?.provider.resolveProvider) {
+      return lspItem;
     }
-    return lspItem;
+    return await request(
+      denops,
+      lspEngine,
+      "completionItem/resolve",
+      lspItem,
+      { client, timeout: 1000 },
+    ) as LSP.CompletionItem ?? lspItem;
   }
 
   override async getPreviewer({
