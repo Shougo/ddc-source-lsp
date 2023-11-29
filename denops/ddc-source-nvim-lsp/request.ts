@@ -38,6 +38,7 @@ export async function request(
     const id = register(
       denops,
       (response: unknown) => data.resolve(response),
+      { once: true },
     );
     try {
       await denops.eval(
@@ -60,8 +61,6 @@ export async function request(
       } else {
         throw new Error(`Unsupprted method: ${method}`);
       }
-    } finally {
-      unregister(denops, id);
     }
   } else if (lspEngine === "lspoints") {
     return await denops.dispatch(
