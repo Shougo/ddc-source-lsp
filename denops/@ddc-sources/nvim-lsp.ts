@@ -246,7 +246,7 @@ export class Source extends BaseSource<Params> {
       "completionItem/resolve",
       lspItem,
       { client, timeout: 1000 },
-    ) as LSP.CompletionItem ?? lspItem;
+    ).catch(() => lspItem) as LSP.CompletionItem ?? lspItem;
   }
 
   override async getPreviewer({
