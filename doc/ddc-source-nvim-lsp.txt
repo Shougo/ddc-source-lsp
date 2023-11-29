@@ -111,6 +111,9 @@ lspEngine		(string)
 
 		- "nvim-lsp":	Use "nvim-lsp" engine.  It is neovim builtin.
 
+		- "vim-lsp":	Use "vim-lsp" engine.
+				https://github.com/prabirshrestha/vim-lsp
+
 		- "lspoints":	Use "lspoints" engine.  It use "denops.vim".
 				https://github.com/kuuote/lspoints
 
