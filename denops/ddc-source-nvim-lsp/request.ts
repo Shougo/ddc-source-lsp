@@ -1,8 +1,9 @@
 import { Denops, register, unregister } from "./deps/denops.ts";
 import { deadline, DeadlineError, deferred } from "./deps/std.ts";
 import { is, u } from "./deps/unknownutil.ts";
-import { Client, Params } from "../@ddc-sources/nvim-lsp.ts";
 import { LSP } from "./deps/lsp.ts";
+import { Params } from "../@ddc-sources/nvim-lsp.ts";
+import { Client } from "./client.ts";
 
 export async function request(
   denops: Denops,
