@@ -1,4 +1,4 @@
-local lsp = require("ddc_nvim_lsp.types")
+local lsp = require("ddc_source_lsp.types")
 
 local M = {
   opt = {
