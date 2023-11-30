@@ -1,33 +1,36 @@
-*ddc-source-nvim-lsp.txt*	nvim-lsp completion for ddc.vim
+*ddc-source-lsp.txt*				lsp completion for ddc.vim
 
 Authors: Shougo <Shougo.Matsu at gmail.com>
          uga-rosa <uga6603 at gmail.com>
 License: MIT license
 
-CONTENTS                                        *ddc-source-nvim-lsp-contents*
+CONTENTS                                        *ddc-source-lsp-contents*
 
-Introduction		|ddc-source-nvim-lsp-introduction|
-Install			|ddc-source-nvim-lsp-install|
-Examples		|ddc-source-nvim-lsp-examples|
-Params			|ddc-source-nvim-lsp-params|
-FAQ			|ddc-source-nvim-lsp-faq|
+Introduction					|ddc-source-lsp-introduction|
+Install						|ddc-source-lsp-install|
+Examples					|ddc-source-lsp-examples|
+Params						|ddc-source-lsp-params|
+FAQ						|ddc-source-lsp-faq|
 
 
 ==============================================================================
-INTRODUCTION                                *ddc-source-nvim-lsp-introduction*
+INTRODUCTION                                *ddc-source-lsp-introduction*
 
 This source collects items from "nvim-lsp".
 
 
 ==============================================================================
-INSTALL                                          *ddc-source-nvim-lsp-install*
+INSTALL                                          *ddc-source-lsp-install*
 
 Please install both "ddc.vim" and "denops.vim".
 
 https://github.com/Shougo/ddc.vim
 https://github.com/vim-denops/denops.vim
 
-You must use neovim with "nvim-lsp" configuration.
+You must set up "nvim-lsp" (neovim builtin lsp client) or "vim-lsp" or
+"lspoints".
+https://github.com/prabirshrestha/vim-lsp
+https://github.com/kuuote/lspoints
 
 You also need a snippet plugin if you want to expand snippets in LSP format.
 e.g.
@@ -44,22 +47,21 @@ https://github.com/matsui54/denops-popup-preview.vim
 
 
 ==============================================================================
-EXAMPLES                                        *ddc-source-nvim-lsp-examples*
+EXAMPLES                                        *ddc-source-lsp-examples*
 
 To take advantage of all the features, you need to set client_capabilities.
 
 >lua
-	local capabilities = require(
-	    "ddc_nvim_lsp").make_client_capabilities()
+	local capabilities = require("ddc_lsp").make_client_capabilities()
 	require("lspconfig").denols.setup({
 	  capabilities = capabilities,
 	})
 <
 >vim
-	call ddc#custom#patch_global('sources', ['nvim-lsp'])
+	call ddc#custom#patch_global('sources', ['lsp'])
 
 	call ddc#custom#patch_global('sourceOptions', #{
-	      \   nvim-lsp: #{
+	      \   lsp: #{
 	      \     mark: 'lsp',
 	      \     forceCompletionPattern: '\.\w*|:\w*|->\w*',
 	      \     sorters: ['sorter_lsp-kind'],
@@ -68,7 +70,7 @@ To take advantage of all the features, you need to set client_capabilities.
 
 	" Register snippet engine (vim-vsnip)
 	call ddc#custom#patch_global('sourceParams', #{
-	      \   nvim-lsp: #{
+	      \   lsp: #{
 	      \     snippetEngine: denops#callback#register({
 	      \           body -> vsnip#anonymous(body)
 	      \     }),
@@ -77,9 +79,9 @@ To take advantage of all the features, you need to set client_capabilities.
 <
 
 ==============================================================================
-PARAMS                                            *ddc-source-nvim-lsp-params*
+PARAMS                                            *ddc-source-lsp-params*
 
-                                   *ddc-source-nvim-lsp-param-confirmBehavior*
+                                   *ddc-source-lsp-param-confirmBehavior*
 confirmBehavior		("insert" | "replace")
 		- "insert":	Inserts the selected item and moves adjacent
 				text to the right.
@@ -87,25 +89,25 @@ confirmBehavior		("insert" | "replace")
 
 		Default: "insert"
 
-                          *ddc-source-nvim-lsp-param-enableAdditionalTextEdit*
+                          *ddc-source-lsp-param-enableAdditionalTextEdit*
 enableAdditionalTextEdit	(boolean)
 		Enable supplementary editing apart from the cursor. For
 		instance, it allows the auto-import of the
 		typescript-language-server, as well as macro-expansion via
 		rust-analyzer.
 		To use this feature,
-		|ddc-source-nvim-lsp-param-enableResolveItem| must be
+		|ddc-source-lsp-param-enableResolveItem| must be
 		|v:true|.
 
 		Default: v:false
 
-                                 *ddc-source-nvim-lsp-param-enableResolveItem*
+                                 *ddc-source-lsp-param-enableResolveItem*
 enableResolveItem	(boolean)
 		Enable LSP's "completionItem/resolve" feature.
 
 		Default: v:false
 
-                                         *ddc-source-nvim-lsp-param-lspEngine*
+                                         *ddc-source-lsp-param-lspEngine*
 lspEngine		(string)
 		The LSP Engine to use.
 
@@ -119,7 +121,7 @@ lspEngine		(string)
 
 		Default: "nvim-lsp"
 
-                                     *ddc-source-nvim-lsp-param-snippetEngine*
+                                     *ddc-source-lsp-param-snippetEngine*
 snippetEngine		(string | function)
 		The language server may return snippet as items, so work with
 		another plugin to expand it. Register with
@@ -148,7 +150,7 @@ snippetEngine		(string | function)
 <
 		Default: ""
 
-                                  *ddc-source-nvim-lsp-param-snippetIndicator*
+                                  *ddc-source-lsp-param-snippetIndicator*
 snippetIndicator	(string)
 		The indicator string for snippet items added to the end of
 		a completion item.
@@ -158,7 +160,7 @@ snippetIndicator	(string)
 		Default: "~"
 
 ==============================================================================
-FREQUENTLY ASKED QUESTIONS (FAQ)                     *ddc-source-nvim-lsp-faq*
+FREQUENTLY ASKED QUESTIONS (FAQ)                     *ddc-source-lsp-faq*
 
 Q: The snippet is double expanded.
 
@@ -172,7 +174,7 @@ Q: The items are not displayed.
 
 A: You have enabled LSP snippet by "snippetSupport" in lspconfig.
 If you want to complete snippet items, you must configure
-|ddc-source-nvim-lsp-param-snippetEngine|. Otherwise, they are filtered.
+|ddc-source-lsp-param-snippetEngine|. Otherwise, they are filtered.
 
 ==============================================================================
 vim:tw=78:ts=8:ft=help:norl:noet:fen:noet:

@@ -1,6 +1,6 @@
-# ddc-source-nvim-lsp
+# ddc-source-lsp
 
-"nvim-lsp" completion for ddc.vim
+lsp completion for ddc.vim
 
 ## Required
 
@@ -12,34 +12,35 @@ https://github.com/vim-denops/denops.vim
 
 https://github.com/Shougo/ddc.vim
 
-### neovim with LSP configuration
+### LSP client
 
-Although not required, it is recommended that this plugin be used.
+Supported LSP clients are "nvim-lsp", "vim-lsp" and "lspoints"
 
-https://github.com/uga-rosa/ddc-nvim-lsp-setup
+https://github.com/prabirshrestha/vim-lsp
+https://github.com/kuuote/lspoints
 
 ## Configuration
 
 To take advantage of all the features, you need to set client_capabilities.
 
 ```lua
-local capabilities = require("ddc_nvim_lsp").make_client_capabilities()
+local capabilities = require("ddc_source_lsp").make_client_capabilities()
 require("lspconfig").denols.setup({
   capabilities = capabilities,
 })
 ```
 
 ```vim
-call ddc#custom#patch_global('sources', ['nvim-lsp'])
+call ddc#custom#patch_global('sources', ['lsp'])
 call ddc#custom#patch_global('sourceOptions', #{
-      \   nvim-lsp: #{
+      \   lsp: #{
       \     mark: 'lsp',
       \     forceCompletionPattern: '\.\w*|:\w*|->\w*',
       \   },
       \ })
 
 call ddc#custom#patch_global('sourceParams', #{
-      \   nvim-lsp: #{
+      \   lsp: #{
       \     snippetEngine: denops#callback#register({
       \           body -> vsnip#anonymous(body)
       \     }),

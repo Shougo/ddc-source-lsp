@@ -1,8 +1,8 @@
-import { Denops, register, unregister } from "./deps/denops.ts";
+import { Denops, register } from "./deps/denops.ts";
 import { deadline, DeadlineError, deferred } from "./deps/std.ts";
 import { is, u } from "./deps/unknownutil.ts";
 import { LSP } from "./deps/lsp.ts";
-import { Params } from "../@ddc-sources/nvim-lsp.ts";
+import { Params } from "../@ddc-sources/lsp.ts";
 import { Client } from "./client.ts";
 
 export async function request(
@@ -20,7 +20,7 @@ export async function request(
       });
       await denops.call(
         `luaeval`,
-        `require("ddc_nvim_lsp.internal").request(_A[1], _A[2], _A[3])`,
+        `require("ddc_source_lsp.internal").request(_A[1], _A[2], _A[3])`,
         [opts.client.id, params, { name: denops.name, id }],
       );
       return await deadline(defer, opts.timeout);
@@ -28,7 +28,7 @@ export async function request(
       let lspItem = params;
       lspItem = await denops.call(
         "luaeval",
-        `require("ddc_nvim_lsp.internal").resolve(_A[1], _A[2])`,
+        `require("ddc_source_lsp.internal").resolve(_A[1], _A[2])`,
         [opts.client.id, lspItem],
       ) as LSP.CompletionItem | null ?? lspItem;
       return lspItem;

@@ -16,7 +16,7 @@ FAQ			|ddc-filter-converter_kind_labels-faq|
 INTRODUCTION                   *ddc-filter-converter_kind_labels-introduction*
 
 This filter converts lsp kind label to your setting.
-This converter is specifically disigned for "ddc-source-nvim-lsp".
+This converter is specifically disigned for "ddc-source-lsp".
 
 
 ==============================================================================

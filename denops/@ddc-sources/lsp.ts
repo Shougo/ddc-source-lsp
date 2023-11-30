@@ -6,20 +6,20 @@ import {
   Item,
   OnCompleteDoneArguments,
   Previewer,
-} from "../ddc-source-nvim-lsp/deps/ddc.ts";
-import { Denops, fn, op } from "../ddc-source-nvim-lsp/deps/denops.ts";
+} from "../ddc-source-lsp/deps/ddc.ts";
+import { Denops, fn, op } from "../ddc-source-lsp/deps/denops.ts";
 import {
   LineContext,
   LSP,
   makePositionParams,
   OffsetEncoding,
   parseSnippet,
-} from "../ddc-source-nvim-lsp/deps/lsp.ts";
-import { DeadlineError } from "../ddc-source-nvim-lsp/deps/std.ts";
-import { is } from "../ddc-source-nvim-lsp/deps/unknownutil.ts";
-import { CompletionItem } from "../ddc-source-nvim-lsp/completion_item.ts";
-import { request } from "../ddc-source-nvim-lsp/request.ts";
-import { Client, getClients } from "../ddc-source-nvim-lsp/client.ts";
+} from "../ddc-source-lsp/deps/lsp.ts";
+import { DeadlineError } from "../ddc-source-lsp/deps/std.ts";
+import { is } from "../ddc-source-lsp/deps/unknownutil.ts";
+import { CompletionItem } from "../ddc-source-lsp/completion_item.ts";
+import { request } from "../ddc-source-lsp/request.ts";
+import { Client, getClients } from "../ddc-source-lsp/client.ts";
 
 type Result = LSP.CompletionList | LSP.CompletionItem[];
 
@@ -174,7 +174,7 @@ export class Source extends BaseSource<Params> {
     await denops.call(
       `ddc#util#print_error`,
       message.toString(),
-      "ddc-source-nvim-lsp",
+      "ddc-source-lsp",
     );
   }
 

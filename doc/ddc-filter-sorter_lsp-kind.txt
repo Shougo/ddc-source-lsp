@@ -13,7 +13,7 @@ Params				|ddc-filter-sorter_lsp-kind-params|
 ==============================================================================
 INTRODUCTION                         *ddc-filter-sorter_lsp-kind-introduction*
 
-Sort source-nvim-lsp items by kinds.
+Sort source-lsp items by kinds.
 
 
 ==============================================================================

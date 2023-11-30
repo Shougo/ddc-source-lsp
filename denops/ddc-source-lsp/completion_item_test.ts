@@ -3,7 +3,7 @@ import { assertEquals } from "./deps/std.ts";
 import { Denops, nvim, test } from "./deps/denops.ts";
 import { assertBuffer, searchCursor } from "./test_util.ts";
 import { CompletionItem } from "./completion_item.ts";
-import { Params } from "../@ddc-sources/nvim-lsp.ts";
+import { Params } from "../@ddc-sources/lsp.ts";
 
 const params: Params = {
   confirmBehavior: "insert",

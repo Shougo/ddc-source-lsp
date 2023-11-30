@@ -11,7 +11,7 @@ import {
 import { Item, PumHighlight } from "./deps/ddc.ts";
 import { Denops } from "./deps/denops.ts";
 import createSelectText from "./select_text.ts";
-import { ConfirmBehavior, Params, UserData } from "../@ddc-sources/nvim-lsp.ts";
+import { ConfirmBehavior, Params, UserData } from "../@ddc-sources/lsp.ts";
 import * as snippet from "./snippet.ts";
 
 export class CompletionItem {
@@ -159,7 +159,7 @@ export class CompletionItem {
     if (lspItem.command) {
       await denops.call(
         "luaeval",
-        `require("ddc_nvim_lsp.internal").execute(_A[1], _A[2])`,
+        `require("ddc_source_lsp.internal").execute(_A[1], _A[2])`,
         [userData.clientId, lspItem.command],
       );
     }

@@ -1,7 +1,7 @@
 import { Denops, fn } from "./deps/denops.ts";
 import { OffsetEncoding } from "./deps/lsp.ts";
 import { LSP } from "./deps/lsp.ts";
-import { Params } from "../@ddc-sources/nvim-lsp.ts";
+import { Params } from "../@ddc-sources/lsp.ts";
 
 export type Client = {
   id: number | string;
@@ -16,7 +16,7 @@ export async function getClients(
   if (lspEngine === "nvim-lsp") {
     return await denops.call(
       "luaeval",
-      `require("ddc_nvim_lsp.internal").get_clients()`,
+      `require("ddc_source_lsp.internal").get_clients()`,
     ) as Client[];
   } else if (lspEngine === "vim-lsp") {
     const bufnr = await fn.bufnr(denops);

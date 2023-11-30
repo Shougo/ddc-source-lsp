@@ -1,6 +1,6 @@
 import { Denops, fn, op } from "./deps/denops.ts";
 import { linePatch, parseSnippet } from "./deps/lsp.ts";
-import { Params } from "../@ddc-sources/nvim-lsp.ts";
+import { Params } from "../@ddc-sources/lsp.ts";
 
 // Copyright (c) 2019 hrsh7th
 // https://github.com/hrsh7th/vim-vsnip/blob/7753ba9c10429c29d25abfd11b4c60b76718c438/autoload/vsnip/indent.vim

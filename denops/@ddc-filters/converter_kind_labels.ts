@@ -1,5 +1,5 @@
-import { BaseFilter, Item } from "../ddc-source-nvim-lsp/deps/ddc.ts";
-import { byteLength } from "../ddc-source-nvim-lsp/completion_item.ts";
+import { BaseFilter, Item } from "../ddc-source-lsp/deps/ddc.ts";
+import { byteLength } from "../ddc-source-lsp/completion_item.ts";
 
 type Params = {
   kindLabels: Record<string, string>;
