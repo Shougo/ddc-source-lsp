@@ -19,7 +19,8 @@ end
 ---@return Client[]
 function M.get_clients()
   local clients = {}
-  for _, client in pairs(vim.lsp.get_active_clients({ bufnr = 0 })) do
+  local get_clients = vim.lsp.get_clients or vim.lsp.get_active_clients
+  for _, client in pairs(get_clients({ bufnr = 0 })) do
     local provider = client.server_capabilities.completionProvider
     if provider then
       table.insert(clients, {
