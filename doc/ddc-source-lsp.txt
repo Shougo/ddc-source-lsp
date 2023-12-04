@@ -52,7 +52,7 @@ EXAMPLES                                        *ddc-source-lsp-examples*
 To take advantage of all the features, you need to set client_capabilities.
 
 >lua
-	local capabilities = require("ddc_lsp").make_client_capabilities()
+	local capabilities = require("ddc_source_lsp").make_client_capabilities()
 	require("lspconfig").denols.setup({
 	  capabilities = capabilities,
 	})
