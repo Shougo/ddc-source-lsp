@@ -1,15 +1,4 @@
-local lsp = require("ddc_source_lsp.types")
-
-local M = {
-  opt = {
-    debug = false,
-  },
-}
-
----@param opt table?
-function M.setup(opt)
-  M.opt = vim.tbl_extend("force", M.opt, opt or {})
-end
+local M = {}
 
 ---@class Client
 ---@field id number
@@ -19,6 +8,7 @@ end
 ---@return Client[]
 function M.get_clients()
   local clients = {}
+  ---@diagnostic disable-next-line: deprecated
   local get_clients = vim.lsp.get_clients or vim.lsp.get_active_clients
   for _, client in pairs(get_clients({ bufnr = 0 })) do
     local provider = client.server_capabilities.completionProvider
@@ -33,23 +23,10 @@ function M.get_clients()
   return clients
 end
 
----@param clientId number
----@param params table
----@param denops { name: string, id: string }
-function M.request(clientId, params, denops)
-  local client = vim.lsp.get_client_by_id(clientId)
-  if client == nil then
-    return
-  end
-  client.request("textDocument/completion", params, function(err, result)
-    M.log(client.name, err)
-    vim.fn["denops#notify"](denops.name, denops.id, { result })
-  end, 0)
-end
-
 ---Neovim may put true, etc. in key when converting from vim script.
 ---:h lua-special-tbl
 ---@param tbl table
+---@return table
 local function normalize(tbl)
   for key, value in pairs(tbl) do
     local key_t = type(key)
@@ -61,60 +38,48 @@ local function normalize(tbl)
       tbl[key] = nil
     end
   end
+  return tbl
 end
 
+---Doesn't block Nvim, but cannot be used in denops#request()
 ---@param clientId number
----@param lspitem ddc.lsp.CompletionItem
----@return ddc.lsp.CompletionItem? lspitem
-function M.resolve(clientId, lspitem)
+---@param method string
+---@param params table
+---@param opts { plugin_name: string, lambda_id: string }
+---@return unknown?
+function M.request(clientId, method, params, opts)
   local client = vim.lsp.get_client_by_id(clientId)
-  local provider = client.server_capabilities.completionProvider
-  if not provider or not provider.resolveProvider then
-    return
+  if client then
+    client.request(method, normalize(params), function(err, result)
+      if err == nil and result then
+        vim.fn["denops#notify"](opts.plugin_name, opts.lambda_id, { result })
+      end
+    end, 0)
   end
-  normalize(lspitem)
-  local response, err = client.request_sync("completionItem/resolve", lspitem, 1000, 0)
-  if err ~= nil then
-    M.log(client.name, err)
-    return
-  end
-  M.log(client.name, response.err)
-  if response.err == nil and response.result then
-    return response.result
+end
+
+---Blocks Nvim, but can be used in denops#request()
+---@param clientId number
+---@param method string
+---@param params table
+---@param opts { timeout: number }
+---@return unknown?
+function M.request_sync(clientId, method, params, opts)
+  local client = vim.lsp.get_client_by_id(clientId)
+  if client then
+    return client.request_sync(method, normalize(params), opts.timeout, 0)
   end
 end
 
 ---@param clientId number
----@param command ddc.lsp.Command
+---@param command lsp.Command
 function M.execute(clientId, command)
   local client = vim.lsp.get_client_by_id(clientId)
   if client == nil then
     return
   end
   command.title = nil
-  ---@param err ddc.lsp.ResponseError
-  client.request("workspace/executeCommand", command, function(err)
-    M.log(client.name, err)
-  end, 0)
-end
-
----@param client_name string
----@param err? ddc.lsp.ResponseError|string
-function M.log(client_name, err)
-  if err == nil or not M.opt.debug then
-    return
-  end
-
-  if type(err) == "string" then
-    vim.notify(("%s: %s"):format(client_name, err), vim.log.levels.ERROR)
-  else
-    vim.notify(
-      ("%s: %s: %s"):format(client_name, lsp.ErrorCodes[err.code] or err.code, err.message),
-      vim.log.levels.ERROR
-    )
-  end
-
-  vim.cmd.redraw()
+  client.request("workspace/executeCommand", command, nil, 0)
 end
 
 return M
