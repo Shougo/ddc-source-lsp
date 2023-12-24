@@ -21,7 +21,7 @@ EXAMPLES                                 *ddc-filter-sorter_lsp-kind-examples*
 >
 	call ddc#custom#patch_global(#{
 	      \ sourceOptions: #{
-	      \   nvim-lsp: #{
+	      \   lsp: #{
 	      \     sorters: ['sorter_lsp-kind']
 	      \   },
 	      \ },
