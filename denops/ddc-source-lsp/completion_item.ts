@@ -302,7 +302,7 @@ export class CompletionItem {
         ? [{
           type: "abbr",
           // NOTE: The property 'name' only makes sense in Vim.
-          name: "",
+          name: `ddc-source-lsp-${crypto.randomUUID()}`,
           hl_group: "DdcNvimLspDeprecated",
           col: 1,
           width: byteLength(abbr),
