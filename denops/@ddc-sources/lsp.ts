@@ -158,7 +158,7 @@ export class Source extends BaseSource<Params> {
         args.sourceParams.lspEngine,
         "textDocument/completion",
         params,
-        { client, timeout: args.sourceOptions.timeout },
+        { client, timeout: args.sourceOptions.timeout, sync: false },
       ) as Result;
     } catch (e) {
       if (!(e instanceof DeadlineError)) {
@@ -245,7 +245,7 @@ export class Source extends BaseSource<Params> {
       lspEngine,
       "completionItem/resolve",
       lspItem,
-      { client, timeout: 1000 },
+      { client, timeout: 1000, sync: true },
     ).catch(() => lspItem) as LSP.CompletionItem ?? lspItem;
   }
 

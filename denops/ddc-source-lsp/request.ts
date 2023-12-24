@@ -1,43 +1,45 @@
 import { Denops, register } from "./deps/denops.ts";
-import { deadline, DeadlineError, deferred } from "./deps/std.ts";
+import { deadline, DeadlineError } from "./deps/std.ts";
 import { is, u } from "./deps/unknownutil.ts";
-import { LSP } from "./deps/lsp.ts";
 import { Params } from "../@ddc-sources/lsp.ts";
 import { Client } from "./client.ts";
 
 export async function request(
   denops: Denops,
   lspEngine: Params["lspEngine"],
-  method: "textDocument/completion" | "completionItem/resolve",
+  method: string,
   params: unknown,
-  opts: { client: Client; timeout: number },
+  opts: { client: Client; timeout: number; sync: boolean },
 ): Promise<unknown> {
   if (lspEngine === "nvim-lsp") {
-    if (method === "textDocument/completion") {
-      const defer = deferred();
-      const id = register(denops, (response: unknown) => {
-        defer.resolve(response);
-      });
+    if (opts.sync) {
+      return await denops.call(
+        `luaeval`,
+        `require("ddc_source_lsp.internal").request_sync(_A[1], _A[2], _A[3], _A[4])`,
+        [opts.client.id, method, params, { timemout: opts.timeout }],
+      );
+    } else {
+      const waiter = Promise.withResolvers();
+      const lambda_id = register(
+        denops,
+        (res: unknown) => waiter.resolve(res),
+        { once: true },
+      );
       await denops.call(
         `luaeval`,
-        `require("ddc_source_lsp.internal").request(_A[1], _A[2], _A[3])`,
-        [opts.client.id, params, { name: denops.name, id }],
+        `require("ddc_source_lsp.internal").request(_A[1], _A[2], _A[3], _A[4])`,
+        [opts.client.id, method, params, {
+          plugin_name: denops.name,
+          lambda_id,
+        }],
       );
-      return await deadline(defer, opts.timeout);
-    } else {
-      let lspItem = params;
-      lspItem = await denops.call(
-        "luaeval",
-        `require("ddc_source_lsp.internal").resolve(_A[1], _A[2])`,
-        [opts.client.id, lspItem],
-      ) as LSP.CompletionItem | null ?? lspItem;
-      return lspItem;
+      return deadline(waiter.promise, opts.timeout);
     }
   } else if (lspEngine === "vim-lsp") {
-    const data = deferred<unknown>();
+    const waiter = Promise.withResolvers();
     const id = register(
       denops,
-      (response: unknown) => data.resolve(response),
+      (res: unknown) => waiter.resolve(res),
       { once: true },
     );
     try {
@@ -51,9 +53,11 @@ export async function request(
           id,
         },
       );
-      const resolvedData = await deadline(data, opts.timeout);
-      const { response } = u.ensure(resolvedData, is.Record);
-      const { result } = u.ensure(response, is.Record);
+      const resolvedData = await deadline(waiter.promise, opts.timeout);
+      const { response: { result } } = u.ensure(
+        resolvedData,
+        is.ObjectOf({ response: is.ObjectOf({ result: is.Any }) }),
+      );
       return result;
     } catch (e) {
       if (e instanceof DeadlineError) {
