@@ -16,7 +16,7 @@ import {
   parseSnippet,
 } from "../ddc-source-lsp/deps/lsp.ts";
 import { DeadlineError } from "../ddc-source-lsp/deps/std.ts";
-import { is } from "../ddc-source-lsp/deps/unknownutil.ts";
+import { is, u } from "../ddc-source-lsp/deps/unknownutil.ts";
 import { CompletionItem } from "../ddc-source-lsp/completion_item.ts";
 import { request } from "../ddc-source-lsp/request.ts";
 import { Client, getClients } from "../ddc-source-lsp/client.ts";
@@ -240,13 +240,22 @@ export class Source extends BaseSource<Params> {
     if (!client?.provider.resolveProvider) {
       return lspItem;
     }
-    return await request(
-      denops,
-      lspEngine,
-      "completionItem/resolve",
-      lspItem,
-      { client, timeout: 1000, sync: true },
-    ).catch(() => lspItem) as LSP.CompletionItem ?? lspItem;
+    try {
+      const response = await request(
+        denops,
+        lspEngine,
+        "completionItem/resolve",
+        lspItem,
+        { client, timeout: 1000, sync: true },
+      );
+      const { result } = u.ensure(
+        response,
+        is.ObjectOf({ result: is.ObjectOf({ label: is.String }) }),
+      );
+      return result as LSP.CompletionItem;
+    } catch {
+      return lspItem;
+    }
   }
 
   override async getPreviewer({
