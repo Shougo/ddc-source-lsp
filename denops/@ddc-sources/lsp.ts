@@ -80,7 +80,7 @@ export class Source extends BaseSource<Params> {
         return this.#item_cache[client.id];
       }
 
-      const result = await this.request(denops, client, args);
+      const result = await this.#request(denops, client, args);
       if (!result) {
         return [];
       }
@@ -113,7 +113,7 @@ export class Source extends BaseSource<Params> {
       return items;
     })).then((items) => items.flat(1))
       .catch((e) => {
-        this.printError(denops, e);
+        this.#printError(denops, e);
         return [];
       });
 
@@ -127,7 +127,7 @@ export class Source extends BaseSource<Params> {
     };
   }
 
-  private async request(
+  async #request(
     denops: Denops,
     client: Client,
     args: GatherArguments<Params>,
@@ -167,7 +167,7 @@ export class Source extends BaseSource<Params> {
     }
   }
 
-  private async printError(
+  async #printError(
     denops: Denops,
     message: Error | string,
   ) {
@@ -193,7 +193,7 @@ export class Source extends BaseSource<Params> {
 
     const unresolvedItem = JSON.parse(userData.lspitem) as LSP.CompletionItem;
     const lspItem = params.enableResolveItem
-      ? await this.resolve(
+      ? await this.#resolve(
         denops,
         params.lspEngine,
         userData.clientId,
@@ -229,7 +229,7 @@ export class Source extends BaseSource<Params> {
     }
   }
 
-  private async resolve(
+  async #resolve(
     denops: Denops,
     lspEngine: Params["lspEngine"],
     clientId: number | string,
@@ -268,7 +268,7 @@ export class Source extends BaseSource<Params> {
       return { kind: "empty" };
     }
     const unresolvedItem = JSON.parse(userData.lspitem) as LSP.CompletionItem;
-    const lspItem = await this.resolve(
+    const lspItem = await this.#resolve(
       denops,
       params.lspEngine,
       userData.clientId,

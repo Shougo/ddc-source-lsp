@@ -189,7 +189,7 @@ export class CompletionItem {
     lspItem: LSP.CompletionItem,
     defaults?: LSP.CompletionList["itemDefaults"],
   ): Item<UserData> | undefined {
-    lspItem = this.fillDefaults(lspItem, defaults);
+    lspItem = this.#fillDefaults(lspItem, defaults);
 
     let isInvalid = false;
     // validate label
@@ -206,9 +206,9 @@ export class CompletionItem {
       return;
     }
 
-    const { abbr, highlights } = this.getAbbr(lspItem);
+    const { abbr, highlights } = this.#getAbbr(lspItem);
     return {
-      word: createSelectText(this.getWord(lspItem)),
+      word: createSelectText(this.#getWord(lspItem)),
       abbr,
       kind: CompletionItem.Kind[lspItem.kind ?? 1],
       highlights,
@@ -224,7 +224,7 @@ export class CompletionItem {
     };
   }
 
-  private fillDefaults(
+  #fillDefaults(
     lspItem: LSP.CompletionItem,
     defaults?: LSP.CompletionList["itemDefaults"],
   ): LSP.CompletionItem {
@@ -255,12 +255,12 @@ export class CompletionItem {
     return filledItem;
   }
 
-  private getWord(
+  #getWord(
     lspItem: LSP.CompletionItem,
   ): string {
     const text = (lspItem.filterText ?? lspItem.label).trim();
     const defaultOffset = this.#suggestCharacter;
-    let offset = this.getOffset(lspItem, defaultOffset);
+    let offset = this.#getOffset(lspItem, defaultOffset);
     if (offset < defaultOffset) {
       const prefix = this.#lineOnRequest.slice(offset, defaultOffset);
       if (!text.startsWith(prefix)) {
@@ -271,7 +271,7 @@ export class CompletionItem {
     return fixedLine.slice(defaultOffset);
   }
 
-  private getOffset(
+  #getOffset(
     lspItem: LSP.CompletionItem,
     defaultOffset: number,
   ): number {
@@ -290,7 +290,7 @@ export class CompletionItem {
     return offset + (delta > 0 ? delta : 0);
   }
 
-  private getAbbr(
+  #getAbbr(
     lspItem: LSP.CompletionItem,
   ): { abbr: string; highlights?: PumHighlight[] } {
     const abbr = lspItem.insertTextFormat === LSP.InsertTextFormat.Snippet
@@ -298,7 +298,7 @@ export class CompletionItem {
       : lspItem.label;
     return {
       abbr,
-      highlights: this.isDeprecated(lspItem)
+      highlights: this.#isDeprecated(lspItem)
         ? [{
           type: "abbr",
           // NOTE: The property 'name' only makes sense in Vim.
@@ -311,7 +311,7 @@ export class CompletionItem {
     };
   }
 
-  private isDeprecated(
+  #isDeprecated(
     lspItem: LSP.CompletionItem,
   ): boolean {
     return lspItem.deprecated ||
