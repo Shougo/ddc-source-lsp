@@ -188,6 +188,7 @@ export class CompletionItem {
   toDdcItem(
     lspItem: LSP.CompletionItem,
     defaults?: LSP.CompletionList["itemDefaults"],
+    enableDisplayDetail?: boolean,
   ): Item<UserData> | undefined {
     lspItem = this.#fillDefaults(lspItem, defaults);
 
@@ -211,6 +212,7 @@ export class CompletionItem {
       word: createSelectText(this.#getWord(lspItem)),
       abbr,
       kind: CompletionItem.Kind[lspItem.kind ?? 1],
+      menu: enableDisplayDetail ? (lspItem.detail ?? "") : "",
       highlights,
       user_data: {
         lspitem: JSON.stringify(lspItem),

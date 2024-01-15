@@ -43,6 +43,7 @@ export type UserData = {
 
 export type Params = {
   confirmBehavior: ConfirmBehavior;
+  enableDisplayDetail: boolean;
   enableResolveItem: boolean;
   enableAdditionalTextEdit: boolean;
   lspEngine: "nvim-lsp" | "vim-lsp" | "lspoints";
@@ -103,6 +104,7 @@ export class Source extends BaseSource<Params> {
         completionItem.toDdcItem(
           lspItem,
           completionList.itemDefaults,
+          args.sourceParams.enableDisplayDetail,
         )
       ).filter(isDefined);
       if (!completionList.isIncomplete) {
@@ -345,6 +347,7 @@ export class Source extends BaseSource<Params> {
     return {
       confirmBehavior: "insert",
       enableAdditionalTextEdit: false,
+      enableDisplayDetail: false,
       enableResolveItem: false,
       lspEngine: "nvim-lsp",
       snippetEngine: "",

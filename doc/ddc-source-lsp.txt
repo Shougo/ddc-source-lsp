@@ -4,7 +4,7 @@ Authors: Shougo <Shougo.Matsu at gmail.com>
          uga-rosa <uga6603 at gmail.com>
 License: MIT license
 
-CONTENTS                                        *ddc-source-lsp-contents*
+CONTENTS                                             *ddc-source-lsp-contents*
 
 Introduction					|ddc-source-lsp-introduction|
 Install						|ddc-source-lsp-install|
@@ -14,13 +14,13 @@ FAQ						|ddc-source-lsp-faq|
 
 
 ==============================================================================
-INTRODUCTION                                *ddc-source-lsp-introduction*
+INTRODUCTION                                     *ddc-source-lsp-introduction*
 
 This source collects items from "nvim-lsp".
 
 
 ==============================================================================
-INSTALL                                          *ddc-source-lsp-install*
+INSTALL                                               *ddc-source-lsp-install*
 
 Please install both "ddc.vim" and "denops.vim".
 
@@ -47,12 +47,14 @@ https://github.com/matsui54/denops-popup-preview.vim
 
 
 ==============================================================================
-EXAMPLES                                        *ddc-source-lsp-examples*
+EXAMPLES                                             *ddc-source-lsp-examples*
 
 To take advantage of all the features, you need to set client_capabilities.
 
 >lua
-	local capabilities = require("ddc_source_lsp").make_client_capabilities()
+	local capabilities = require(
+	  "ddc_source_lsp"
+	).make_client_capabilities()
 	require("lspconfig").denols.setup({
 	  capabilities = capabilities,
 	})
@@ -79,9 +81,9 @@ To take advantage of all the features, you need to set client_capabilities.
 <
 
 ==============================================================================
-PARAMS                                            *ddc-source-lsp-params*
+PARAMS                                                 *ddc-source-lsp-params*
 
-                                   *ddc-source-lsp-param-confirmBehavior*
+                                        *ddc-source-lsp-param-confirmBehavior*
 confirmBehavior		("insert" | "replace")
 		- "insert":	Inserts the selected item and moves adjacent
 				text to the right.
@@ -89,7 +91,7 @@ confirmBehavior		("insert" | "replace")
 
 		Default: "insert"
 
-                          *ddc-source-lsp-param-enableAdditionalTextEdit*
+                               *ddc-source-lsp-param-enableAdditionalTextEdit*
 enableAdditionalTextEdit	(boolean)
 		Enable supplementary editing apart from the cursor. For
 		instance, it allows the auto-import of the
@@ -101,13 +103,22 @@ enableAdditionalTextEdit	(boolean)
 
 		Default: v:false
 
-                                 *ddc-source-lsp-param-enableResolveItem*
+                                    *ddc-source-lsp-param-enableDisplayDetail*
+enableDisplayDetail		(boolean)
+		Set the detailed text in |ddc-item-attribute-menu| if
+		possible.
+		NOTE: The text depends on LSP server.
+		NOTE: The text may be very long.
+
+		Default: v:false
+
+                                      *ddc-source-lsp-param-enableResolveItem*
 enableResolveItem	(boolean)
 		Enable LSP's "completionItem/resolve" feature.
 
 		Default: v:false
 
-                                         *ddc-source-lsp-param-lspEngine*
+                                              *ddc-source-lsp-param-lspEngine*
 lspEngine		(string)
 		The LSP Engine to use.
 
@@ -121,7 +132,7 @@ lspEngine		(string)
 
 		Default: "nvim-lsp"
 
-                                     *ddc-source-lsp-param-snippetEngine*
+                                          *ddc-source-lsp-param-snippetEngine*
 snippetEngine		(string | function)
 		The language server may return snippet as items, so work with
 		another plugin to expand it. Register with
@@ -141,16 +152,16 @@ snippetEngine		(string | function)
 >lua
 		-- https://github.com/L3MON4D3/LuaSnip
 		vim.fn["denops#callback#register"](function(body)
-		  require('luasnip').lsp_expand(body)
+		  require("luasnip").lsp_expand(body)
 		end)
 		-- https://github.com/dcampos/nvim-snippy
 		vim.fn["denops#callback#register"](function(body)
-		  require('snippy').expand_snippet(body)
+		  require("snippy").expand_snippet(body)
 		end)
 <
 		Default: ""
 
-                                  *ddc-source-lsp-param-snippetIndicator*
+                                       *ddc-source-lsp-param-snippetIndicator*
 snippetIndicator	(string)
 		The indicator string for snippet items added to the end of
 		a completion item.
@@ -160,7 +171,7 @@ snippetIndicator	(string)
 		Default: "~"
 
 ==============================================================================
-FREQUENTLY ASKED QUESTIONS (FAQ)                     *ddc-source-lsp-faq*
+FREQUENTLY ASKED QUESTIONS (FAQ)                          *ddc-source-lsp-faq*
 
 Q: The snippet is double expanded.
 
