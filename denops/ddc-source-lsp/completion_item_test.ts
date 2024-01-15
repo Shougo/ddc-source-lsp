@@ -8,6 +8,7 @@ import { Params } from "../@ddc-sources/lsp.ts";
 const params: Params = {
   confirmBehavior: "insert",
   enableAdditionalTextEdit: true,
+  enableDisplayDetail: false,
   enableResolveItem: false,
   lspEngine: "nvim-lsp",
   snippetEngine: "",
