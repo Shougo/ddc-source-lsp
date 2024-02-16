@@ -1,4 +1,4 @@
-import { Denops, register } from "./deps/denops.ts";
+import { Denops, fn, register } from "./deps/denops.ts";
 import { deadline, DeadlineError } from "./deps/std.ts";
 import { is, u } from "./deps/unknownutil.ts";
 import { Params } from "../@ddc-sources/lsp.ts";
@@ -9,14 +9,19 @@ export async function request(
   lspEngine: Params["lspEngine"],
   method: string,
   params: unknown,
-  opts: { client: Client; timeout: number; sync: boolean },
+  opts: { client: Client; timeout: number; sync: boolean; bufnr?: number },
 ): Promise<unknown> {
   if (lspEngine === "nvim-lsp") {
     if (opts.sync) {
       return await denops.call(
         `luaeval`,
         `require("ddc_source_lsp.internal").request_sync(_A[1], _A[2], _A[3], _A[4])`,
-        [opts.client.id, method, params, { timemout: opts.timeout }],
+        [
+          opts.client.id,
+          method,
+          params,
+          { timemout: opts.timeout, bufnr: opts.bufnr ?? 0 },
+        ],
       );
     } else {
       const waiter = Promise.withResolvers();
@@ -31,6 +36,7 @@ export async function request(
         [opts.client.id, method, params, {
           plugin_name: denops.name,
           lambda_id,
+          bufnr: opts.bufnr ?? 0,
         }],
       );
       return deadline(waiter.promise, opts.timeout);
@@ -51,6 +57,7 @@ export async function request(
           request: { method, params },
           name: denops.name,
           id,
+          bufnr: opts.bufnr ?? await fn.bufnr(denops),
         },
       );
       const resolvedData = await deadline(waiter.promise, opts.timeout);
