@@ -1,5 +1,6 @@
 import { Denops, fn, register } from "./deps/denops.ts";
 import { deadline, DeadlineError } from "./deps/std.ts";
+import { uriFromBufnr } from "./deps/lsp.ts";
 import { is, u } from "./deps/unknownutil.ts";
 import { Params } from "../@ddc-sources/lsp.ts";
 import { Client } from "./client.ts";
@@ -74,6 +75,18 @@ export async function request(
       }
     }
   } else if (lspEngine === "lspoints") {
+    if (opts.bufnr != null && opts.bufnr > 0 && is.Record(params)) {
+      return await denops.dispatch(
+        "lspoints",
+        "request",
+        opts.client.id,
+        method,
+        {
+          ...params,
+          textDocument: { uri: await uriFromBufnr(denops, opts.bufnr) },
+        },
+      );
+    }
     return await denops.dispatch(
       "lspoints",
       "request",

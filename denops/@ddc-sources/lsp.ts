@@ -51,6 +51,7 @@ export type Params = {
     | string // ID of denops#callback.
     | ((body: string) => Promise<void>);
   snippetIndicator: string;
+  bufnr?: number;
 };
 
 function isDefined<T>(x: T | undefined): x is T {
@@ -73,8 +74,11 @@ export class Source extends BaseSource<Params> {
     let isIncomplete = false;
     const cursorLine = (await fn.line(denops, ".")) - 1;
 
-    const clients = await getClients(denops, args.sourceParams.lspEngine)
-      .catch(() => []);
+    const clients = await getClients(
+      denops,
+      args.sourceParams.lspEngine,
+      args.sourceParams.bufnr,
+    ).catch(() => []);
 
     const items = await Promise.all(clients.map(async (client) => {
       if (this.#item_cache[client.id]) {
@@ -136,7 +140,7 @@ export class Source extends BaseSource<Params> {
   ): Promise<Result | undefined> {
     const params = await makePositionParams(
       denops,
-      undefined,
+      args.sourceParams.bufnr,
       undefined,
       client.offsetEncoding,
     ) as LSP.CompletionParams;
@@ -160,7 +164,12 @@ export class Source extends BaseSource<Params> {
         args.sourceParams.lspEngine,
         "textDocument/completion",
         params,
-        { client, timeout: args.sourceOptions.timeout, sync: false },
+        {
+          client,
+          timeout: args.sourceOptions.timeout,
+          sync: false,
+          bufnr: args.sourceParams.bufnr,
+        },
       ) as Result;
     } catch (e) {
       if (!(e instanceof DeadlineError)) {
@@ -236,8 +245,9 @@ export class Source extends BaseSource<Params> {
     lspEngine: Params["lspEngine"],
     clientId: number | string,
     lspItem: LSP.CompletionItem,
+    bufnr?: number,
   ): Promise<LSP.CompletionItem> {
-    const clients = await getClients(denops, lspEngine);
+    const clients = await getClients(denops, lspEngine, bufnr);
     const client = clients.find((c) => c.id === clientId);
     if (!client?.provider.resolveProvider) {
       return lspItem;
@@ -248,7 +258,7 @@ export class Source extends BaseSource<Params> {
         lspEngine,
         "completionItem/resolve",
         lspItem,
-        { client, timeout: 1000, sync: true },
+        { client, timeout: 1000, sync: true, bufnr: bufnr },
       );
       const { result } = u.ensure(
         response,
@@ -275,6 +285,7 @@ export class Source extends BaseSource<Params> {
       params.lspEngine,
       userData.clientId,
       unresolvedItem,
+      params.bufnr,
     );
     const filetype = await op.filetype.get(denops);
     const contents: string[] = [];
