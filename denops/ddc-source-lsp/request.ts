@@ -21,7 +21,7 @@ export async function request(
           opts.client.id,
           method,
           params,
-          { timemout: opts.timeout, bufnr: opts.bufnr ?? 0 },
+          { timemout: opts.timeout, bufnr: opts.bufnr },
         ],
       );
     } else {
@@ -37,7 +37,7 @@ export async function request(
         [opts.client.id, method, params, {
           plugin_name: denops.name,
           lambda_id,
-          bufnr: opts.bufnr ?? 0,
+          bufnr: opts.bufnr,
         }],
       );
       return deadline(waiter.promise, opts.timeout);
