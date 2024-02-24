@@ -184,6 +184,7 @@ snippetIndicator	(string)
 ==============================================================================
 FREQUENTLY ASKED QUESTIONS (FAQ)                          *ddc-source-lsp-faq*
 
+                                       *ddc-source-lsp-faq-snippet-is-doubled*
 Q: The snippet is double expanded.
 
 A: Remove "vim-vsnip-integ" and use "ddc-source-vsnip" instead.
@@ -192,6 +193,7 @@ Since "vim-vsnip-integ" sets |:autocmd|, please remove it completely from
 
 https://github.com/uga-rosa/ddc-source-vsnip
 
+                                      *ddc-source-lsp-faq-items-not-displayed*
 Q: The items are not displayed.
 
 A: You have enabled LSP snippet by "snippetSupport" in lspconfig.
