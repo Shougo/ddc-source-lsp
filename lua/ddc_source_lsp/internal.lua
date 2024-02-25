@@ -5,12 +5,13 @@ local M = {}
 ---@field provider table
 ---@field offsetEncoding string
 
+---@param bufnr number?
 ---@return Client[]
-function M.get_clients()
+function M.get_clients(bufnr)
   local clients = {}
   ---@diagnostic disable-next-line: deprecated
   local get_clients = vim.lsp.get_clients or vim.lsp.get_active_clients
-  for _, client in pairs(get_clients({ bufnr = 0 })) do
+  for _, client in pairs(get_clients({ bufnr = bufnr or 0 })) do
     local provider = client.server_capabilities.completionProvider
     if provider then
       table.insert(clients, {
@@ -45,7 +46,7 @@ end
 ---@param clientId number
 ---@param method string
 ---@param params table
----@param opts { plugin_name: string, lambda_id: string }
+---@param opts { plugin_name: string, lambda_id: string, bufnr: number? }
 ---@return unknown?
 function M.request(clientId, method, params, opts)
   local client = vim.lsp.get_client_by_id(clientId)
@@ -54,7 +55,7 @@ function M.request(clientId, method, params, opts)
       if err == nil and result then
         vim.fn["denops#notify"](opts.plugin_name, opts.lambda_id, { result })
       end
-    end, 0)
+    end, opts.bufnr or 0)
   end
 end
 
@@ -62,12 +63,12 @@ end
 ---@param clientId number
 ---@param method string
 ---@param params table
----@param opts { timeout: number }
+---@param opts { timeout: number, bufnr: number? }
 ---@return unknown?
 function M.request_sync(clientId, method, params, opts)
   local client = vim.lsp.get_client_by_id(clientId)
   if client then
-    return client.request_sync(method, normalize(params), opts.timeout, 0)
+    return client.request_sync(method, normalize(params), opts.timeout, opts.bufnr or 0)
   end
 end
 

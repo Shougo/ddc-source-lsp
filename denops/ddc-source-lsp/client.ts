@@ -12,17 +12,18 @@ export type Client = {
 export async function getClients(
   denops: Denops,
   lspEngine: Params["lspEngine"],
+  bufnr?: number,
 ): Promise<Client[]> {
   if (lspEngine === "nvim-lsp") {
     return await denops.call(
       "luaeval",
-      `require("ddc_source_lsp.internal").get_clients()`,
+      `require("ddc_source_lsp.internal").get_clients(_A[1])`,
+      [bufnr],
     ) as Client[];
   } else if (lspEngine === "vim-lsp") {
-    const bufnr = await fn.bufnr(denops);
     const servers = await denops.call(
       "lsp#get_allowed_servers",
-      bufnr,
+      bufnr ?? await fn.bufnr(denops),
     ) as string[];
     const clients: Client[] = [];
     for (const server of servers) {
@@ -42,11 +43,10 @@ export async function getClients(
     }
     return clients;
   } else if (lspEngine === "lspoints") {
-    const bufnr = await fn.bufnr(denops);
     return (await denops.dispatch(
       "lspoints",
       "getClients",
-      bufnr,
+      bufnr ?? await fn.bufnr(denops),
     ) as {
       id: number;
       serverCapabilities: LSP.ServerCapabilities;

@@ -83,6 +83,17 @@ To take advantage of all the features, you need to set client_capabilities.
 ==============================================================================
 PARAMS                                                 *ddc-source-lsp-params*
 
+                                                  *ddc-source-lsp-param-bufnr*
+bufnr			(number | v:null)
+		- number:	the number of a buffer
+		- v:null:	the current buffer
+
+		Specify the buffer to be used in requests to the language
+		server. Needs not be set for normal use. see FAQ
+		(|ddc-source-lsp-faq-markdown-codeblocks|).
+
+		Default: v:null
+
                                         *ddc-source-lsp-param-confirmBehavior*
 confirmBehavior		("insert" | "replace")
 		- "insert":	Inserts the selected item and moves adjacent
@@ -173,6 +184,7 @@ snippetIndicator	(string)
 ==============================================================================
 FREQUENTLY ASKED QUESTIONS (FAQ)                          *ddc-source-lsp-faq*
 
+                                       *ddc-source-lsp-faq-snippet-is-doubled*
 Q: The snippet is double expanded.
 
 A: Remove "vim-vsnip-integ" and use "ddc-source-vsnip" instead.
@@ -181,11 +193,65 @@ Since "vim-vsnip-integ" sets |:autocmd|, please remove it completely from
 
 https://github.com/uga-rosa/ddc-source-vsnip
 
+                                      *ddc-source-lsp-faq-items-not-displayed*
 Q: The items are not displayed.
 
 A: You have enabled LSP snippet by "snippetSupport" in lspconfig.
 If you want to complete snippet items, you must configure
 |ddc-source-lsp-param-snippetEngine|. Otherwise, they are filtered.
+
+                                        *ddc-source-lsp-faq-markdown-codeblocks*
+Q: How to enable completions in markdown codeblocks?
+
+A: Use |ddc#custom#set_context_filetype()| and conditionally set the number of a
+virtual buffer to |ddc-source-lsp-param-bufnr|. The virual buffer should
+synchronize its content with the codeblock and should have an attached
+language server. In Neovim, otter.nvim (https://github.com/jmbuhr/otter.nvim)
+is the plugin to manage such buffers. Following is an example setup:
+
+>lua
+	-- Activate otter on markdown
+	vim.api.nvim_create_autocmd("Filetype", {
+	  pattern = "lua",
+	  callback = function()
+	    require("otter").activate(
+	      {"lua"}, -- languages to enable completions
+	      false -- disable completion with cmp
+	    )
+	  end
+	})
+
+	vim.fn["ddc#custom#set_context_filetype"]("markdown", function()
+	  local otter_keeper = require("otter.keeper")
+
+	  -- sync quarto buffer with otter buffers
+	  otter_keeper.sync_raft(ctx.buf)
+
+	  -- sourceParams based on the cursor positions
+	  local cursor = vim.api.nvim_win_get_cursor(0)
+	  local otter_attached = otter_keeper._otters_attached[ctx.buf]
+	  for _, chunks in pairs(otter_attached.code_chunks) do
+	    for _, chunk in pairs(chunks) do
+	      local srow, scol = chunk.range.from[1] + 1, chunk.range.from[2]
+	      local erow, ecol = chunk.range.to[1] + 1, chunk.range.to[2]
+	      if
+	        ((cursor[1] == srow and cursor[2] >= scol) or (cursor[1] > srow))
+	        and ((cursor[1] == erow and cursor[2] <= ecol) or cursor[1] < erow)
+	      then
+	        return {
+	          sourceParams = {
+	            lsp = { bufnr = otter_attached.buffers[chunk.lang] },
+	          },
+	        }
+	      end
+	    end
+	  end
+         
+	  -- if current cursor is not inside a codeblock, do nothing
+	  return {}
+	end)
+<
+
 
 ==============================================================================
 vim:tw=78:ts=8:ft=help:norl:noet:fen:noet:
