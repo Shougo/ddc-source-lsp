@@ -1,4 +1,4 @@
-import { LSP, OffsetEncoding } from "./deps/lsp.ts";
+import { LSP, type OffsetEncoding } from "./deps/lsp.ts";
 import { assertEquals } from "./deps/std.ts";
 import { Denops, nvim, test } from "./deps/denops.ts";
 import { assertBuffer, searchCursor } from "./test_util.ts";
