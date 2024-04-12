@@ -76,7 +76,7 @@ end
 ---@param command lsp.Command
 function M.execute(clientId, command)
   local client = vim.lsp.get_client_by_id(clientId)
-  if client == nil then
+  if client == nil or not client.server_capabilities.executeCommandProvider then
     return
   end
   command.title = nil
