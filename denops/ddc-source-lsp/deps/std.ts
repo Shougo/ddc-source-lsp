@@ -1,5 +1,5 @@
 export {
   deadline,
   DeadlineError,
-} from "https://deno.land/std@0.222.1/async/mod.ts";
-export { assertEquals } from "https://deno.land/std@0.222.1/assert/mod.ts";
+} from "jsr:@std/async@0.224.0";
+export { assertEquals } from "jsr:@std/assert@0.225.1";
