@@ -16,8 +16,7 @@ https://github.com/Shougo/ddc.vim
 
 Supported LSP clients are "nvim-lsp", "vim-lsp" and "lspoints"
 
-https://github.com/prabirshrestha/vim-lsp
-https://github.com/kuuote/lspoints
+https://github.com/prabirshrestha/vim-lsp https://github.com/kuuote/lspoints
 
 ## Configuration
 
