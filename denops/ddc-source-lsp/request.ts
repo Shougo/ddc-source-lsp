@@ -71,7 +71,7 @@ export async function request(
       if (e instanceof DeadlineError) {
         throw new Error(`No response from server ${opts.client.id}`);
       } else {
-        throw new Error(`Unsupprted method: ${method}`);
+        throw new Error(`Unsupported method: ${method}`);
       }
     }
   } else if (lspEngine === "lspoints") {
