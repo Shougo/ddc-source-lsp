@@ -104,7 +104,7 @@ export class Source extends BaseSource<Params> {
       const completionList = Array.isArray(result)
         ? { items: result, isIncomplete: false }
         : result;
-      const items = completionList.items.map((lspItem: Item) =>
+      const items = completionList.items.map((lspItem: CompletionItem) =>
         completionItem.toDdcItem(
           lspItem,
           completionList.itemDefaults,
