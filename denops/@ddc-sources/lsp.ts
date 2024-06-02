@@ -260,9 +260,9 @@ export class Source extends BaseSource<Params> {
         lspItem,
         { client, timeout: 1000, sync: true, bufnr: bufnr },
       );
-      const { result } = u.ensure(
+      const result = u.ensure(
         response,
-        is.ObjectOf({ result: is.ObjectOf({ label: is.String }) }),
+        is.ObjectOf({ label: is.String }),
       );
       return result as LSP.CompletionItem;
     } catch {
