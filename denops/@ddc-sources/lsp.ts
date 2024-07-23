@@ -15,7 +15,6 @@ import {
   OffsetEncoding,
   parseSnippet,
 } from "../ddc-source-lsp/deps/lsp.ts";
-import { DeadlineError } from "../ddc-source-lsp/deps/std.ts";
 import { is, u } from "../ddc-source-lsp/deps/unknownutil.ts";
 import { CompletionItem } from "../ddc-source-lsp/completion_item.ts";
 import { request } from "../ddc-source-lsp/request.ts";
@@ -172,7 +171,7 @@ export class Source extends BaseSource<Params> {
         },
       ) as Result;
     } catch (e) {
-      if (!(e instanceof DeadlineError)) {
+      if (!(e instanceof DOMException)) {
         throw e;
       }
     }

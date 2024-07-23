@@ -1,2 +1,2 @@
-export { deadline, DeadlineError } from "jsr:@std/async@0.224.1";
-export { assertEquals } from "jsr:@std/assert@0.225.3";
+export { deadline } from "jsr:@std/async@1.0.0";
+export { assertEquals } from "jsr:@std/assert@1.0.0";

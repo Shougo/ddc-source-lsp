@@ -1,5 +1,5 @@
 import { Denops, fn, register } from "./deps/denops.ts";
-import { deadline, DeadlineError } from "./deps/std.ts";
+import { deadline } from "./deps/std.ts";
 import { uriFromBufnr } from "./deps/lsp.ts";
 import { is, u } from "./deps/unknownutil.ts";
 import { Params } from "../@ddc-sources/lsp.ts";
@@ -68,7 +68,7 @@ export async function request(
       );
       return result;
     } catch (e) {
-      if (e instanceof DeadlineError) {
+      if (e instanceof DOMException) {
         throw new Error(`No response from server ${opts.client.id}`);
       } else {
         throw new Error(`Unsupported method: ${method}`);
