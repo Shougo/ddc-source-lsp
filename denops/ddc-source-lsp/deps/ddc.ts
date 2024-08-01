@@ -5,12 +5,12 @@ export {
   type Item,
   type Previewer,
   type PumHighlight,
-} from "https://deno.land/x/ddc_vim@v5.0.1/types.ts";
+} from "jsr:@shougo/ddc-vim@6.0.0/types";
 export type {
   GatherArguments,
   GetPreviewerArguments,
   OnCompleteDoneArguments,
-} from "https://deno.land/x/ddc_vim@v5.0.1/base/source.ts";
+} from "jsr:@shougo/ddc-vim@6.0.0/source";
 export type {
   FilterArguments,
-} from "https://deno.land/x/ddc_vim@v5.0.1/base/filter.ts";
+} from "jsr:@shougo/ddc-vim@6.0.0/filter";
