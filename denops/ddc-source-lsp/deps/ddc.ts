@@ -11,6 +11,4 @@ export type {
   GetPreviewerArguments,
   OnCompleteDoneArguments,
 } from "jsr:@shougo/ddc-vim@6.0.0/source";
-export type {
-  FilterArguments,
-} from "jsr:@shougo/ddc-vim@6.0.0/filter";
+export type { FilterArguments } from "jsr:@shougo/ddc-vim@6.0.0/filter";
