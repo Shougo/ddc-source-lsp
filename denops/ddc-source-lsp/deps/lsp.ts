@@ -9,6 +9,6 @@ export {
   parseSnippet,
   toUtf16Index,
   uriFromBufnr,
-} from "https://deno.land/x/denops_lsputil@v0.9.5/mod.ts";
+} from "jsr:@uga-rosa/denops-lsputil@~0.9.4";
 
-export * as LSP from "npm:vscode-languageserver-protocol@3.17.5";
+export * as LSP from "npm:vscode-languageserver-protocol@~3.17.5";
