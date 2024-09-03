@@ -4,13 +4,13 @@ export {
   type Previewer,
   type PumHighlight,
 } from "jsr:@shougo/ddc-vim@~7.0.0/types";
-export type {
+export {
   BaseSource,
-  GatherArguments,
-  GetPreviewerArguments,
-  OnCompleteDoneArguments,
+  type GatherArguments,
+  type GetPreviewerArguments,
+  type OnCompleteDoneArguments,
 } from "jsr:@shougo/ddc-vim@~7.0.0/source";
-export type {
+export {
   BaseFilter,
-  FilterArguments,
+  type FilterArguments,
 } from "jsr:@shougo/ddc-vim@~7.0.0/filter";
