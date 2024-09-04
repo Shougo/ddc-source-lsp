@@ -24,21 +24,23 @@ on:
       - '.github/workflows/integration.yml'
 
 jobs:
-  check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: denoland/setup-deno@v1
-        with:
-          deno-version: ${{ env.DENO_VERSION }}
-      - uses: leafo/gh-actions-lua@v10
-        with:
-          luaVersion: "luajit-2.1.0-beta3"
-      - uses: leafo/gh-actions-luarocks@v4
-      - run: luarocks install luacheck
+  # It does not work currently.
+  # https://github.com/leafo/gh-actions-lua/issues/47
+  #check:
+  #  runs-on: ubuntu-latest
+  #  steps:
+  #    - uses: actions/checkout@v4
+  #    - uses: denoland/setup-deno@v1
+  #      with:
+  #        deno-version: ${{ env.DENO_VERSION }}
+  #    - uses: leafo/gh-actions-lua@v10
+  #      with:
+  #        luaVersion: "luajit-2.1.0-beta3"
+  #    - uses: leafo/gh-actions-luarocks@v4
+  #    - run: luarocks install luacheck
 
-      - name: Check
-        run: deno task check
+  #    - name: Check
+  #      run: deno task check
 
   test:
     runs-on: ubuntu-latest
