@@ -1,9 +1,13 @@
 import { LSP, type OffsetEncoding } from "./deps/lsp.ts";
-import { assertEquals } from "./deps/std.ts";
-import { Denops, nvim, test } from "./deps/denops.ts";
 import { assertBuffer, searchCursor } from "./test_util.ts";
 import { CompletionItem } from "./completion_item.ts";
 import { Params } from "../@ddc-sources/lsp.ts";
+
+import type { Denops } from "jsr:@denops/std@~7.1.0";
+import * as nvim from "jsr:@denops/std@~7.1.0/function/nvim";
+import { test } from "jsr:@denops/test@~3.0.2";
+
+import { assertEquals } from "jsr:@std/assert@~1.0.0/equals";
 
 const params: Params = {
   confirmBehavior: "insert",

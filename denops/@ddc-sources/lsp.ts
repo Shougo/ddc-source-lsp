@@ -1,24 +1,32 @@
 import {
-  BaseSource,
-  DdcGatherItems,
-  GatherArguments,
-  GetPreviewerArguments,
-  Item,
-  OnCompleteDoneArguments,
-  Previewer,
-} from "../ddc-source-lsp/deps/ddc.ts";
-import { Denops, fn, op } from "../ddc-source-lsp/deps/denops.ts";
-import {
   LineContext,
   LSP,
   makePositionParams,
   OffsetEncoding,
   parseSnippet,
 } from "../ddc-source-lsp/deps/lsp.ts";
-import { is, u } from "../ddc-source-lsp/deps/unknownutil.ts";
 import { CompletionItem } from "../ddc-source-lsp/completion_item.ts";
 import { request } from "../ddc-source-lsp/request.ts";
 import { Client, getClients } from "../ddc-source-lsp/client.ts";
+
+import {
+  type DdcGatherItems,
+  type Item,
+  type Previewer,
+} from "jsr:@shougo/ddc-vim@~7.0.0/types";
+import {
+  BaseSource,
+  type GatherArguments,
+  type GetPreviewerArguments,
+  type OnCompleteDoneArguments,
+} from "jsr:@shougo/ddc-vim@~7.0.0/source";
+
+import type { Denops } from "jsr:@denops/std@~7.1.0";
+import * as fn from "jsr:@denops/std@~7.1.0/function";
+import * as op from "jsr:@denops/std@~7.1.0/option";
+
+import { ensure } from "jsr:@core/unknownutil@~4.3.0/ensure";
+import { is } from "jsr:@core/unknownutil@~4.3.0/is";
 
 type Result = LSP.CompletionList | LSP.CompletionItem[];
 
@@ -259,7 +267,7 @@ export class Source extends BaseSource<Params> {
         lspItem,
         { client, timeout: 1000, sync: true, bufnr: bufnr },
       );
-      const result = u.ensure(
+      const result = ensure(
         response,
         is.ObjectOf({ label: is.String }),
       );

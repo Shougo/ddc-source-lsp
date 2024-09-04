@@ -1,7 +1,9 @@
-import { Denops, fn } from "./deps/denops.ts";
 import { OffsetEncoding } from "./deps/lsp.ts";
 import { LSP } from "./deps/lsp.ts";
 import { Params } from "../@ddc-sources/lsp.ts";
+
+import type { Denops } from "jsr:@denops/std@~7.1.0";
+import * as fn from "jsr:@denops/std@~7.1.0/function";
 
 export type Client = {
   id: number | string;

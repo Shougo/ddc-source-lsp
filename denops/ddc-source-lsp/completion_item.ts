@@ -8,11 +8,13 @@ import {
   OffsetEncoding,
   toUtf16Index,
 } from "./deps/lsp.ts";
-import { Item, PumHighlight } from "./deps/ddc.ts";
-import { Denops } from "./deps/denops.ts";
 import createSelectText from "./select_text.ts";
 import { ConfirmBehavior, Params, UserData } from "../@ddc-sources/lsp.ts";
 import * as snippet from "./snippet.ts";
+
+import { type Item, type PumHighlight } from "jsr:@shougo/ddc-vim@~7.0.0/types";
+
+import type { Denops } from "jsr:@denops/std@~7.1.0";
 
 export class CompletionItem {
   static Kind = {

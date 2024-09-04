@@ -1,9 +1,15 @@
-import { Denops, fn, register } from "./deps/denops.ts";
-import { deadline } from "./deps/std.ts";
 import { uriFromBufnr } from "./deps/lsp.ts";
-import { is, u } from "./deps/unknownutil.ts";
+
 import { Params } from "../@ddc-sources/lsp.ts";
 import { Client } from "./client.ts";
+
+import type { Denops } from "jsr:@denops/std@~7.1.0";
+import * as fn from "jsr:@denops/std@~7.1.0/function";
+import { register } from "jsr:@denops/std@~7.1.0/lambda";
+
+import { deadline } from "jsr:@std/async@~1.0.0/deadline";
+import { ensure } from "jsr:@core/unknownutil@~4.3.0/ensure";
+import { is } from "jsr:@core/unknownutil@~4.3.0/is";
 
 export async function request(
   denops: Denops,
@@ -62,7 +68,7 @@ export async function request(
         },
       );
       const resolvedData = await deadline(waiter.promise, opts.timeout);
-      const { response: { result } } = u.ensure(
+      const { response: { result } } = ensure(
         resolvedData,
         is.ObjectOf({ response: is.ObjectOf({ result: is.Any }) }),
       );
