@@ -262,7 +262,12 @@ export class CompletionItem {
   #getWord(
     lspItem: LSP.CompletionItem,
   ): string {
-    const text = (lspItem.filterText ?? lspItem.label).trim();
+    // NOTE: Use label instead of filterText
+    // Because filterText is used for filtering
+    // For example:
+    // label = "read_dir()"
+    // filterText = "read_dirls"
+    const text = lspItem.label.trim();
     const defaultOffset = this.#suggestCharacter;
     let offset = this.#getOffset(lspItem, defaultOffset);
     if (offset < defaultOffset) {
