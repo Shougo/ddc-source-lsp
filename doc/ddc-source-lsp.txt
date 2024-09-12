@@ -200,11 +200,11 @@ A: You have enabled LSP snippet by "snippetSupport" in lspconfig.
 If you want to complete snippet items, you must configure
 |ddc-source-lsp-param-snippetEngine|. Otherwise, they are filtered.
 
-                                        *ddc-source-lsp-faq-markdown-codeblocks*
+                                      *ddc-source-lsp-faq-markdown-codeblocks*
 Q: How to enable completions in markdown codeblocks?
 
-A: Use |ddc#custom#set_context_filetype()| and conditionally set the number of a
-virtual buffer to |ddc-source-lsp-param-bufnr|. The virual buffer should
+A: Use |ddc#custom#set_context_filetype()| and conditionally set the number of
+a virtual buffer to |ddc-source-lsp-param-bufnr|. The virual buffer should
 synchronize its content with the codeblock and should have an attached
 language server. In Neovim, otter.nvim (https://github.com/jmbuhr/otter.nvim)
 is the plugin to manage such buffers. Following is an example setup:
@@ -235,8 +235,10 @@ is the plugin to manage such buffers. Following is an example setup:
 	      local srow, scol = chunk.range.from[1] + 1, chunk.range.from[2]
 	      local erow, ecol = chunk.range.to[1] + 1, chunk.range.to[2]
 	      if
-	        ((cursor[1] == srow and cursor[2] >= scol) or (cursor[1] > srow))
-	        and ((cursor[1] == erow and cursor[2] <= ecol) or cursor[1] < erow)
+	        ((cursor[1] == srow and cursor[2] >= scol)
+	         or (cursor[1] > srow))
+	        and ((cursor[1] == erow and cursor[2] <= ecol)
+	             or cursor[1] < erow)
 	      then
 	        return {
 	          sourceParams = {
@@ -246,7 +248,7 @@ is the plugin to manage such buffers. Following is an example setup:
 	      end
 	    end
 	  end
-         
+
 	  -- if current cursor is not inside a codeblock, do nothing
 	  return {}
 	end)
