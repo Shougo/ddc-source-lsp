@@ -6,8 +6,8 @@ import {
   linePatch,
   LSP,
   OffsetEncoding,
-  toUtf16Index,
   Range,
+  toUtf16Index,
 } from "./deps/lsp.ts";
 import createSelectText from "./select_text.ts";
 import { ConfirmBehavior, Params, UserData } from "../@ddc-sources/lsp.ts";
@@ -141,7 +141,7 @@ export class CompletionItem {
     if (
       params.enableResolveItem &&
       (!unresolvedItem.additionalTextEdits ||
-       unresolvedItem.additionalTextEdits.length === 0) &&
+        unresolvedItem.additionalTextEdits.length === 0) &&
       lspItem.additionalTextEdits
     ) {
       const cursor = await getCursor(denops);
