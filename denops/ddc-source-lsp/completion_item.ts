@@ -7,6 +7,7 @@ import {
   LSP,
   OffsetEncoding,
   toUtf16Index,
+  Range,
 } from "./deps/lsp.ts";
 import createSelectText from "./select_text.ts";
 import { ConfirmBehavior, Params, UserData } from "../@ddc-sources/lsp.ts";
@@ -139,12 +140,13 @@ export class CompletionItem {
     // Apply async additionalTextEdits
     if (
       params.enableResolveItem &&
-      unresolvedItem.additionalTextEdits === undefined &&
+      (!unresolvedItem.additionalTextEdits ||
+       unresolvedItem.additionalTextEdits.length === 0) &&
       lspItem.additionalTextEdits
     ) {
       const cursor = await getCursor(denops);
       if (
-        !lspItem.additionalTextEdits.some((edit) =>
+        !lspItem.additionalTextEdits.some((edit: Range) =>
           isPositionBefore(cursor, edit.range.start)
         )
       ) {
@@ -210,10 +212,11 @@ export class CompletionItem {
     }
 
     const { abbr, highlights } = this.#getAbbr(lspItem);
+    const index: keyof typeof CompletionItem.Kind = lspItem.kind ?? 1;
     return {
       word: createSelectText(this.#getWord(lspItem)),
       abbr,
-      kind: CompletionItem.Kind[lspItem.kind ?? 1],
+      kind: CompletionItem.Kind[index],
       menu: enableDisplayDetail ? (lspItem.detail ?? "") : "",
       highlights,
       user_data: {

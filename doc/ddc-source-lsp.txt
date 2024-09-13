@@ -108,7 +108,7 @@ enableAdditionalTextEdit	(boolean)
 		instance, it allows the auto-import of the
 		typescript-language-server, as well as macro-expansion via
 		rust-analyzer.
-		To use this feature,
+		NOTE: To use this feature,
 		|ddc-source-lsp-param-enableResolveItem| must be
 		|v:true|.
 
@@ -125,7 +125,9 @@ enableDisplayDetail		(boolean)
 
                                       *ddc-source-lsp-param-enableResolveItem*
 enableResolveItem	(boolean)
-		Enable LSP's "completionItem/resolve" feature.
+		Enable LSP's "completionItem/resolve" feature when the item is
+		confirmed.
+		NOTE: It must be enabled to enable LSP auto-import feature.
 
 		Default: v:false
 
