@@ -84,7 +84,7 @@ test({
       lspItem,
     });
 
-    assertEquals(ddcItem.word, "div");
+    assertEquals(ddcItem.word, "/div");
     assertEquals(ddcItem.abbr, "/div");
 
     await CompletionItem.confirm(
