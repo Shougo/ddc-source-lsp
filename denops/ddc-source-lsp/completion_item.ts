@@ -6,7 +6,6 @@ import {
   linePatch,
   LSP,
   OffsetEncoding,
-  Range,
   toUtf16Index,
 } from "./deps/lsp.ts";
 import createSelectText from "./select_text.ts";
@@ -146,7 +145,7 @@ export class CompletionItem {
     ) {
       const cursor = await getCursor(denops);
       if (
-        !lspItem.additionalTextEdits.some((edit: Range) =>
+        !lspItem.additionalTextEdits.some((edit: LSP.TextEdit) =>
           isPositionBefore(cursor, edit.range.start)
         )
       ) {
