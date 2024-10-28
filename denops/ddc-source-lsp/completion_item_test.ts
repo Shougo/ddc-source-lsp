@@ -13,6 +13,7 @@ const params: Params = {
   confirmBehavior: "insert",
   enableAdditionalTextEdit: true,
   enableDisplayDetail: false,
+  enableMatchLabel: false,
   enableResolveItem: false,
   lspEngine: "nvim-lsp",
   snippetEngine: "",

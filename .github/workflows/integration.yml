@@ -10,18 +10,18 @@ on:
     branches:
       - main
     paths:
-      - '**/*.ts'
-      - '**/*.lua'
-      - '**/*.vim'
-      - '.github/workflows/integration.yml'
+      - "**/*.ts"
+      - "**/*.lua"
+      - "**/*.vim"
+      - ".github/workflows/integration.yml"
   pull_request:
     branches:
       - main
     paths:
-      - '**/*.ts'
-      - '**/*.lua'
-      - '**/*.vim'
-      - '.github/workflows/integration.yml'
+      - "**/*.ts"
+      - "**/*.lua"
+      - "**/*.vim"
+      - ".github/workflows/integration.yml"
 
 jobs:
   # It does not work currently.
@@ -41,7 +41,6 @@ jobs:
 
   #    - name: Check
   #      run: deno task check
-
   test:
     runs-on: ubuntu-latest
     steps:

@@ -123,6 +123,14 @@ enableDisplayDetail		(boolean)
 
 		Default: v:false
 
+                                       *ddc-source-lsp-param-enableMatchLabel*
+enableMatchLabel		(boolean)
+		If it is enabled, item's |ddc-item-attribute-word| must be
+		matched to LSP "label".
+		NOTE: It can remove invalid items from LSP server.
+
+		Default: v:false
+
                                       *ddc-source-lsp-param-enableResolveItem*
 enableResolveItem	(boolean)
 		Enable LSP's "completionItem/resolve" feature when the item is

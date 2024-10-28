@@ -192,6 +192,7 @@ export class CompletionItem {
     lspItem: LSP.CompletionItem,
     defaults?: LSP.CompletionList["itemDefaults"],
     enableDisplayDetail?: boolean,
+    enableMatchLabel?: boolean,
   ): Item<UserData> | undefined {
     lspItem = this.#fillDefaults(lspItem, defaults);
 
@@ -210,10 +211,15 @@ export class CompletionItem {
       return;
     }
 
+    const word = this.#getWord(lspItem);
+    if (enableMatchLabel && lspItem.label !== word) {
+      return;
+    }
+
     const { abbr, highlights } = this.#getAbbr(lspItem);
     const index: keyof typeof CompletionItem.Kind = lspItem.kind ?? 1;
     return {
-      word: createSelectText(this.#getWord(lspItem)),
+      word: createSelectText(word),
       abbr,
       kind: CompletionItem.Kind[index],
       menu: enableDisplayDetail ? (lspItem.detail ?? "") : "",
