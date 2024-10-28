@@ -13,17 +13,17 @@ import {
   type DdcGatherItems,
   type Item,
   type Previewer,
-} from "jsr:@shougo/ddc-vim@~7.0.0/types";
+} from "jsr:@shougo/ddc-vim@~7.1.0/types";
 import {
   BaseSource,
   type GatherArguments,
   type GetPreviewerArguments,
   type OnCompleteDoneArguments,
-} from "jsr:@shougo/ddc-vim@~7.0.0/source";
+} from "jsr:@shougo/ddc-vim@~7.1.0/source";
 
-import type { Denops } from "jsr:@denops/std@~7.1.0";
-import * as fn from "jsr:@denops/std@~7.1.0/function";
-import * as op from "jsr:@denops/std@~7.1.0/option";
+import type { Denops } from "jsr:@denops/std@~7.3.0";
+import * as fn from "jsr:@denops/std@~7.3.0/function";
+import * as op from "jsr:@denops/std@~7.3.0/option";
 
 import { ensure } from "jsr:@core/unknownutil@~4.3.0/ensure";
 import { is } from "jsr:@core/unknownutil@~4.3.0/is";
