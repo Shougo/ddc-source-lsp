@@ -13,13 +13,13 @@ import {
   type DdcGatherItems,
   type Item,
   type Previewer,
-} from "jsr:@shougo/ddc-vim@~7.1.0/types";
+} from "jsr:@shougo/ddc-vim@~8.1.0/types";
 import {
   BaseSource,
   type GatherArguments,
   type GetPreviewerArguments,
   type OnCompleteDoneArguments,
-} from "jsr:@shougo/ddc-vim@~7.1.0/source";
+} from "jsr:@shougo/ddc-vim@~8.1.0/source";
 
 import type { Denops } from "jsr:@denops/std@~7.3.0";
 import * as fn from "jsr:@denops/std@~7.3.0/function";
