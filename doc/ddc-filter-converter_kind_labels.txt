@@ -34,7 +34,7 @@ EXAMPLES                           *ddc-filter-converter_kind_labels-examples*
 ==============================================================================
 PARAMS                               *ddc-filter-converter_kind_labels-params*
 
-                           *ddu-filter-converter_kind_labels-param-kindLabels*
+                           *ddc-filter-converter_kind_labels-param-kindLabels*
 kindLabels		(|Dictionary|)
 	This represents your setting labels corresponding to lsp kind labels.
 	Each your setting apply to each label.
@@ -68,7 +68,7 @@ kindLabels		(|Dictionary|)
 
 	Default: {}
 
-                         *ddu-filter-converter_kind_labels-param-kindHlGroups*
+                         *ddc-filter-converter_kind_labels-param-kindHlGroups*
 kindHlGroups		(|Dictionary|)
 	This represents your setting labels highlight corresponding to lsp
 	kind labels.
@@ -88,7 +88,7 @@ Q: I want to use "VSCode" like icon.
 
 A: You can setting like bellow.
 >
-	call ddu#custom#patch_global(#{
+	call ddc#custom#patch_global(#{
 	    \   filterParams: #{
 	    \     converter_kind_labels: #{
 	    \       kindLabels: #{
