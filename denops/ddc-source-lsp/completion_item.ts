@@ -12,9 +12,9 @@ import createSelectText from "./select_text.ts";
 import { ConfirmBehavior, Params, UserData } from "../@ddc-sources/lsp.ts";
 import * as snippet from "./snippet.ts";
 
-import { type Item, type PumHighlight } from "jsr:@shougo/ddc-vim@~8.1.0/types";
+import { type Item, type PumHighlight } from "jsr:@shougo/ddc-vim@~9.1.0/types";
 
-import type { Denops } from "jsr:@denops/std@~7.3.0";
+import type { Denops } from "jsr:@denops/std@~7.4.0";
 
 export class CompletionItem {
   static Kind = {
