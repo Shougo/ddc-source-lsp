@@ -275,7 +275,15 @@ export class CompletionItem {
     // For example:
     // label = "read_dir()"
     // filterText = "read_dirls"
-    const text = lspItem.label.trim();
+
+    // NOTE: Use insertText instead of label
+    // Because label is used for display
+    // For example:
+    // label = "•atan2"
+    // insertText = "atan2"
+
+    const text = lspItem.insertText ?? lspItem.label.trim();
+
     const defaultOffset = this.#suggestCharacter;
     let offset = this.#getOffset(lspItem, defaultOffset);
     if (offset < defaultOffset) {
