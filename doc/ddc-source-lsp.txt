@@ -41,9 +41,11 @@ https://github.com/dcampos/nvim-snippy
 If you are using neovim nightly, then |vim.snippet| would be another option.
 
 If you want to read the documentation for items, please use
-"denops-popup-preview.vim".
+below plugins.
 
+https://github.com/Shougo/pum.vim
 https://github.com/matsui54/denops-popup-preview.vim
+https://github.com/uga-rosa/ddc-previewer-floating
 
 
 ==============================================================================
