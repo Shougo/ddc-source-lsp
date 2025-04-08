@@ -51,7 +51,7 @@ end
 function M.request(clientId, method, params, opts)
   local client = vim.lsp.get_client_by_id(clientId)
   if client then
-    client.request(method, normalize(params), function(err, result)
+    client:request(method, normalize(params), function(err, result)
       if err == nil and result then
         vim.fn["denops#notify"](opts.plugin_name, opts.lambda_id, { result })
       end
@@ -68,7 +68,7 @@ end
 function M.request_sync(clientId, method, params, opts)
   local client = vim.lsp.get_client_by_id(clientId)
   if client then
-    local resp = client.request_sync(method, normalize(params), opts.timeout, opts.bufnr or 0)
+    local resp = client:request_sync(method, normalize(params), opts.timeout, opts.bufnr or 0)
     if resp and resp.err == nil and resp.result then
       return resp.result
     end
@@ -83,7 +83,7 @@ function M.execute(clientId, command)
     return
   end
   command.title = nil
-  client.request("workspace/executeCommand", command, nil, 0)
+  client:request("workspace/executeCommand", command, nil, 0)
 end
 
 return M
