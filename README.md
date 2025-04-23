@@ -25,9 +25,8 @@ https://github.com/kuuote/lspoints
 To take advantage of all the features, you need to set client_capabilities.
 
 ```lua
-local capabilities = require("ddc_source_lsp").make_client_capabilities()
-require("lspconfig").denols.setup({
-  capabilities = capabilities,
+vim.lsp.config('*', {
+  capabilities = require("ddc_source_lsp").make_client_capabilities(),
 })
 ```
 

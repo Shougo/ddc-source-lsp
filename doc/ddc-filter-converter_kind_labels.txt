@@ -82,7 +82,7 @@ kindHlGroups		(|Dictionary|)
 
 
 ==============================================================================
-FREQUENTLY ASKED QUESTIONS (FAQ)	*ddc-filter-converter_kind_labels-faq*
+FREQUENTLY ASKED QUESTIONS (FAQ)        *ddc-filter-converter_kind_labels-faq*
 
 Q: I want to use "VSCode" like icon.
 
@@ -92,40 +92,40 @@ A: You can setting like bellow.
 	    \   filterParams: #{
 	    \     converter_kind_labels: #{
 	    \       kindLabels: #{
-	    \         Text: "",
-	    \         Method: "",
-	    \         Function: "",
-	    \         Constructor: "",
-	    \         Field: "",
-	    \         Variable: "",
-	    \         Class: "",
-	    \         Interface: "",
-	    \         Module: "",
-	    \         Property: "",
-	    \         Unit: "",
-	    \         Value: "",
-	    \         Enum: "",
-	    \         Keyword: "",
-	    \         Snippet: "",
-	    \         Color: "",
-	    \         File: "",
-	    \         Reference: "",
-	    \         Folder: "",
-	    \         EnumMember: "",
-	    \         Constant: "",
-	    \         Struct: "",
-	    \         Event: "",
-	    \         Operator: "",
-	    \         TypeParameter: ""
+	    \         Text: '',
+	    \         Method: '',
+	    \         Function: '',
+	    \         Constructor: '',
+	    \         Field: '',
+	    \         Variable: '',
+	    \         Class: '',
+	    \         Interface: '',
+	    \         Module: '',
+	    \         Property: '',
+	    \         Unit: '',
+	    \         Value: '',
+	    \         Enum: '',
+	    \         Keyword: '',
+	    \         Snippet: '',
+	    \         Color: '',
+	    \         File: '',
+	    \         Reference: '',
+	    \         Folder: '',
+	    \         EnumMember: '',
+	    \         Constant: '',
+	    \         Struct: '',
+	    \         Event: '',
+	    \         Operator: '',
+	    \         TypeParameter: '',
 	    \       },
 	    \       kindHlGroups: #{
-	    \         Method: "Function",
-	    \         Function: "Function",
-	    \         Constructor: "Function",
-	    \         Field: "Identifier",
-	    \         Variable: "Identifier",
-	    \         Class: "Structure",
-	    \         Interface: "Structure"
+	    \         Method: 'Function',
+	    \         Function: 'Function',
+	    \         Constructor: 'Function',
+	    \         Field: 'Identifier',
+	    \         Variable: 'Identifier',
+	    \         Class: 'Structure',
+	    \         Interface: 'Structure',
 	    \       }
 	    \     }
 	    \   }

@@ -54,11 +54,8 @@ EXAMPLES                                             *ddc-source-lsp-examples*
 To take advantage of all the features, you need to set client_capabilities.
 
 >lua
-	local capabilities = require(
-	  "ddc_source_lsp"
-	).make_client_capabilities()
-	require("lspconfig").denols.setup({
-	  capabilities = capabilities,
+	vim.lsp.config('*', {
+	  capabilities = require("ddc_source_lsp").make_client_capabilities(),
 	})
 <
 >vim
@@ -174,12 +171,13 @@ snippetEngine		(string | function)
 <
 >lua
 		-- https://github.com/L3MON4D3/LuaSnip
-		vim.fn["denops#callback#register"](function(body)
-		  require("luasnip").lsp_expand(body)
+		vim.fn['denops#callback#register'](function(body)
+		  require('luasnip').lsp_expand(body)
 		end)
+
 		-- https://github.com/dcampos/nvim-snippy
-		vim.fn["denops#callback#register"](function(body)
-		  require("snippy").expand_snippet(body)
+		vim.fn['denops#callback#register'](function(body)
+		  require('snippy').expand_snippet(body)
 		end)
 <
 		Default: ""
@@ -223,18 +221,18 @@ is the plugin to manage such buffers. Following is an example setup:
 
 >lua
 	-- Activate otter on markdown
-	vim.api.nvim_create_autocmd("Filetype", {
-	  pattern = "lua",
+	vim.api.nvim_create_autocmd('Filetype', {
+	  pattern = 'lua',
 	  callback = function()
-	    require("otter").activate(
-	      {"lua"}, -- languages to enable completions
+	    require('otter').activate(
+	      {'lua'}, -- languages to enable completions
 	      false -- disable completion with cmp
 	    )
 	  end
 	})
 
-	vim.fn["ddc#custom#set_context_filetype"]("markdown", function()
-	  local otter_keeper = require("otter.keeper")
+	vim.fn['ddc#custom#set_context_filetype']('markdown', function()
+	  local otter_keeper = require('otter.keeper')
 
 	  -- sync quarto buffer with otter buffers
 	  otter_keeper.sync_raft(ctx.buf)
@@ -246,9 +244,8 @@ is the plugin to manage such buffers. Following is an example setup:
 	    for _, chunk in pairs(chunks) do
 	      local srow, scol = chunk.range.from[1] + 1, chunk.range.from[2]
 	      local erow, ecol = chunk.range.to[1] + 1, chunk.range.to[2]
-	      if
-	        ((cursor[1] == srow and cursor[2] >= scol)
-	         or (cursor[1] > srow))
+	      if ((cursor[1] == srow and cursor[2] >= scol)
+	          or (cursor[1] > srow))
 	        and ((cursor[1] == erow and cursor[2] <= ecol)
 	             or cursor[1] < erow)
 	      then
