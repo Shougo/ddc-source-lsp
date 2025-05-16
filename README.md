@@ -20,6 +20,8 @@ https://github.com/prabirshrestha/vim-lsp
 
 https://github.com/kuuote/lspoints
 
+NOTE: If you use "nvim-lsp", it requires Neovim 0.11+.
+
 ## Configuration
 
 To take advantage of all the features, you need to set client_capabilities.

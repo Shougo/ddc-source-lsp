@@ -78,6 +78,11 @@ export class Source extends BaseSource<Params> {
   ): Promise<DdcGatherItems<UserData>> {
     const denops = args.denops;
 
+    if (denops.meta.host === "nvim" && !await fn.has(denops, "nvim-0.11")) {
+      this.#printError(denops, "ddc-source-lsp requires Neovim 0.11+.");
+      return [];
+    }
+
     const lineOnRequest = await fn.getline(denops, ".");
     let isIncomplete = false;
     const cursorLine = (await fn.line(denops, ".")) - 1;
