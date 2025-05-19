@@ -2,6 +2,7 @@ local M = {}
 
 ---@class Client
 ---@field id number
+---@field name string
 ---@field provider table
 ---@field offsetEncoding string
 
@@ -16,6 +17,7 @@ function M.get_clients(bufnr)
     if provider then
       table.insert(clients, {
         id = client.id,
+        name = client.name,
         provider = provider,
         offsetEncoding = client.offset_encoding,
       })

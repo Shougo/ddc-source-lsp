@@ -7,6 +7,7 @@ import * as fn from "jsr:@denops/std@~7.5.0/function";
 
 export type Client = {
   id: number | string;
+  name: string;
   provider: Exclude<LSP.ServerCapabilities["completionProvider"], undefined>;
   offsetEncoding: OffsetEncoding;
 };
@@ -38,6 +39,7 @@ export async function getClients(
       }
       clients.push({
         id: server,
+        name: server,
         provider: serverCapabilities.completionProvider,
         offsetEncoding: serverCapabilities.positionEncoding as OffsetEncoding ??
           "utf-16",
@@ -51,11 +53,13 @@ export async function getClients(
       bufnr ?? await fn.bufnr(denops),
     ) as {
       id: number;
+      name: string;
       serverCapabilities: LSP.ServerCapabilities;
     }[])
       .filter((c) => c.serverCapabilities.completionProvider != null)
       .map((c): Client => ({
         id: c.id,
+        name: c.name,
         provider: c.serverCapabilities.completionProvider!,
         offsetEncoding:
           c.serverCapabilities.positionEncoding as OffsetEncoding ?? "utf-16",

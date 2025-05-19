@@ -55,6 +55,7 @@ export type Params = {
   enableResolveItem: boolean;
   enableAdditionalTextEdit: boolean;
   lspEngine: "nvim-lsp" | "vim-lsp" | "lspoints";
+  manualOnlyServers: string[];
   snippetEngine:
     | string // ID of denops#callback.
     | ((body: string) => Promise<void>);
@@ -87,11 +88,14 @@ export class Source extends BaseSource<Params> {
     let isIncomplete = false;
     const cursorLine = (await fn.line(denops, ".")) - 1;
 
-    const clients = await getClients(
+    const clients = (await getClients(
       denops,
       args.sourceParams.lspEngine,
       args.sourceParams.bufnr,
-    ).catch(() => []);
+    ).catch(() => [])).filter((client) =>
+      args.context.event === "Manual" ||
+      !args.sourceParams.manualOnlyServers.includes(client.name)
+    );
 
     const items = await Promise.all(clients.map(async (client) => {
       if (this.#item_cache[client.id]) {
@@ -376,6 +380,7 @@ export class Source extends BaseSource<Params> {
       enableMatchLabel: false,
       enableResolveItem: false,
       lspEngine: "nvim-lsp",
+      manualOnlyServers: [],
       snippetEngine: "",
       snippetIndicator: "~",
     };

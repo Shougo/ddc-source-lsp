@@ -152,6 +152,13 @@ lspEngine		(string)
 
 		Default: "nvim-lsp"
 
+                                      *ddc-source-lsp-param-manualOnlyServers*
+manualOnlyServers		(string[])
+		The LSP server names to use manual completion only.
+		It is useful if the server is very slow performance.
+
+		Default: []
+
                                           *ddc-source-lsp-param-snippetEngine*
 snippetEngine		(string | function)
 		The language server may return snippet as items, so work with
