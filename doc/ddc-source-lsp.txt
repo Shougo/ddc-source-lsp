@@ -63,6 +63,7 @@ To take advantage of all the features, you need to set client_capabilities.
 
 	call ddc#custom#patch_global('sourceOptions', #{
 	      \   lsp: #{
+	      \     isVolatile: v:true,
 	      \     mark: 'lsp',
 	      \     forceCompletionPattern: '\.\w*|:\w*|->\w*',
 	      \     sorters: ['sorter_lsp-kind'],

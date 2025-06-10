@@ -36,6 +36,7 @@ vim.lsp.config('*', {
 call ddc#custom#patch_global('sources', ['lsp'])
 call ddc#custom#patch_global('sourceOptions', #{
       \   lsp: #{
+      \     isVolatile: v:true,
       \     mark: 'lsp',
       \     forceCompletionPattern: '\.\w*|:\w*|->\w*',
       \   },
