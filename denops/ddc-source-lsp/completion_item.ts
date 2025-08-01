@@ -12,9 +12,9 @@ import createSelectText from "./select_text.ts";
 import { ConfirmBehavior, Params, UserData } from "../@ddc-sources/lsp.ts";
 import * as snippet from "./snippet.ts";
 
-import { type Item, type PumHighlight } from "jsr:@shougo/ddc-vim@~9.4.0/types";
+import { type Item, type PumHighlight } from "jsr:@shougo/ddc-vim@~9.5.0/types";
 
-import type { Denops } from "jsr:@denops/std@~7.5.0";
+import type { Denops } from "jsr:@denops/std@~7.6.0";
 
 export class CompletionItem {
   static Kind = {
@@ -212,7 +212,13 @@ export class CompletionItem {
     }
 
     const word = this.#getWord(lspItem);
-    if (enableMatchLabel && lspItem.label !== word) {
+
+    function extractPureLabel(label: string) {
+      // NOTE: LSP servers may add decorators in label
+      return label.replace(/^[•\s]+|[•\s]+$/g, "");
+    }
+
+    if (enableMatchLabel && !word.includes(extractPureLabel(lspItem.label))) {
       return;
     }
 

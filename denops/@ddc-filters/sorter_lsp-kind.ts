@@ -1,8 +1,8 @@
 import {
   BaseFilter,
   type FilterArguments,
-} from "jsr:@shougo/ddc-vim@~9.4.0/filter";
-import { type Item } from "jsr:@shougo/ddc-vim@~9.4.0/types";
+} from "jsr:@shougo/ddc-vim@~9.5.0/filter";
+import { type Item } from "jsr:@shougo/ddc-vim@~9.5.0/types";
 import { CompletionItem } from "../ddc-source-lsp/completion_item.ts";
 
 type LspKind = typeof CompletionItem.Kind[keyof typeof CompletionItem.Kind];

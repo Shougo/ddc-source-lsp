@@ -1,7 +1,7 @@
 import { byteLength } from "./completion_item.ts";
 
-import type { Denops } from "jsr:@denops/std@~7.5.0";
-import * as nvim from "jsr:@denops/std@~7.5.0/function/nvim";
+import type { Denops } from "jsr:@denops/std@~7.6.0";
+import * as nvim from "jsr:@denops/std@~7.6.0/function/nvim";
 
 import { assertEquals } from "jsr:@std/assert@~1.0.0/equals";
 
