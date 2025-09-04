@@ -1,0 +1,14 @@
+{
+  "name": "@shougo/ddc-filter-converter_kind_labels",
+  "exports": {
+    ".": "./main.ts"
+  },
+  "publish": {
+    "include": [
+      "**/*.ts"
+    ]
+  },
+  "imports": {
+    "@shougo/ddc-vim": "jsr:@shougo/ddc-vim@~10.0.0"
+  }
+}

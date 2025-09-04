@@ -66,7 +66,7 @@ To take advantage of all the features, you need to set client_capabilities.
 	      \     isVolatile: v:true,
 	      \     mark: 'lsp',
 	      \     forceCompletionPattern: '\.\w*|:\w*|->\w*',
-	      \     sorters: ['sorter_lsp-kind'],
+	      \     sorters: ['sorter_lsp_kind'],
 	      \   },
 	      \ })
 

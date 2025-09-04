@@ -1,9 +1,20 @@
 {
   "lock": false,
   "tasks": {
-    "pre-commit": "deno task fmt && deno task check && deno task test",
-    "test": "deno test -A",
+    "cache": "deno install --reload",
     "check": "deno check **/*.ts && deno fmt --check **/*.ts && deno lint && luacheck lua/*",
-    "fmt": "deno fmt **/*.ts && stylua lua/*"
-  }
+    "fmt": "deno fmt **/*.ts && stylua lua/*",
+    "lint": "deno lint denops",
+    "lint-fix": "deno lint --fix denops",
+    "pre-commit": "deno task fmt && deno task check && deno task test",
+    "test": "deno test -A --doc --parallel --shuffle denops/**/*.ts",
+    "test:publish": "deno publish --dry-run --allow-dirty --set-version 0.0.0",
+    "update": "deno outdated --recursive",
+    "upgrade": "deno outdated --recursive --update"
+  },
+  "workspace": [
+    "./denops/@ddc-filters/converter_kind_labels",
+    "./denops/@ddc-filters/sorter_lsp_kind",
+    "./denops/@ddc-sources/lsp"
+  ]
 }

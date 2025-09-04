@@ -5,16 +5,16 @@ import {
   LineContext,
   linePatch,
   LSP,
-  OffsetEncoding,
+  type OffsetEncoding,
   toUtf16Index,
 } from "./deps/lsp.ts";
 import createSelectText from "./select_text.ts";
-import { ConfirmBehavior, Params, UserData } from "../@ddc-sources/lsp.ts";
+import type { ConfirmBehavior, Params, UserData } from "./main.ts";
 import * as snippet from "./snippet.ts";
 
-import { type Item, type PumHighlight } from "jsr:@shougo/ddc-vim@~9.5.0/types";
+import type { Item, PumHighlight } from "@shougo/ddc-vim/types";
 
-import type { Denops } from "jsr:@denops/std@~7.6.0";
+import type { Denops } from "@denops/std";
 
 export class CompletionItem {
   static Kind = {

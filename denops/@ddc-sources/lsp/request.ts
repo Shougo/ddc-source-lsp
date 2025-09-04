@@ -1,15 +1,15 @@
 import { uriFromBufnr } from "./deps/lsp.ts";
 
-import { Params } from "../@ddc-sources/lsp.ts";
-import { Client } from "./client.ts";
+import type { Params } from "./main.ts";
+import type { Client } from "./client.ts";
 
-import type { Denops } from "jsr:@denops/std@~7.6.0";
-import * as fn from "jsr:@denops/std@~7.6.0/function";
-import { register } from "jsr:@denops/std@~7.6.0/lambda";
+import type { Denops } from "@denops/std";
+import * as fn from "@denops/std/function";
+import { register } from "@denops/std/lambda";
 
-import { deadline } from "jsr:@std/async@~1.0.0/deadline";
-import { ensure } from "jsr:@core/unknownutil@~4.3.0/ensure";
-import { is } from "jsr:@core/unknownutil@~4.3.0/is";
+import { deadline } from "@std/async/deadline";
+import { ensure } from "@core/unknownutil/ensure";
+import { is } from "@core/unknownutil/is";
 
 export async function request(
   denops: Denops,

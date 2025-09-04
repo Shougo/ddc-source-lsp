@@ -2,31 +2,27 @@ import {
   LineContext,
   LSP,
   makePositionParams,
-  OffsetEncoding,
+  type OffsetEncoding,
   parseSnippet,
-} from "../ddc-source-lsp/deps/lsp.ts";
-import { CompletionItem } from "../ddc-source-lsp/completion_item.ts";
-import { request } from "../ddc-source-lsp/request.ts";
-import { Client, getClients } from "../ddc-source-lsp/client.ts";
+} from "./deps/lsp.ts";
+import { CompletionItem } from "./completion_item.ts";
+import { request } from "./request.ts";
+import { type Client, getClients } from "./client.ts";
 
-import {
-  type DdcGatherItems,
-  type Item,
-  type Previewer,
-} from "jsr:@shougo/ddc-vim@~9.5.0/types";
+import type { DdcGatherItems, Item, Previewer } from "@shougo/ddc-vim/types";
 import {
   BaseSource,
   type GatherArguments,
   type GetPreviewerArguments,
   type OnCompleteDoneArguments,
-} from "jsr:@shougo/ddc-vim@~9.5.0/source";
+} from "@shougo/ddc-vim/source";
 
-import type { Denops } from "jsr:@denops/std@~7.6.0";
-import * as fn from "jsr:@denops/std@~7.6.0/function";
-import * as op from "jsr:@denops/std@~7.6.0/option";
+import type { Denops } from "@denops/std";
+import * as fn from "@denops/std/function";
+import * as op from "@denops/std/option";
 
-import { ensure } from "jsr:@core/unknownutil@~4.3.0/ensure";
-import { is } from "jsr:@core/unknownutil@~4.3.0/is";
+import { ensure } from "@core/unknownutil/ensure";
+import { is } from "@core/unknownutil/is";
 
 type Result = LSP.CompletionList | LSP.CompletionItem[];
 

@@ -1,6 +1,6 @@
 import createSelectText from "./select_text.ts";
 
-import { assertEquals } from "jsr:@std/assert@~1.0.0/equals";
+import { assertEquals } from "@std/assert/equals";
 
 Deno.test({
   name: "parse snippet",

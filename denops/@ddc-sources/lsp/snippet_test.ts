@@ -1,11 +1,11 @@
 import { assertBuffer, searchCursor } from "./test_util.ts";
 import { expand } from "./snippet.ts";
 
-import type { Denops } from "jsr:@denops/std@~7.6.0";
-import * as nvim from "jsr:@denops/std@~7.6.0/function/nvim";
-import * as op from "jsr:@denops/std@~7.6.0/option";
-import { test } from "jsr:@denops/test@~3.0.2";
-import { batch } from "jsr:@denops/std@~7.6.0/batch";
+import type { Denops } from "@denops/std";
+import * as nvim from "@denops/std/function/nvim";
+import * as op from "@denops/std/option";
+import { test } from "@denops/test";
+import { batch } from "@denops/std/batch";
 
 type Suite = {
   expandtab: boolean;

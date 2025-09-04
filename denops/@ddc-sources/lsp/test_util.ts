@@ -1,9 +1,9 @@
 import { byteLength } from "./completion_item.ts";
 
-import type { Denops } from "jsr:@denops/std@~7.6.0";
-import * as nvim from "jsr:@denops/std@~7.6.0/function/nvim";
+import type { Denops } from "@denops/std";
+import * as nvim from "@denops/std/function/nvim";
 
-import { assertEquals } from "jsr:@std/assert@~1.0.0/equals";
+import { assertEquals } from "@std/assert/equals";
 
 // (1,0)-index, byte
 export function searchCursor(

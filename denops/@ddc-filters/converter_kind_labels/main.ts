@@ -1,7 +1,7 @@
-import { byteLength } from "../ddc-source-lsp/completion_item.ts";
+import { byteLength } from "../../@ddc-sources/lsp/completion_item.ts";
 
-import { type Item } from "jsr:@shougo/ddc-vim@~9.5.0/types";
-import { BaseFilter } from "jsr:@shougo/ddc-vim@~9.5.0/filter";
+import type { Item } from "@shougo/ddc-vim/types";
+import { BaseFilter } from "@shougo/ddc-vim/filter";
 
 type Params = {
   kindLabels: Record<string, string>;
