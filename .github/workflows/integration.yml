@@ -1,7 +1,7 @@
 name: integration
 
 env:
-  DENO_VERSION: 1.x
+  DENO_VERSION: 2.x
 
 on:
   schedule:

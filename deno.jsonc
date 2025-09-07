@@ -13,8 +13,6 @@
     "upgrade": "deno outdated --recursive --update"
   },
   "workspace": [
-    "./denops/@ddc-filters/converter_kind_labels",
-    "./denops/@ddc-filters/sorter_lsp_kind",
     "./denops/@ddc-sources/lsp"
   ]
 }
