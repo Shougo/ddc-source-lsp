@@ -1,7 +1,8 @@
 {
   "name": "@shougo/ddc-source-lsp",
   "exports": {
-    ".": "./main.ts"
+    ".": "./main.ts",
+    "./completion_item": "./completion_item.ts"
   },
   "publish": {
     "include": [
