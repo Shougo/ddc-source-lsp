@@ -17,7 +17,7 @@ import type { Item, PumHighlight } from "@shougo/ddc-vim/types";
 import type { Denops } from "@denops/std";
 
 export class CompletionItem {
-  static Kind = {
+  static Kind: { [key: number]: string } = {
     1: "Text",
     2: "Method",
     3: "Function",
