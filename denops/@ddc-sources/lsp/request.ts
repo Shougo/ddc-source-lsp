@@ -27,7 +27,7 @@ export async function request(
           opts.client.id,
           method,
           params,
-          { timemout: opts.timeout, bufnr: opts.bufnr },
+          { timeout: opts.timeout, bufnr: opts.bufnr },
         ],
       );
     } else {
