@@ -1,19 +1,20 @@
 local M = {}
 
 ---@class Client
----@field id number
+---@field id integer
 ---@field name string
 ---@field provider table
 ---@field offsetEncoding string
 
----@param bufnr number?
+---@param bufnr integer?
 ---@return Client[]
 function M.get_clients(bufnr)
   local clients = {}
   ---@diagnostic disable-next-line: deprecated
   local get_clients = vim.lsp.get_clients or vim.lsp.get_active_clients
   for _, client in pairs(get_clients({ bufnr = bufnr or 0 })) do
-    local provider = client.server_capabilities.completionProvider
+    local provider = (client.server_capabilities
+                      and client.server_capabilities.completionProvider)
     if provider then
       table.insert(clients, {
         id = client.id,
@@ -45,10 +46,10 @@ local function normalize(tbl)
 end
 
 ---Doesn't block Nvim, but cannot be used in denops#request()
----@param clientId number
----@param method string
+---@param clientId integer
+---@param method vim.lsp.protocol.Method.ClientToServer.Request
 ---@param params table
----@param opts { plugin_name: string, lambda_id: string, bufnr: number? }
+---@param opts { plugin_name: string, lambda_id: string, bufnr: integer? }
 ---@return unknown?
 function M.request(clientId, method, params, opts)
   local client = vim.lsp.get_client_by_id(clientId)
@@ -62,10 +63,10 @@ function M.request(clientId, method, params, opts)
 end
 
 ---Blocks Nvim, but can be used in denops#request()
----@param clientId number
----@param method string
+---@param clientId integer
+---@param method vim.lsp.protocol.Method.ClientToServer.Request
 ---@param params table
----@param opts { timeout: number, bufnr: number? }
+---@param opts { timeout: integer, bufnr: integer? }
 ---@return unknown?
 function M.request_sync(clientId, method, params, opts)
   local client = vim.lsp.get_client_by_id(clientId)
@@ -78,11 +79,12 @@ function M.request_sync(clientId, method, params, opts)
   end
 end
 
----@param clientId number
+---@param clientId integer
 ---@param command lsp.Command
 function M.execute(clientId, command)
   local client = vim.lsp.get_client_by_id(clientId)
-  if client == nil or not client.server_capabilities.executeCommandProvider then
+  if (client == nil or client.server_capabilities == nil
+      or not client.server_capabilities.executeCommandProvider) then
     return
   end
   command.title = nil
