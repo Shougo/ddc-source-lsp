@@ -55,7 +55,7 @@ function M.request(clientId, method, params, opts)
   local client = vim.lsp.get_client_by_id(clientId)
   if client then
     client:request(method, normalize(params), function(err, result)
-      if err == nil and result then
+      if err == nil then
         vim.fn["denops#notify"](opts.plugin_name, opts.lambda_id, { result })
       end
     end, opts.bufnr or 0)
