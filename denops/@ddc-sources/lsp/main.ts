@@ -1,9 +1,9 @@
 import {
   LineContext,
   LSP,
-  makePositionParams,
   type OffsetEncoding,
   parseSnippet,
+  uriFromBufnr,
 } from "./deps/lsp.ts";
 import { CompletionItem } from "./completion_item.ts";
 import { request } from "./request.ts";
@@ -61,6 +61,36 @@ export type Params = {
 
 function isDefined<T>(x: T | undefined): x is T {
   return x !== undefined;
+}
+
+const _ENCODER = new TextEncoder();
+const _DECODER = new TextDecoder();
+
+/**
+ * Convert a UTF-8 byte offset within a line to the character offset expected
+ * by the LSP positionEncoding.  For "utf-16" (the common default) this counts
+ * UTF-16 code units; for "utf-8" it returns the byte offset unchanged; for
+ * "utf-32" it counts Unicode code points.
+ *
+ * Vim's col('.') returns a 1-indexed byte offset.  Callers should pass
+ * `col('.') - 1` (i.e. the 0-indexed byte offset) as `byteOffset`.
+ */
+export function byteOffsetToCharacter(
+  line: string,
+  byteOffset: number,
+  offsetEncoding: OffsetEncoding,
+): number {
+  if (offsetEncoding === "utf-8") {
+    return byteOffset;
+  }
+  const bytes = _ENCODER.encode(line);
+  const prefix = _DECODER.decode(bytes.slice(0, byteOffset));
+  if (offsetEncoding === "utf-32") {
+    // Count Unicode code points (spreads surrogate pairs into single entries)
+    return [...prefix].length;
+  }
+  // "utf-16": JavaScript string .length equals the number of UTF-16 code units
+  return prefix.length;
 }
 
 function splitLines(str: string): string[] {
@@ -152,12 +182,20 @@ export class Source extends BaseSource<Params> {
     client: Client,
     args: GatherArguments<Params>,
   ): Promise<Result | undefined> {
-    const params = await makePositionParams(
-      denops,
-      args.sourceParams.bufnr,
-      undefined,
+    const bufnr = args.sourceParams.bufnr ?? await fn.bufnr(denops);
+    const uri = await uriFromBufnr(denops, bufnr);
+    const cursorLine = (await fn.line(denops, ".")) - 1; // 0-indexed
+    const lineText = await fn.getline(denops, ".");
+    const byteCol = (await fn.col(denops, ".")) - 1; // 0-indexed byte offset
+    const character = byteOffsetToCharacter(
+      lineText,
+      byteCol,
       client.offsetEncoding,
-    ) as LSP.CompletionParams;
+    );
+    const params: LSP.CompletionParams = {
+      textDocument: { uri },
+      position: { line: cursorLine, character },
+    };
     const trigger = args.context.input.slice(-1);
     if (client.provider.triggerCharacters?.includes(trigger)) {
       params.context = {
