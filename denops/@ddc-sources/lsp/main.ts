@@ -9,7 +9,7 @@ import { CompletionItem } from "./completion_item.ts";
 import { request } from "./request.ts";
 import { type Client, getClients } from "./client.ts";
 
-import type { DdcGatherItems, Item, Previewer } from "@shougo/ddc-vim/types";
+import type { DdcGatherItems, Previewer } from "@shougo/ddc-vim/types";
 import {
   BaseSource,
   type GatherArguments,
@@ -98,8 +98,6 @@ function splitLines(str: string): string[] {
 }
 
 export class Source extends BaseSource<Params> {
-  #item_cache: Record<Client["id"], Item<UserData>[]> = {};
-
   override async gather(
     args: GatherArguments<Params>,
   ): Promise<DdcGatherItems<UserData>> {
@@ -124,10 +122,6 @@ export class Source extends BaseSource<Params> {
     );
 
     const items = await Promise.all(clients.map(async (client) => {
-      if (this.#item_cache[client.id]) {
-        return this.#item_cache[client.id];
-      }
-
       const result = await this.#request(denops, client, args);
       if (!result) {
         return [];
@@ -155,9 +149,6 @@ export class Source extends BaseSource<Params> {
           args.sourceParams.enableMatchLabel,
         )
       ).filter(isDefined);
-      if (!completionList.isIncomplete) {
-        this.#item_cache[client.id] = items;
-      }
       isIncomplete = isIncomplete || completionList.isIncomplete;
 
       return items;
@@ -166,10 +157,6 @@ export class Source extends BaseSource<Params> {
         this.#printError(denops, e);
         return [];
       });
-
-    if (!isIncomplete) {
-      this.#item_cache = {};
-    }
 
     return {
       items,
