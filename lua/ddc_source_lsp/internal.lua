@@ -32,15 +32,23 @@ end
 ---@param tbl table
 ---@return table
 local function normalize(tbl)
+  if type(tbl) ~= "table" then
+    return tbl
+  end
+
+  local to_delete = {}
   for key, value in pairs(tbl) do
     local key_t = type(key)
     if key_t == "string" or key_t == "number" then
       if type(value) == "table" then
-        normalize(value)
+        tbl[key] = normalize(value)
       end
     else
-      tbl[key] = nil
+      table.insert(to_delete, key)
     end
+  end
+  for _, k in ipairs(to_delete) do
+    tbl[k] = nil
   end
   return tbl
 end
@@ -52,14 +60,20 @@ end
 ---@param opts { plugin_name: string, lambda_id: string, bufnr: integer? }
 ---@return unknown?
 function M.request(clientId, method, params, opts)
+  opts = opts or {}
   local client = vim.lsp.get_client_by_id(clientId)
-  if client then
-    client:request(method, normalize(params), function(err, result)
-      if err == nil then
-        vim.fn["denops#notify"](opts.plugin_name, opts.lambda_id, { result })
-      end
-    end, opts.bufnr or 0)
+  if not client then
+    return
   end
+  client:request(method, normalize(params), function(err, result)
+    if err == nil then
+      pcall(function()
+        vim.fn["denops#notify"](opts.plugin_name, opts.lambda_id, { result })
+      end)
+    else
+      vim.notify(("ddc_source_lsp: request error: %s"):format(tostring(err)), vim.log.levels.DEBUG)
+    end
+  end, opts.bufnr or 0)
 end
 
 ---Blocks Nvim, but can be used in denops#request()
@@ -69,13 +83,15 @@ end
 ---@param opts { timeout: integer, bufnr: integer? }
 ---@return unknown?
 function M.request_sync(clientId, method, params, opts)
+  opts = opts or {}
   local client = vim.lsp.get_client_by_id(clientId)
-  if client then
-    local resp = client:request_sync(
-        method, normalize(params), opts.timeout, opts.bufnr or 0)
-    if resp and resp.err == nil and resp.result then
-      return resp.result
-    end
+  if not client then
+    return
+  end
+  local resp = client:request_sync(
+      method, normalize(params), opts.timeout, opts.bufnr or 0)
+  if resp and resp.err == nil and resp.result then
+    return resp.result
   end
 end
 
@@ -87,8 +103,13 @@ function M.execute(clientId, command)
       or not client.server_capabilities.executeCommandProvider) then
     return
   end
-  command.title = nil
-  client:request("workspace/executeCommand", command, nil, 0)
+
+  local params = {
+    command = command and command.command or nil,
+    arguments = command and command.arguments or nil,
+  }
+
+  client:request("workspace/executeCommand", params, nil, 0)
 end
 
 return M
