@@ -29,8 +29,8 @@ jobs:
   #check:
   #  runs-on: ubuntu-latest
   #  steps:
-  #    - uses: actions/checkout@v4
-  #    - uses: denoland/setup-deno@v1
+  #    - uses: actions/checkout@v6
+  #    - uses: denoland/setup-deno@v2
   #      with:
   #        deno-version: ${{ env.DENO_VERSION }}
   #    - uses: leafo/gh-actions-lua@v10
@@ -44,14 +44,14 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           path: "./repo"
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           repository: "vim-denops/denops.vim"
           path: "./denops.vim"
-      - uses: denoland/setup-deno@v1
+      - uses: denoland/setup-deno@v2
         with:
           deno-version: ${{ env.DENO_VERSION }}
       - uses: rhysd/action-setup-vim@v1
