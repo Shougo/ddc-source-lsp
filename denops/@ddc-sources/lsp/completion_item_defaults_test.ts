@@ -34,7 +34,13 @@ Deno.test("toDdcItem does not mutate original completion item on defaults fill",
   const userDataItem = JSON.parse(
     ddcItem.user_data!.lspitem,
   ) as LSP.CompletionItem;
-  assertEquals(userDataItem.textEdit?.newText, "foo");
-  assertEquals(userDataItem.textEdit?.range.start.character, 0);
-  assertEquals(userDataItem.textEdit?.range.end.character, 2);
+  assertExists(userDataItem.textEdit);
+  assertEquals(userDataItem.textEdit.newText, "foo");
+  if ("range" in userDataItem.textEdit) {
+    assertEquals(userDataItem.textEdit.range.start.character, 0);
+    assertEquals(userDataItem.textEdit.range.end.character, 2);
+  } else {
+    assertEquals(userDataItem.textEdit.insert.start.character, 0);
+    assertEquals(userDataItem.textEdit.insert.end.character, 2);
+  }
 });

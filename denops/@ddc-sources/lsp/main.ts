@@ -205,7 +205,7 @@ export class Source extends BaseSource<Params> {
     params.context = createCompletionContext(
       client.provider.triggerCharacters,
       trigger,
-      args.isIncomplete,
+      args.isIncomplete ?? false,
     );
 
     try {
