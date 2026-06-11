@@ -97,6 +97,24 @@ function splitLines(str: string): string[] {
   return str.replaceAll(/\r\n?/g, "\n").split("\n");
 }
 
+function createCompletionContext(
+  triggerCharacters: string[] | undefined,
+  trigger: string,
+  isIncomplete: boolean,
+): LSP.CompletionContext {
+  if (triggerCharacters?.includes(trigger)) {
+    return {
+      triggerKind: LSP.CompletionTriggerKind.TriggerCharacter,
+      triggerCharacter: trigger,
+    };
+  }
+  return {
+    triggerKind: isIncomplete
+      ? LSP.CompletionTriggerKind.TriggerForIncompleteCompletions
+      : LSP.CompletionTriggerKind.Invoked,
+  };
+}
+
 export class Source extends BaseSource<Params> {
   override async gather(
     args: GatherArguments<Params>,
@@ -184,18 +202,11 @@ export class Source extends BaseSource<Params> {
       position: { line: cursorLine, character },
     };
     const trigger = args.context.input.slice(-1);
-    if (client.provider.triggerCharacters?.includes(trigger)) {
-      params.context = {
-        triggerKind: LSP.CompletionTriggerKind.TriggerCharacter,
-        triggerCharacter: trigger,
-      };
-    } else {
-      params.context = {
-        triggerKind: args.isIncomplete
-          ? LSP.CompletionTriggerKind.TriggerForIncompleteCompletions
-          : LSP.CompletionTriggerKind.Invoked,
-      };
-    }
+    params.context = createCompletionContext(
+      client.provider.triggerCharacters,
+      trigger,
+      args.isIncomplete,
+    );
 
     try {
       return await request(
@@ -211,9 +222,16 @@ export class Source extends BaseSource<Params> {
         },
       ) as Result;
     } catch (e) {
-      if (!(e instanceof DOMException)) {
-        throw e;
+      if (e instanceof DOMException) {
+        return;
       }
+      await this.#printError(
+        denops,
+        `completion request failed: client=${client.name}(${client.id}), error=${
+          e instanceof Error ? e.message : String(e)
+        }`,
+      );
+      throw e;
     }
   }
 
@@ -251,32 +269,45 @@ export class Source extends BaseSource<Params> {
       )
       : unresolvedItem;
 
-    // If item.word is sufficient, do not confirm()
     if (
-      CompletionItem.getInsertText(lspItem) !== itemWord ||
-      (params.enableAdditionalTextEdit &&
-        lspItem.additionalTextEdits) ||
+      !this.#shouldConfirm(lspItem, unresolvedItem, itemWord, params, userData)
+    ) {
+      return;
+    }
+
+    // Set undo point
+    // :h undo-break
+    await denops.cmd(`let &undolevels = &undolevels`);
+
+    await CompletionItem.confirm(
+      denops,
+      lspItem,
+      unresolvedItem,
+      userData,
+      params,
+    );
+
+    await denops.call("ddc#skip_next_complete");
+  }
+
+  #shouldConfirm(
+    lspItem: LSP.CompletionItem,
+    unresolvedItem: LSP.CompletionItem,
+    itemWord: string,
+    params: Params,
+    userData: UserData,
+  ): boolean {
+    const hasAdditionalTextEdits = params.enableAdditionalTextEdit &&
+      ((unresolvedItem.additionalTextEdits?.length ?? 0) > 0 ||
+        (lspItem.additionalTextEdits?.length ?? 0) > 0);
+    return CompletionItem.getInsertText(lspItem) !== itemWord ||
+      hasAdditionalTextEdits ||
       CompletionItem.isReplace(
         lspItem,
         params.confirmBehavior,
         userData.suggestCharacter,
         userData.requestCharacter,
-      )
-    ) {
-      // Set undo point
-      // :h undo-break
-      await denops.cmd(`let &undolevels = &undolevels`);
-
-      await CompletionItem.confirm(
-        denops,
-        lspItem,
-        unresolvedItem,
-        userData,
-        params,
       );
-
-      await denops.call("ddc#skip_next_complete");
-    }
   }
 
   async #resolve(
@@ -304,7 +335,13 @@ export class Source extends BaseSource<Params> {
         is.ObjectOf({ label: is.String }),
       );
       return result as LSP.CompletionItem;
-    } catch {
+    } catch (e) {
+      await this.#printError(
+        denops,
+        `resolve failed: client=${client.name}(${client.id}), error=${
+          e instanceof Error ? e.message : String(e)
+        }`,
+      );
       return lspItem;
     }
   }
@@ -327,59 +364,91 @@ export class Source extends BaseSource<Params> {
       params.bufnr,
     );
     const filetype = await op.filetype.get(denops);
+    const snippetPreview = this.#getSnippetPreview(lspItem, filetype);
+    if (snippetPreview) {
+      return snippetPreview;
+    }
+
     const contents: string[] = [];
+    this.#appendDetail(contents, lspItem, filetype);
+    this.#appendImportFrom(contents, unresolvedItem);
+    this.#appendDocumentation(contents, lspItem);
 
-    // snippet
-    if (lspItem.kind === 15) {
-      const insertText = CompletionItem.getInsertText(lspItem);
-      const body = parseSnippet(insertText);
-      return {
-        kind: "markdown",
-        contents: [
-          "```" + filetype,
-          ...body.replaceAll(/\r\n?/g, "\n").split("\n"),
-          "```",
-        ],
-      };
+    return { kind: "markdown", contents };
+  }
+
+  #getSnippetPreview(
+    lspItem: LSP.CompletionItem,
+    filetype: string,
+  ): Previewer | undefined {
+    if (lspItem.kind !== 15) {
+      return;
     }
-
-    // detail
-    if (lspItem.detail) {
-      contents.push(
+    const insertText = CompletionItem.getInsertText(lspItem);
+    const body = parseSnippet(insertText);
+    return {
+      kind: "markdown",
+      contents: [
         "```" + filetype,
-        ...splitLines(lspItem.detail),
+        ...splitLines(body),
         "```",
-      );
-    }
+      ],
+    };
+  }
 
-    // import from (denols)
+  #appendDetail(
+    contents: string[],
+    lspItem: LSP.CompletionItem,
+    filetype: string,
+  ): void {
+    if (!lspItem.detail) {
+      return;
+    }
+    contents.push(
+      "```" + filetype,
+      ...splitLines(lspItem.detail),
+      "```",
+    );
+  }
+
+  #appendImportFrom(
+    contents: string[],
+    unresolvedItem: LSP.CompletionItem,
+  ): void {
     if (
-      is.ObjectOf({
+      !is.ObjectOf({
         tsc: is.ObjectOf({
           source: is.String,
         }),
       })(unresolvedItem.data)
     ) {
-      if (contents.length > 0) {
-        contents.push("---");
-      }
-      contents.push(`import from \`${unresolvedItem.data.tsc.source}\``);
+      return;
     }
+    if (contents.length > 0) {
+      contents.push("---");
+    }
+    contents.push(`import from \`${unresolvedItem.data.tsc.source}\``);
+  }
 
-    // documentation
+  #appendDocumentation(
+    contents: string[],
+    lspItem: LSP.CompletionItem,
+  ): void {
+    const documentation = lspItem.documentation;
     if (
-      (typeof lspItem.documentation === "string" &&
-        lspItem.documentation.length > 0) ||
-      (typeof lspItem.documentation === "object" &&
-        lspItem.documentation.value.length > 0)
+      !(typeof documentation === "string" && documentation.length > 0) &&
+      !(
+        typeof documentation === "object" &&
+        documentation !== null &&
+        documentation.value.length > 0
+      )
     ) {
-      if (contents.length > 0) {
-        contents.push("---");
-      }
-      contents.push(...this.converter(lspItem.documentation));
+      return;
     }
-
-    return { kind: "markdown", contents };
+    if (contents.length > 0) {
+      contents.push("---");
+    }
+    contents.push(...this.converter(documentation));
   }
 
   converter(doc: string | LSP.MarkupContent): string[] {

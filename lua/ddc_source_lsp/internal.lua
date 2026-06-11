@@ -36,21 +36,26 @@ local function normalize(tbl)
     return tbl
   end
 
-  local to_delete = {}
+  local normalized = {}
   for key, value in pairs(tbl) do
     local key_t = type(key)
     if key_t == "string" or key_t == "number" then
-      if type(value) == "table" then
-        tbl[key] = normalize(value)
-      end
-    else
-      table.insert(to_delete, key)
+      normalized[key] = normalize(value)
     end
   end
-  for _, k in ipairs(to_delete) do
-    tbl[k] = nil
-  end
-  return tbl
+  return normalized
+end
+
+---@param method string
+---@param err unknown
+local function notify_request_error(method, err)
+  vim.notify(
+    ("ddc_source_lsp: request error (%s): %s"):format(
+      method,
+      tostring(err)
+    ),
+    vim.log.levels.DEBUG
+  )
 end
 
 ---Doesn't block Nvim, but cannot be used in denops#request()
@@ -71,7 +76,7 @@ function M.request(clientId, method, params, opts)
         vim.fn["denops#notify"](opts.plugin_name, opts.lambda_id, { result })
       end)
     else
-      vim.notify(("ddc_source_lsp: request error: %s"):format(tostring(err)), vim.log.levels.DEBUG)
+      notify_request_error(method, err)
     end
   end, opts.bufnr or 0)
 end
@@ -92,6 +97,9 @@ function M.request_sync(clientId, method, params, opts)
       method, normalize(params), opts.timeout, opts.bufnr or 0)
   if resp and resp.err == nil and resp.result then
     return resp.result
+  end
+  if resp and resp.err ~= nil then
+    notify_request_error(method, resp.err)
   end
 end
 
