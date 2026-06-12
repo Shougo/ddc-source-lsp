@@ -16,6 +16,9 @@ import type { Item, PumHighlight } from "@shougo/ddc-vim/types";
 
 import type { Denops } from "@denops/std";
 
+type ItemDefaults = NonNullable<LSP.CompletionList["itemDefaults"]>;
+type EditRange = ItemDefaults["editRange"];
+
 export class CompletionItem {
   static Kind: { [key: number]: string } = {
     1: "Text",
@@ -92,8 +95,47 @@ export class CompletionItem {
     userData: UserData,
     params: Params,
   ): Promise<void> {
-    // Restore the requested state
-    let ctx = await LineContext.create(denops);
+    await this.#restoreRequestedState(denops, userData);
+
+    const ctx = await LineContext.create(denops);
+    const [before, after] = this.#getConfirmPatchRange(
+      lspItem,
+      params.confirmBehavior,
+      ctx.character,
+      userData.suggestCharacter,
+    );
+
+    await this.#applySyncAdditionalTextEdits(
+      denops,
+      unresolvedItem,
+      userData.offsetEncoding,
+      params.enableAdditionalTextEdit,
+    );
+
+    await this.#expandMainPart(
+      denops,
+      lspItem,
+      params.snippetEngine,
+      before,
+      after,
+    );
+
+    await this.#applyAsyncAdditionalTextEdits(
+      denops,
+      lspItem,
+      unresolvedItem,
+      userData.offsetEncoding,
+      params.enableResolveItem,
+    );
+
+    await this.#executeCommand(denops, userData.clientId, lspItem.command);
+  }
+
+  static async #restoreRequestedState(
+    denops: Denops,
+    userData: UserData,
+  ): Promise<void> {
+    const ctx = await LineContext.create(denops);
     await linePatch(
       denops,
       ctx.character - userData.suggestCharacter,
@@ -103,42 +145,64 @@ export class CompletionItem {
         userData.requestCharacter,
       ),
     );
+  }
 
-    ctx = await LineContext.create(denops);
-    let before: number, after: number;
+  static #getConfirmPatchRange(
+    lspItem: LSP.CompletionItem,
+    confirmBehavior: ConfirmBehavior,
+    character: number,
+    suggestCharacter: number,
+  ): [number, number] {
     if (!lspItem.textEdit) {
-      before = ctx.character - userData.suggestCharacter;
-      after = 0;
-    } else {
-      const range = "range" in lspItem.textEdit
-        ? lspItem.textEdit.range
-        : lspItem.textEdit[params.confirmBehavior];
-      before = ctx.character - range.start.character;
-      after = range.end.character - ctx.character;
+      return [character - suggestCharacter, 0];
     }
+    const range = "range" in lspItem.textEdit
+      ? lspItem.textEdit.range
+      : lspItem.textEdit[confirmBehavior];
+    return [character - range.start.character, range.end.character - character];
+  }
 
-    // Apply sync additionalTextEdits
-    if (params.enableAdditionalTextEdit && unresolvedItem.additionalTextEdits) {
+  static async #applySyncAdditionalTextEdits(
+    denops: Denops,
+    unresolvedItem: LSP.CompletionItem,
+    offsetEncoding: OffsetEncoding,
+    enableAdditionalTextEdit: boolean,
+  ): Promise<void> {
+    if (enableAdditionalTextEdit && unresolvedItem.additionalTextEdits) {
       await applyTextEdits(
         denops,
         0,
         unresolvedItem.additionalTextEdits,
-        userData.offsetEncoding,
+        offsetEncoding,
       );
     }
+  }
 
-    // Expand main part
+  static async #expandMainPart(
+    denops: Denops,
+    lspItem: LSP.CompletionItem,
+    snippetEngine: Params["snippetEngine"],
+    before: number,
+    after: number,
+  ): Promise<void> {
     const insertText = this.getInsertText(lspItem);
     if (this.isSnippet(lspItem)) {
       await linePatch(denops, before, after, "");
-      await snippet.expand(denops, insertText, params.snippetEngine);
+      await snippet.expand(denops, insertText, snippetEngine);
     } else {
       await linePatch(denops, before, after, insertText);
     }
+  }
 
-    // Apply async additionalTextEdits
+  static async #applyAsyncAdditionalTextEdits(
+    denops: Denops,
+    lspItem: LSP.CompletionItem,
+    unresolvedItem: LSP.CompletionItem,
+    offsetEncoding: OffsetEncoding,
+    enableResolveItem: boolean,
+  ): Promise<void> {
     if (
-      params.enableResolveItem &&
+      enableResolveItem &&
       (!unresolvedItem.additionalTextEdits ||
         unresolvedItem.additionalTextEdits.length === 0) &&
       lspItem.additionalTextEdits
@@ -153,17 +217,22 @@ export class CompletionItem {
           denops,
           0,
           lspItem.additionalTextEdits,
-          userData.offsetEncoding,
+          offsetEncoding,
         );
       }
     }
+  }
 
-    // Execute command
-    if (lspItem.command) {
+  static async #executeCommand(
+    denops: Denops,
+    clientId: number | string,
+    command: LSP.Command | undefined,
+  ): Promise<void> {
+    if (command) {
       await denops.call(
         "luaeval",
         `require("ddc_source_lsp.internal").execute(_A[1], _A[2])`,
-        [userData.clientId, lspItem.command],
+        [clientId, command],
       );
     }
   }
@@ -250,27 +319,41 @@ export class CompletionItem {
       return lspItem;
     }
 
-    if (defaults.editRange && !lspItem.textEdit) {
-      if ("insert" in defaults.editRange) {
-        lspItem.textEdit = {
-          ...defaults.editRange,
-          newText: lspItem.textEditText ?? lspItem.label,
-        };
-      } else {
-        lspItem.textEdit = {
-          range: defaults.editRange,
-          newText: lspItem.textEditText ?? lspItem.label,
-        };
-      }
-    }
-
+    const textEdit = this.#fillTextEditFromDefaults(
+      lspItem,
+      defaults.editRange,
+    );
     const filledItem = {
       ...defaults,
       ...lspItem,
+      ...(textEdit ? { textEdit } : {}),
     };
     delete filledItem.editRange;
 
     return filledItem;
+  }
+
+  #fillTextEditFromDefaults(
+    lspItem: LSP.CompletionItem,
+    editRange?: EditRange,
+  ): LSP.CompletionItem["textEdit"] {
+    if (lspItem.textEdit) {
+      return lspItem.textEdit;
+    }
+    if (!editRange) {
+      return;
+    }
+
+    if ("insert" in editRange) {
+      return {
+        ...editRange,
+        newText: lspItem.textEditText ?? lspItem.label,
+      };
+    }
+    return {
+      range: editRange,
+      newText: lspItem.textEditText ?? lspItem.label,
+    };
   }
 
   #getWord(
