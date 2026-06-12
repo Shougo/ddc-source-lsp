@@ -338,9 +338,9 @@ export class Source extends BaseSource<Params> {
     } catch (e) {
       await this.#printError(
         denops,
-        `resolve failed: client=${client.name}(${client.id}), error=${
-          e instanceof Error ? e.message : String(e)
-        }`,
+        `resolve failed: client=${
+          client?.name ?? String(clientId)
+        }(${clientId}), error=${e instanceof Error ? e.message : String(e)}`,
       );
       return lspItem;
     }
@@ -440,7 +440,7 @@ export class Source extends BaseSource<Params> {
       !(
         typeof documentation === "object" &&
         documentation !== null &&
-        documentation.value.length > 0
+        (documentation?.value?.length ?? 0) > 0
       )
     ) {
       return;
