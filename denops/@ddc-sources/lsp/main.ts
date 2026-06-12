@@ -435,16 +435,18 @@ export class Source extends BaseSource<Params> {
     lspItem: LSP.CompletionItem,
   ): void {
     const documentation = lspItem.documentation;
-    if (
-      !(typeof documentation === "string" && documentation.length > 0) &&
-      !(
+    const hasDocumentation =
+      (typeof documentation === "string" && documentation.length > 0) ||
+      (
         typeof documentation === "object" &&
         documentation !== null &&
-        (documentation?.value?.length ?? 0) > 0
-      )
-    ) {
+        (documentation.value?.length ?? 0) > 0
+      );
+
+    if (!hasDocumentation) {
       return;
     }
+
     if (contents.length > 0) {
       contents.push("---");
     }
