@@ -319,10 +319,10 @@ export class CompletionItem {
       return lspItem;
     }
 
+    const { editRange, ...restDefaults } = defaults;
     const textEdit = lspItem.textEdit ??
-      this.#fillTextEditFromDefaults(lspItem, defaults.editRange);
+      this.#fillTextEditFromDefaults(lspItem, editRange);
 
-    const { editRange: _editRange, ...restDefaults } = defaults;
     return {
       ...restDefaults,
       ...lspItem,
