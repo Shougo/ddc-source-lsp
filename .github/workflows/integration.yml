@@ -23,6 +23,9 @@ on:
       - "**/*.vim"
       - ".github/workflows/integration.yml"
 
+permissions:
+  contents: read
+
 jobs:
   # It does not work currently.
   # https://github.com/leafo/gh-actions-lua/issues/47
@@ -46,9 +49,11 @@ jobs:
     steps:
       - uses: actions/checkout@v6.1.0
         with:
+          persist-credentials: false
           path: "./repo"
       - uses: actions/checkout@v6.1.0
         with:
+          persist-credentials: false
           repository: "vim-denops/denops.vim"
           path: "./denops.vim"
       - uses: denoland/setup-deno@v2.0.5
